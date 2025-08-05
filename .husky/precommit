@@ -1,0 +1,15 @@
+echo "🔍 Running pre-commit checks..."
+
+# Run ESLint for linting errors
+echo "📋 Checking code quality..."
+npm run lint || { echo "❌ Linting failed! Fix the errors before committing."; exit 1; }
+
+# Run Prettier to format code
+echo "🎨 Checking code formatting..."
+npm run format || { echo "❌ Formatting failed! Fix the errors before committing."; exit 1; }
+
+# Run Unit Tests (if Jest is set up)
+echo "🧪 Running tests..."
+npm run test:unit || { echo "❌ Tests failed! Fix them before committing."; exit 1; }
+
+echo "✅ All pre-commit checks passed! Proceeding with commit..."
