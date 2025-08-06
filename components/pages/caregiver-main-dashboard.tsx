@@ -12,7 +12,7 @@ import {
 import { formatDate } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 
-import { Message } from "../shared/message-widget";
+// import { Message } from "../shared/message-widget";
 import { CaregiverAppointmentWidget } from "../shared/widget/caregiver-appointment-widget";
 import { Button } from "../ui/button";
 import {
