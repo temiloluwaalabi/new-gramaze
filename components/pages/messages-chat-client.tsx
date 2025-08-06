@@ -11,8 +11,8 @@ import {
   searchUsers as searchUsersAction,
   fetchConversations as fetchConversationsAction,
 } from "@/app/actions/services/chats.actions";
-
 import type { ChatUser, Message as ChatMessage } from "@/types";
+
 import MessageSidebar from "../shared/layout/message-sidebar";
 import MessageThread from "../shared/layout/message-thread";
 
@@ -39,7 +39,7 @@ export default function MessagesChatClient({
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [loadingConvos, setLoadingConvos] = React.useState(false);
   const [loadingMessages, setLoadingMessages] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [, setError] = React.useState<string | null>(null);
 
   const currentUserId = session?.userId ? String(session.userId) : "me";
 
@@ -62,9 +62,10 @@ export default function MessagesChatClient({
         } else {
           setMessages([]);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Failed to load messages", err);
-        setError(err?.message ?? "Failed to load messages");
+        const message = err instanceof Error ? err.message : String(err ?? "Failed to load messages");
+        setError(message);
       } finally {
         setLoadingMessages(false);
       }
@@ -99,11 +100,11 @@ export default function MessagesChatClient({
     try {
       // server action expects SendMessagePayload shape — your action maps and posts to backend
       await sendMessageAction({
-        // your SendMessagePayload type was updated to include senderId/receiverId
         senderId: currentUserId,
         receiverId,
         message: messageText,
-      } as any);
+      } as Parameters<typeof sendMessageAction>[0]);
+
 
       // refresh
       const refreshed = await fetchMessagesAction(receiverId);
