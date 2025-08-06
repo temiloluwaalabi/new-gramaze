@@ -19,7 +19,8 @@ export default function DashboardHeader(props: Props) {
   return (
     <div className="flex h-auto min-h-[64px] w-full items-center justify-between border-b border-[#E8E8E8] bg-white p-4 md:h-[84px] md:p-6">
       <div className="flex w-full items-center gap-1">
-        <SidebarTrigger className="hidden cursor-pointer group-data-[collapsible=icon]:w-full" />
+        {/* <SidebarTrigger className="hidden cursor-pointer group-data-[collapsible=icon]:w-full" /> */}
+        <SidebarTrigger className="mr-2 flex md:hidden cursor-pointer shrink-0" />
 
         {props.isCare ? (
           isMobile ? (
