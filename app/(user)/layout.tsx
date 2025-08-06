@@ -4,9 +4,9 @@ import React from "react";
 import DashboardHeader from "@/components/shared/layout/dashboard-header";
 import UserDashboardSidebar from "@/components/shared/layout/user-dashboard-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { ThemeProvider } from "@/providers/theme-provider";
+// import { ThemeProvider } from "@/providers/theme-provider";
 
-const UserDashboardLayout = async ({
+const UserDashboardLayout = async ({ 
   children,
 }: {
   children: React.ReactNode;
@@ -16,11 +16,11 @@ const UserDashboardLayout = async ({
   const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      disableTransitionOnChange
-    >
+    // <ThemeProvider
+    //   attribute="class"
+    //   defaultTheme="light"
+    //   disableTransitionOnChange
+    // >
       <SidebarProvider defaultOpen={defaultOpen}>
         <UserDashboardSidebar />
         <SidebarInset className="w-full">
@@ -28,7 +28,7 @@ const UserDashboardLayout = async ({
           <main className="relative !size-full bg-white">{children}</main>
         </SidebarInset>
       </SidebarProvider>
-    </ThemeProvider>
+    // </ThemeProvider>
   );
 };
 
