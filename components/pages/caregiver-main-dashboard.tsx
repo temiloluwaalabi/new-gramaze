@@ -6,7 +6,7 @@ import React from "react";
 
 import {
   caregiverAppointmentData,
-  chatMessagesData,
+  // chatMessagesData,
   patientData,
 } from "@/config/constants";
 import { formatDate } from "@/lib/utils";
