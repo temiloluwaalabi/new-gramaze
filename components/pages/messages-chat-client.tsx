@@ -3,9 +3,11 @@
 
 import * as React from "react";
 import { startTransition } from "react";
+
 import { searchUsers, fetchConversations } from "@/app/actions/services/chats.actions"; // server actions
 import { chatServices } from "@/lib/api/api"; // client usage for fetchMessages/send/mark read
 import type { ChatUser, Message as ChatMessage } from "@/types";
+
 import MessageSidebar from "../shared/layout/message-sidebar";
 import MessageThread from "../shared/layout/message-thread";
 
@@ -25,7 +27,7 @@ export default function MessagesChatClient({
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [loadingConvos, setLoadingConvos] = React.useState(false);
   const [loadingMessages, setLoadingMessages] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [, setError] = React.useState<string | null>(null);
 
   // Load messages when a conversation is selected (client-side)
   React.useEffect(() => {

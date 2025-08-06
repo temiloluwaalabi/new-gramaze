@@ -1,7 +1,8 @@
 
 import React from "react";
-import { getSession } from "@/app/actions/session.actions";
+
 import { fetchChatList as fetchChatListAction } from "@/app/actions/services/chats.actions";
+import { getSession } from "@/app/actions/session.actions";
 import MessagesChatClient from "@/components/pages/messages-chat-client";
 
 export default async function MessagesChatPage() {

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 "use client";
 import { Calendar as CalendarIcon, List } from "lucide-react";
 import Image from "next/image";
@@ -16,7 +16,7 @@ import { useUserStore } from "@/store/user-store";
 import { Appointment, User } from "@/types";
 
 import { HealthVitalsChart } from "../charts/health-vitals-chart";
-import { Message } from "../shared/message-widget";
+// import { Message } from "../shared/message-widget";
 import { DbAppointmentSheet } from "../sheets/db-appointment-sheet";
 import { AppointmentStatus } from "../table/columns/appointment-columns";
 import { Avatar, AvatarImage } from "../ui/avatar";
