@@ -10,7 +10,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
+  SidebarMenuItem, 
   SidebarRail,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
@@ -31,19 +31,24 @@ export default function UserDashboardSidebar({
       collapsible="icon"
       className="!border-r !border-[#E8E8E8] !bg-white p-4"
     >
-      <SidebarHeader className="group-data-[collapsible=icon]:!p-0">
-        <SidebarMenu className="flex items-center justify-center">
-          <SidebarMenuButton asChild size={"lg"} className="!p-0">
-            <div className="flex items-center justify-between">
-              <Logo
-                logoLink="https://res.cloudinary.com/davidleo/image/upload/v1744665654/gramaze-logo_yt4zo6.png"
-                className="flex h-[39px] w-[180.8px] items-end justify-end group-data-[collapsible=icon]:!hidden"
-              />
-              <SidebarTrigger className="cursor-pointer group-data-[collapsible=icon]:w-full" />
-            </div>
-          </SidebarMenuButton>
-        </SidebarMenu>
-      </SidebarHeader>
+<SidebarHeader className="group-data-[collapsible=icon]:!p-0 px-2">
+  <div className="flex items-center justify-between">
+    <SidebarMenu>
+      <SidebarMenuButton asChild size={"lg"} className="!p-0">
+        <Logo
+          logoLink="https://res.cloudinary.com/davidleo/image/upload/v1744665654/gramaze-logo_yt4zo6.png"
+          className="flex h-[39px] w-[180.8px] items-end justify-end group-data-[collapsible=icon]:!hidden"
+        />
+      </SidebarMenuButton>
+    </SidebarMenu>
+
+    {/* ✅ Make this always visible on all screens */}
+    <SidebarTrigger className="cursor-pointer w-8 min-w-8 shrink-0" />
+  </div>
+</SidebarHeader>
+
+
+
       <SidebarContent className="custom-scrollbar group-data-[collapsible=icon]:!p-0">
         <SidebarMain sidebarItems={SIDEBAR_ITEMS} />
         <SidebarMenuItem className="relative mt-auto flex">

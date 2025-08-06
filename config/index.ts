@@ -37,7 +37,7 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
   },
   {
     name: "Dashboard",
-    href: allRoutes.user.dashboard.home.url,
+    href: allRoutes.user.dashboard.home.url, 
     icon: DashboardIcon,
   },
   {
