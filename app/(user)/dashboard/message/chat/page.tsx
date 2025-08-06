@@ -6,8 +6,9 @@ import MessagesChatClient from "@/components/pages/messages-chat-client";
 
 function safeSerialize<T>(obj: T): T | null {
   try {
-    // @ts-expect-error: structuredClone 
-    if (typeof structuredClone === "function") return structuredClone(obj);
+    // look up structuredClone safely on globalThis without compiler directives
+    const sc = (globalThis as unknown as { structuredClone?: (v: unknown) => unknown }).structuredClone;
+    if (typeof sc === "function") return sc(obj) as T;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (_unused) {}
   try {
@@ -17,6 +18,7 @@ function safeSerialize<T>(obj: T): T | null {
     return null;
   }
 }
+
 
 export default async function MessagesChatPage() {
   const session = await getSession();
