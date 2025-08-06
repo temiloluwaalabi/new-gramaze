@@ -9,7 +9,7 @@ export default function SignInPage() {
   return (
     <AuthWrapper
       wrapper="!h-screen"
-      bgImage="https://res.cloudinary.com/davidleo/image/upload/v1744665655/3864e698b0fd9e34562411ec01aaa7a8_y24v5h.png"
+      bgImage="/asset/images/home-bg.jpeg"
       authTitle="Hi! Welcome back"
       authDesc={
         <p className="text-sm md:text-[18px]">
