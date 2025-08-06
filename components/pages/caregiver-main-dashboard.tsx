@@ -133,7 +133,7 @@ export default function CaregiverMainDashboardClient() {
               See all <ChevronRight className="size-5 text-gray-500" />
             </span>
           </div>
-          <div>
+          {/* <div>
             {chatMessagesData.map((chat) => (
               <Message
                 avatar={chat.sender.avatar}
@@ -144,7 +144,7 @@ export default function CaregiverMainDashboardClient() {
                 key={chat.id}
               />
             ))}
-          </div>
+          </div> */}
         </div>
         <div className="w-full rounded-[6px] bg-white p-3 shadow-sm sm:p-4">
           <div className="mb-3 flex items-center justify-between sm:mb-4">
