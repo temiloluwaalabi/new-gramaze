@@ -43,7 +43,7 @@ type MainUserDashboardProps = {
 export const MainUserDashboard = ({
   appointments,
   healthTrackers,
-  messages,
+  // messages,
   caregivers,
 }: MainUserDashboardProps) => {
   const { user } = useUserStore();
@@ -438,7 +438,7 @@ export const MainUserDashboard = ({
                 </div>
               )}
             </div>
-            <div className="rounded-[6px] border border-[#E8E8E8] bg-white p-4">
+            {/* <div className="rounded-[6px] border border-[#E8E8E8] bg-white p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[#71717a]">
                   Messages
@@ -478,7 +478,7 @@ export const MainUserDashboard = ({
                   </span>
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
         </div>
       </section>

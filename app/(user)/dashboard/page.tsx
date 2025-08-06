@@ -9,20 +9,19 @@ import { MainUserDashboard } from "@/components/pages/main-user-dashboard";
 // This tells Next.js: "Don't try to pre-render this page at build time"
 export const dynamic = "force-dynamic";
 export default async function UserDashboard() {
-  const session = await getSession();
+ 
   const appointments = await getUserAppointments();
   const mainAppointments = appointments.appointments.data;
   const trackers = await getLastTrackers();
   const userCaregivers = await getCaregiverHistory();
-
-  const userMessages = await fetchMessages(session.user_id);
+  const session = await getSession();
+  // const userMessages = await fetchMessages(session.user_id);
 
   return (
     <MainUserDashboard
       appointments={mainAppointments}
       healthTrackers={trackers.health_tracker}
-      caregivers={userCaregivers.caregivers?.data || []}
-      messages={userMessages.messages}
+      caregivers={userCaregivers.caregivers?.data || []} messages={[]}      // messages={userMessages.messages}
     />
   );
 }

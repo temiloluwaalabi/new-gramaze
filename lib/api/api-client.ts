@@ -1,7 +1,7 @@
 /* eslint-disable promise/param-names */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
-
+ 
 import { getSession } from "@/app/actions/session.actions";
 
 export class ApiError extends Error {
@@ -61,7 +61,7 @@ export class ApiError extends Error {
     console.error(`[${this.statusCode}] ${this.errorType}: ${this.message}`);
   }
 
-  static isAPiError(obj: unknown): boolean {
+  static isAPiError(obj: unknown): obj is ApiError {
     return (
       obj instanceof ApiError ||
       (typeof obj === "object" &&
@@ -70,6 +70,7 @@ export class ApiError extends Error {
         (obj as any).isError === true)
     );
   }
+  
 
   static markAsApiError(error: unknown): Record<string, unknown> {
     console.log("ERROR MARKED AS ERROR", error);

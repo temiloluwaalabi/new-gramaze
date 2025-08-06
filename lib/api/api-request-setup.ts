@@ -3,10 +3,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import axios, { AxiosError, AxiosResponse } from "axios";
 
-import { ApiResponse } from "@/types";
-
+import { ApiResponse, MakeApiSuccess } from "@/types";
+ 
 import { ApiError, backendAPiClient } from "./api-client";
-import logger from "../logger";
+import logger from "../logger"; 
 
 export interface ErrorResponse {
   data?: {
@@ -185,31 +185,30 @@ interface MakeApiRequestOptions {
   params: Record<string, string | number | boolean>;
   pathname: string;
   body: ApiRequestBody;
-  dataKey: string | string[];
+  dataKey?: string | string[];
 }
 
-const extractNestedData = (obj: any, path: string | string[]): any => {
+const extractNestedData = <T = unknown>(
+  obj: any,
+  path?: string | string[]
+): T | undefined => {
+  if (!path) return undefined;
+
   if (typeof path === "string") {
-    return obj?.[path];
+    return obj?.[path] as T;
   }
 
-  return path.reduce((current, key) => current?.[key], obj);
+  return path.reduce((current, key) => current?.[key], obj) as T;
 };
+
+
+
 
 export const makeApiRequest = async <T>(
   endpoint: string,
   method: "POST" | "GET",
   options: Partial<MakeApiRequestOptions> = {}
-): Promise<
-  | {
-      success: true;
-      status: number;
-      message: string;
-      data: T;
-      rawResponse: ApiResponse<T>;
-    }
-  | ApiError
-> => {
+): Promise<MakeApiSuccess<T> | ApiError> => {
   const { body, params, dataKey = "data" } = options;
 
   try {
@@ -281,7 +280,7 @@ export const makeApiRequest = async <T>(
 
     const data = response.data;
 
-    if (data.success === false) {
+    if (data.success === false || data.status === false) {
       return new ApiError({
         statusCode: response.status || 500,
         message: Array.isArray(data.message)
@@ -291,22 +290,16 @@ export const makeApiRequest = async <T>(
       });
     }
 
-    const extractedData = extractNestedData(data, dataKey);
-
-    // // Log extraction for debugging
-    // logger.info("Data extraction:", {
-    //     dataKey,
-    //     extractedData,
-    //     fullResponse: data,
-    // });
+    const extractedData = extractNestedData<T>(data, dataKey ?? "data") ?? (data as T);
 
     return {
       success: true,
       status: response.status || 200,
       message: data.message || "Request Completed Successfully",
-      data: data as T,
+      data: extractedData,
       rawResponse: data,
     };
+    
   } catch (error) {
     logger.error(`Error in ${endpoint}:`, error);
     return handleApiBackendError(error);

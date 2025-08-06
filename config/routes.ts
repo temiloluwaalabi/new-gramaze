@@ -154,14 +154,19 @@ export const gramazeEndpoints = {
     },
   },
 
-  // Chat endpoints
-  chats: {
-    sendMessage: '/chats/send/message',
-    fetchMessages: '/chats/fetch/messages', // ?user_id=1
-    list: '/chats/list',
-    conversation: '/chats/conversation',
-    searchByName: '/chats/search/name', // ?Joh
-  },
+
+ // Chat endpoints
+ chats: {
+  fetchChatList: "/chats/list",
+  // backend expects query param user_id
+  fetchMessages: (userId: string) => `/chats/fetch/messages?user_id=${encodeURIComponent(userId)}`,
+  // send message endpoint
+  sendMessage: "/chats/send/message",
+  markAsRead: "/chats/conversations",
+  searchByName: (name: string) => `/chats/search/name?${encodeURIComponent(name)}`,
+  // NEW: conversations list endpoint
+  fetchConversations: "/chats/conversation",
+},
 
   // FAQ endpoints
   faq: {

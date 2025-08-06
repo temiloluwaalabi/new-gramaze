@@ -1,11 +1,11 @@
 // Common types
 type Status = "Completed" | "Cancelled" | "Pending";
 // type ActionOptions = 'view' | 'edit' | 'delete';
-
+ 
 // 1. Patient Data (Image 1)
 export interface Patient {
-  id: string;
-  patientId: string;
+  id: string; 
+  patientId: string; 
   name: string;
   profileImage: string;
   gender: "Male" | "Female" | "Other";
@@ -47,6 +47,8 @@ export interface ApiResponse<T> {
   success?: boolean;
   [key: string]: T | string | boolean | undefined;
 }
+
+
 
 export interface Plan {
   plan_name: string;
@@ -118,3 +120,100 @@ export interface Appointment {
     last_name: string;
   };
 }
+
+export type MakeApiSuccess<T> = {
+  success: true;
+  status: number;
+  message: string;
+  data: T;
+  rawResponse: ApiResponse<T>;
+};
+
+
+// types/chat.ts
+export interface ChatUser {
+  id: string;
+  name: string;
+  avatar?: string;
+  message_notification: string | null;
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+  timestamp: string;
+  isRead: boolean;
+}
+
+/**
+ * UPDATED: payload to match backend
+ * instead of conversationId, we supply senderId and receiverId
+ */
+export interface SendMessagePayload {
+  senderId: string;    // map -> sender_id
+  receiverId: string;  // map -> receiver_id
+  message: string;
+}
+
+/**
+ * Example response of sending a message. Adjust if backend returns different shape.
+ */
+export interface SendMessageResponse {
+  messageId?: string | number;
+  message?: string;
+  // optionally include created message object etc
+}
+
+/* existing responses */
+export interface ChatListResponse {
+  chatUsers: ChatUser[];
+  message: string;
+}
+
+export interface MessagesResponse {
+  messages: Message[];
+}
+
+/* backend / search */
+export interface BackendUser {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string | null;
+  medical_file?: string | null; 
+  message_notification?: string | null;
+}
+
+export interface SearchUsersResponse {
+  status: boolean;
+  message: string;
+  users: BackendUser[];
+}
+
+/* backend messages */
+export interface BackendMessage {
+  id: number;
+  sender_id: string;
+  receiver_id: string;
+  message: string;
+  created_at: string;
+  read_at: string | null;
+}
+
+export interface BackendMessagesResponse {
+  status: boolean;
+  message: string;
+  messages: BackendMessage[];
+}
+
+/* Conversations API */
+export interface BackendConversation {
+  id: number;
+  first_name: string;
+  // other fields if returned
+}
+
+export type ConversationsResponse = BackendConversation[]; // API returns raw array
