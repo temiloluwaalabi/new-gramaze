@@ -24,7 +24,7 @@ export const defaultSessionData: SessionData = {
 
 export const sessionOptions: SessionOptions = {
   cookieName: "gramze-client-session",
-  password: process.env.SECRET_KEY as string,
+  password: process.env.SESSION_PASSWORD as string,
   cookieOptions: {
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
