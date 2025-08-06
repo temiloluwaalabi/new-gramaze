@@ -640,19 +640,19 @@ async function unwrapApiResult<T>(resPromise: Promise<unknown>): Promise<T> {
     throw raw;
   }
 
-  // Axios response like { data: T, status, headers }
-  if (raw && typeof raw === "object" && "data" in (raw as any)) {
-    return (raw as any).data as T;
-  }
+  // Narrow raw to an object
+  if (raw && typeof raw === "object") {
+    const dataWrapper = raw as { data?: T };
 
-  // Wrapper shape like { success?: boolean; data?: T; message?: string }
-  if (raw && typeof raw === "object" && "data" in (raw as any)) {
-    return (raw as any).data as T;
+    if ("data" in dataWrapper && dataWrapper.data !== undefined) {
+      return dataWrapper.data;
+    }
   }
 
   // Fallback: assume raw itself is T
   return raw as T;
 }
+
 
 export const chatServices = {
   fetchChatList: async (): Promise<ChatListResponse> => {
@@ -685,9 +685,7 @@ export const chatServices = {
     return { messages: mapped };
   },
 
-  /**
-   * UPDATED: send message using sender_id / receiver_id per backend
-   */
+ 
   sendMessage: async (payload: SendMessagePayload): Promise<SendMessageResponse> => {
     // transform frontend payload -> backend payload shape
     const body = {
@@ -728,25 +726,26 @@ export const chatServices = {
     return unwrapApiResult<SearchUsersResponse>(resPromise);
   },
 
-  /**
-   * NEW: fetch conversations (list of other users / existing conversations)
-   * Backend returns an array of objects like { id: 1, first_name: "Abadele" }
-   */
+ 
   fetchConversations: async (): Promise<ChatUser[]> => {
     const resPromise = makeApiRequest<ConversationsResponse>(gramazeEndpoints.chats.fetchConversations, "GET");
     const raw = await unwrapApiResult<ConversationsResponse>(resPromise);
-
+  
     // raw is an array of { id, first_name }
     const convs = Array.isArray(raw) ? raw : [];
-    const mapped = convs.map((c) => ({
-      id: String(c.id),
-      name: String((c as any).first_name ?? ""),
-      avatar: undefined,
-      message_notification: null,
-    })) as ChatUser[];
-
+    const mapped = convs.map((c) => {
+      const safe = c as { id: string | number; first_name?: string };
+      return {
+        id: String(safe.id),
+        name: safe.first_name ?? "",
+        avatar: undefined,
+        message_notification: null,
+      };
+    }) as ChatUser[];
+  
     return mapped;
   },
+  
 };
 
 

@@ -14,7 +14,7 @@ const requireSession = async () => {
   const session = await getSession();
   if (!session?.accessToken) {
     throw new ApiError({
-      statusCode: 401,
+      statusCode: 401, 
       message: "Unauthorized: No active session found",
       errorType: "SessionError",
     });

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Search, SlidersVertical, SquarePen, RefreshCw } from "lucide-react";
@@ -42,7 +41,7 @@ export default function MessageSidebar({
   return (
     <div className="flex w-full flex-col overflow-y-hidden border-r border-[#E8E8E8] md:w-[300px]">
       {/* Header */}
-      <div className="flex items-center justify-between py-3 px-2">
+      <div className="flex items-center justify-between px-2 py-3">
         <h2 className="flex items-center gap-1 text-base font-medium text-black">
           Messages
           <div className="flex size-4 items-center justify-center rounded-full bg-blue-600 text-xs text-white">
@@ -53,7 +52,7 @@ export default function MessageSidebar({
           <Button
             variant="ghost"
             size="icon"
-            className="!size-8 !p-0 text-gray-500 cursor-pointer"
+            className="!size-8 cursor-pointer !p-0 text-gray-500"
             onClick={() => {
               if (onRefresh) onRefresh();
             }}
@@ -62,17 +61,25 @@ export default function MessageSidebar({
             <RefreshCw size={18} />
           </Button>
 
-          <Button variant="ghost" size="icon" className="!size-8 !p-0 text-gray-500">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="!size-8 !p-0 text-gray-500"
+          >
             <SquarePen size={18} />
           </Button>
-          <Button variant="ghost" size="icon" className="!size-8 !p-0 text-gray-500">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="!size-8 !p-0 text-gray-500"
+          >
             <SlidersVertical size={18} />
           </Button>
         </div>
       </div>
 
       {/* Search */}
-      <div className="pr-2 px-2">
+      <div className="px-2 pr-2">
         <div className="relative">
           <Search className="absolute top-[16px] left-2 h-4 w-4 text-gray-400" />
           <Input
@@ -94,13 +101,13 @@ export default function MessageSidebar({
         <div className="flex gap-2">
           <button
             onClick={submitSearch}
-            className="rounded-md px-3 py-1 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 cursor-pointer"
+            className="cursor-pointer rounded-md border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
           >
             Search
           </button>
           <button
             onClick={clearSearch}
-            className="rounded-md px-3 py-1 text-sm text-gray-700 border border-gray-200 hover:bg-gray-50 cursor-pointer"
+            className="cursor-pointer rounded-md border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
           >
             Clear
           </button>
@@ -113,11 +120,14 @@ export default function MessageSidebar({
           // Skeleton list for conversations
           <>
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-md px-2 py-3">
-                <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse" />
+              <div
+                key={i}
+                className="flex items-center gap-3 rounded-md px-2 py-3"
+              >
+                <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200" />
                 <div className="flex-1">
-                  <div className="h-3 w-32 rounded bg-gray-200 animate-pulse mb-2" />
-                  <div className="h-2 w-24 rounded bg-gray-200 animate-pulse" />
+                  <div className="mb-2 h-3 w-32 animate-pulse rounded bg-gray-200" />
+                  <div className="h-2 w-24 animate-pulse rounded bg-gray-200" />
                 </div>
               </div>
             ))}
@@ -132,24 +142,27 @@ export default function MessageSidebar({
                 }`}
                 onClick={() => onSelect(conversation.id)}
               >
-                <div className="relative mr-3 flex-shrink-0">
+                <div className="relative mr-3  h-8 w-8 flex-shrink-0">
                   <Image
-                    src={conversation.avatar ?? "/avatar-placeholder.png"}
+                    src={conversation.avatar ?? "/asset/images/robert.jpg"}
                     alt={conversation.name}
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 rounded-full"
+                    fill
+                    className="rounded-full object-contain"
                   />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between">
-                    <p className="truncate text-sm font-medium">{conversation.name}</p>
+                    <p className="truncate text-sm font-medium">
+                      {conversation.name}
+                    </p>
                     <p className="text-xs text-gray-500"></p>
                   </div>
                   <p className="truncate text-xs text-gray-500"></p>
                 </div>
                 {conversation.message_notification && (
-                  <Badge className="ml-2 h-6 w-6 rounded-full bg-red-500 p-0 text-white">!</Badge>
+                  <Badge className="ml-2 h-6 w-6 rounded-full bg-red-500 p-0 text-white">
+                    !
+                  </Badge>
                 )}
               </div>
             ))}

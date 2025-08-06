@@ -12,8 +12,6 @@ import * as z from "zod";
 import { FormFieldTypes } from "@/config/enum";
 import { allRoutes } from "@/config/routes";
 import useSafeToast from "@/hooks/useSafeToast";
-import FacebookIcon from "@/icons/facebook";
-import GoogleIcon from "@/icons/google";
 import { useRegisterStepOne } from "@/lib/queries/use-auth-queries";
 import { RegisterSchema } from "@/lib/schemas/user.schema";
 
@@ -130,37 +128,7 @@ export default function SignUpForm() {
             {isPending && <Loader2 className="me-2 size-4 animate-spin" />}
             Create an account
           </Button>
-          <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-            <span className="bg-background text-muted-foreground relative z-10 px-2">
-              Or Signup with{" "}
-            </span>
-          </div>
-          <div className="grid w-full grid-cols-1 items-center justify-between gap-4 md:grid-cols-2">
-            <Button
-              variant="outline"
-              disabled={isPending}
-              className="relative h-[42px] w-full"
-            >
-              <Link
-                href={`${process.env.NEXT_PUBLIC_BASE_URL}/auth/google`}
-                className="absolute top-0 left-0 z-50 size-full"
-              />
-              <GoogleIcon />
-              Login with Google
-            </Button>
-            <Button
-              variant="outline"
-              disabled={isPending}
-              className="relative h-[42px] w-full"
-            >
-              <Link
-                href={`${process.env.NEXT_PUBLIC_BASE_URL}/auth/google`}
-                className="absolute top-0 left-0 z-50 size-full"
-              />
-              <FacebookIcon />
-              Login with Facebook
-            </Button>
-          </div>
+         
         </div>
       </form>
     </Form>

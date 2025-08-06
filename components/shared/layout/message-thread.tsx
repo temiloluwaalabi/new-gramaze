@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Send, Paperclip, Smile, Search, EllipsisVertical } from "lucide-react";
@@ -51,7 +50,9 @@ export default function MessageThread({
   if (!currentConversation) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="text-gray-400">Select a conversation to start messaging</p>
+        <p className="text-gray-400">
+          Select a conversation to start messaging
+        </p>
       </div>
     );
   }
@@ -61,13 +62,12 @@ export default function MessageThread({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 p-4">
         <div className="flex items-center">
-          <div className="relative">
+          <div className="relative h-8 w-8">
             <Image
               src={currentConversation.avatar}
               alt={currentConversation.name}
-              width={40}
-              height={40}
-              className="h-10 w-10 rounded-full"
+              fill
+              className="rounded-full object-contain"
             />
             {currentConversation.online && (
               <span className="absolute right-0 bottom-0 h-2.5 w-2.5 rounded-full bg-green-500 ring-1 ring-white"></span>
@@ -75,14 +75,24 @@ export default function MessageThread({
           </div>
           <div className="ml-3">
             <h2 className="text-sm font-medium">{currentConversation.name}</h2>
-            <p className="text-xs text-gray-500">{currentConversation.online ? "Online" : "Offline"}</p>
+            <p className="text-xs text-gray-500">
+              {currentConversation.online ? "Online" : "Offline"}
+            </p>
           </div>
         </div>
         <div>
-          <Button variant="ghost" size="icon" className="ml-auto !size-8 bg-blue-50 !p-0 text-gray-500">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto !size-8 bg-blue-50 !p-0 text-gray-500"
+          >
             <Search size={18} />
           </Button>
-          <Button variant="ghost" size="icon" className="ml-2 !size-8 bg-blue-50 !p-0 text-gray-500">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-2 !size-8 bg-blue-50 !p-0 text-gray-500"
+          >
             <EllipsisVertical size={18} />
           </Button>
         </div>
@@ -95,9 +105,9 @@ export default function MessageThread({
           <>
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="flex justify-start">
-                <div className="max-w-md rounded-lg px-4 py-2 bg-white">
-                  <div className="h-3 w-48 rounded bg-gray-200 animate-pulse mb-2"></div>
-                  <div className="h-2 w-16 rounded bg-gray-200 animate-pulse ml-auto"></div>
+                <div className="max-w-md rounded-lg bg-white px-4 py-2">
+                  <div className="mb-2 h-3 w-48 animate-pulse rounded bg-gray-200"></div>
+                  <div className="ml-auto h-2 w-16 animate-pulse rounded bg-gray-200"></div>
                 </div>
               </div>
             ))}
@@ -153,7 +163,11 @@ export default function MessageThread({
               }
             }}
           />
-          <Button variant="ghost" size="icon" className="mr-2 h-8 w-8 text-gray-500">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="mr-2 h-8 w-8 text-gray-500"
+          >
             <Smile size={18} />
           </Button>
           <Button

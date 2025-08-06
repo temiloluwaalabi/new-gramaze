@@ -1,17 +1,29 @@
-
+// components/pages/messages-chat-client.tsx
 "use client";
-
 import * as React from "react";
 import { startTransition } from "react";
 
-import { searchUsers, fetchConversations } from "@/app/actions/services/chats.actions"; // server actions
-import { chatServices } from "@/lib/api/api"; // client usage for fetchMessages/send/mark read
-import type { ChatUser, Message as ChatMessage } from "@/types";
+// SERVER ACTIONS (call from client — they run on server)
+import {
+  fetchMessages as fetchMessagesAction,
+  sendMessage as sendMessageAction,
+  markMessageAsRead as markMessageAsReadAction,
+  searchUsers as searchUsersAction,
+  fetchConversations as fetchConversationsAction,
+} from "@/app/actions/services/chats.actions";
 
+import type { ChatUser, Message as ChatMessage } from "@/types";
 import MessageSidebar from "../shared/layout/message-sidebar";
 import MessageThread from "../shared/layout/message-thread";
 
-type SafeSession = { userId?: string | number } | null;
+type SafeSession = {
+  userId?: string | number;
+  email?: string;
+  firstName?: string;
+  isLoggedIn?: boolean;
+  userType?: string;
+  isBoarded?: boolean;
+} | null;
 
 export default function MessagesChatClient({
   session,
@@ -27,9 +39,11 @@ export default function MessagesChatClient({
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [loadingConvos, setLoadingConvos] = React.useState(false);
   const [loadingMessages, setLoadingMessages] = React.useState(false);
-  const [, setError] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
 
-  // Load messages when a conversation is selected (client-side)
+  const currentUserId = session?.userId ? String(session.userId) : "me";
+
+  // load messages when selectedId changes — use server action fetchMessagesAction
   React.useEffect(() => {
     if (!selectedId) {
       setMessages([]);
@@ -40,10 +54,14 @@ export default function MessagesChatClient({
     const loadMessages = async () => {
       setLoadingMessages(true);
       try {
-        // fetchMessages expects the other user's id as user_id
-        const data = await chatServices.fetchMessages(String(selectedId));
+        // Call server action — runs on server and returns plain data
+        const res = await fetchMessagesAction(String(selectedId));
         if (!mounted) return;
-        setMessages(data.messages ?? []);
+        if (res?.success) {
+          setMessages(res.messages ?? []);
+        } else {
+          setMessages([]);
+        }
       } catch (err: any) {
         console.error("Failed to load messages", err);
         setError(err?.message ?? "Failed to load messages");
@@ -58,14 +76,12 @@ export default function MessagesChatClient({
     };
   }, [selectedId]);
 
-  // Handler when sidebar selects conversation
+  // handler when sidebar selects conversation
   const handleSelect = (id: string) => {
     setSelectedId(String(id));
   };
 
-  const currentUserId = session?.userId ? String(session.userId) : "me";
-
-  // Send message (optimistic)
+  // send message — use server action; optimistic update + refresh
   const handleSendMessage = async (receiverId: string, messageText: string) => {
     if (!messageText.trim()) return;
 
@@ -81,45 +97,46 @@ export default function MessagesChatClient({
     setMessages((prev) => [...prev, optimistic]);
 
     try {
-      // Use new SendMessagePayload shape: { senderId, receiverId, message }
-      await chatServices.sendMessage({
+      // server action expects SendMessagePayload shape — your action maps and posts to backend
+      await sendMessageAction({
+        // your SendMessagePayload type was updated to include senderId/receiverId
         senderId: currentUserId,
         receiverId,
         message: messageText,
-      });
+      } as any);
 
-      // Refresh messages (server returns normalized message list)
-      const refreshed = await chatServices.fetchMessages(receiverId);
-      setMessages(refreshed.messages ?? []);
+      // refresh
+      const refreshed = await fetchMessagesAction(receiverId);
+      if (refreshed?.success) setMessages(refreshed.messages ?? []);
     } catch (err) {
       console.error("Failed to send message", err);
-      // Roll back by refetching
+      // rollback by refetching
       try {
-        const refreshed = await chatServices.fetchMessages(receiverId);
-        setMessages(refreshed.messages ?? []);
+        const refreshed = await fetchMessagesAction(receiverId);
+        if (refreshed?.success) setMessages(refreshed.messages ?? []);
       } catch {
         setError("Failed to send message");
       }
     }
   };
 
-  // Mark as read
+  // mark as read — call server action
   const handleMarkAsRead = async (messageId: string) => {
     try {
-      await chatServices.markMessageAsRead(messageId);
+      await markMessageAsReadAction(String(messageId));
       setMessages((prev) => prev.map((m) => (String(m.id) === String(messageId) ? { ...m, isRead: true } : m)));
     } catch (err) {
       console.error("Failed to mark as read", err);
     }
   };
 
-  // Search handler — calls server action `searchUsers`
+  // search handler — call server action searchUsersAction
   const handleSearch = (term: string) => {
     if (!term || !term.trim()) return;
 
     startTransition(async () => {
       try {
-        const res = await searchUsers(term.trim());
+        const res = await searchUsersAction(term.trim());
         if (res?.success && Array.isArray(res.users)) {
           setConversations((prev) => {
             const map = new Map(prev.map((c) => [String(c.id), c]));
@@ -139,15 +156,15 @@ export default function MessagesChatClient({
     });
   };
 
-  // Refresh conversations (calls server action fetchConversations)
+  // refresh conversations using server action fetchConversationsAction
   const handleRefreshConversations = () => {
     startTransition(async () => {
       try {
         setLoadingConvos(true);
-        const res = await fetchConversations();
+        const res = await fetchConversationsAction();
         if (res?.success && Array.isArray(res.conversations)) {
           setConversations(res.conversations);
-          if (!selectedId && res.conversations.length) {
+          if (!selectedId && res.conversations.length > 0) {
             setSelectedId(String(res.conversations[0].id));
           }
         }
@@ -184,7 +201,7 @@ export default function MessagesChatClient({
             ? {
                 id: String(currentConversation.id),
                 name: currentConversation.name,
-                avatar: currentConversation.avatar ?? "/avatar-placeholder.png",
+                avatar: currentConversation.avatar ?? "/asset/images/robert.jpg",
                 unread: currentConversation.message_notification !== null,
                 online: false,
                 time: "",
