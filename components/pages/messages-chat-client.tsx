@@ -1,4 +1,3 @@
-// components/pages/messages-chat-client.tsx
 "use client";
 import * as React from "react";
 import { startTransition } from "react";

@@ -6,7 +6,7 @@ import MessagesChatClient from "@/components/pages/messages-chat-client";
 
 function safeSerialize<T>(obj: T): T | null {
   try {
-    // look up structuredClone safely on globalThis without compiler directives
+    
     const sc = (globalThis as unknown as { structuredClone?: (v: unknown) => unknown }).structuredClone;
     if (typeof sc === "function") return sc(obj) as T;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -24,7 +24,7 @@ export default async function MessagesChatPage() {
   const session = await getSession();
   const chatListRes = await fetchChatListAction();
 
-  // Create a minimal, plain session object — DO NOT include accessToken
+  
   const safeSession = session
     ? {
         userId: session.user_id ?? null,
@@ -44,8 +44,6 @@ export default async function MessagesChatPage() {
   );
 
   function MessagesChartWrapper() {
-    // NOTE: Next expects a default export component; we inline the client component
-    // import will be resolved by next, but to preserve types we forward props:
     // Pass only plain data
     return <MessagesChatClient session={safeSession} initialChatList={safeInitialChatList} />;
   }
