@@ -50,7 +50,7 @@ export const HealthTrackerPage = ({
 }: HealthTrackerPageProps) => {
   const data = healthTrackers.map((tracker) => {
     // blood_pressure is in "systolic/diastolic" format, e.g., "120/80"
-    const [systolicStr, diastolicStr] = tracker.blood_pressure.split("/");
+    const [systolicStr, diastolicStr] = (tracker.blood_pressure ?? "0/0").split("/");
     const systolic = Number(systolicStr);
     const diastolic = Number(diastolicStr);
 
