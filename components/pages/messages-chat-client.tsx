@@ -15,7 +15,7 @@ import type { ChatUser, Message as ChatMessage } from "@/types";
 import MessageSidebar from "../shared/layout/message-sidebar";
 import MessageThread from "../shared/layout/message-thread";
 
-type SafeSession = {
+type SafeSession = { 
   userId?: string | number;
   email?: string;
   firstName?: string;

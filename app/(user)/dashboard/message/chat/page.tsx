@@ -29,7 +29,7 @@ export default async function MessagesChatPage() {
     ? {
         userId: session.user_id ?? null,
         email: session.email ?? null,
-        firstName: session.firstName ?? null,
+        firstName: session.firstName ?? null, 
         isLoggedIn: !!session.isLoggedIn,
         userType: session.userType ?? null,
         isBoarded: !!session.isBoarded,

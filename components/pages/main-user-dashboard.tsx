@@ -1,4 +1,3 @@
- 
 "use client";
 import { Calendar as CalendarIcon, List } from "lucide-react";
 import Image from "next/image";
@@ -16,13 +15,23 @@ import { useUserStore } from "@/store/user-store";
 import { Appointment, User } from "@/types";
 
 import { HealthVitalsChart } from "../charts/health-vitals-chart";
-// import { Message } from "../shared/message-widget";
+import { Message } from "../shared/message-widget";
+import MobileQuickActions from "../shared/MobileQuickActions";
 import { DbAppointmentSheet } from "../sheets/db-appointment-sheet";
 import { AppointmentStatus } from "../table/columns/appointment-columns";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Calendar, CalendarDayButton } from "../ui/calendar";
 import { Separator } from "../ui/separator";
+
+type MessagePreview = {
+  id: string;
+  avatar: string;
+  name: string;
+  message: string;
+  timestamp: string;
+  unreadCount?: number;
+};
 
 type MainUserDashboardProps = {
   appointments?: Appointment[];
@@ -38,12 +47,13 @@ type MainUserDashboardProps = {
     caregiver_id: string;
   }[];
   caregivers: User[];
-  messages: [];
+  messages: MessagePreview[];
 };
+
 export const MainUserDashboard = ({
   appointments,
   healthTrackers,
-  // messages,
+  messages,
   caregivers,
 }: MainUserDashboardProps) => {
   const { user } = useUserStore();
@@ -84,6 +94,7 @@ export const MainUserDashboard = ({
           {formatDate(new Date())}
         </p>
       </section>
+      <MobileQuickActions />
       <section className="grid grid-cols-12 gap-5">
         <aside className="col-span-12 h-fit rounded-[6px] bg-white p-5 lg:col-span-4">
           <div className="space-y-3">
@@ -112,7 +123,7 @@ export const MainUserDashboard = ({
             </div>
           </div>
           <Separator className="my-3" />
-          <div className="space-y-3">
+          <div className="hidden space-y-3 md:block">
             <span className="flex flex-col gap-[4px]">
               <span className="text-xs font-normal text-[#66666B]">
                 Date of Birth
@@ -146,7 +157,7 @@ export const MainUserDashboard = ({
               </span>
             </span>
           </div>
-          <div className="mt-3 flex flex-col">
+          <div className="mt-3 flex hidden flex-col md:block">
             <span className="text-xs font-normal text-[#66666B]">
               Current Caregivers
             </span>
@@ -180,7 +191,8 @@ export const MainUserDashboard = ({
               </span>
             )}
           </div>
-          <div className="mt-3 space-y-3">
+
+          <div className="mt-3 hidden space-y-3 md:block">
             <span className="text-xs font-normal text-[#66666B]">
               Next Caregiver Visit
             </span>
@@ -438,7 +450,7 @@ export const MainUserDashboard = ({
                 </div>
               )}
             </div>
-            {/* <div className="rounded-[6px] border border-[#E8E8E8] bg-white p-4">
+            <div className="rounded-[6px] border border-[#E8E8E8] bg-white p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[#71717a]">
                   Messages
@@ -446,16 +458,18 @@ export const MainUserDashboard = ({
               </div>
               {messages && messages.length > 0 ? (
                 <div>
-                  {messages.slice(0, 4).map((msg: any, idx: number) => (
-                    <Message
-                      key={msg.id || idx}
-                      avatar={msg.avatar}
-                      name={msg.name}
-                      message={msg.message}
-                      timestamp={msg.timestamp}
-                      unreadCount={msg.unreadCount}
-                    />
-                  ))}
+                  {messages
+                    .slice(0, 4)
+                    .map((msg: MessagePreview, idx: number) => (
+                      <Message
+                        key={msg.id || idx}
+                        avatar={msg.avatar}
+                        name={msg.name}
+                        message={msg.message}
+                        timestamp={msg.timestamp}
+                        unreadCount={msg.unreadCount}
+                      />
+                    ))}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-8">
@@ -478,7 +492,7 @@ export const MainUserDashboard = ({
                   </span>
                 </div>
               )}
-            </div> */}
+            </div>
           </div>
         </div>
       </section>
