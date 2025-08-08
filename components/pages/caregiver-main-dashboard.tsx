@@ -107,57 +107,6 @@ export default function CaregiverMainDashboardClient({
               </span>
             </span>
           </div>
-
-          <div className="my-4 flex items-center justify-between">
-            <h6 className="text-lg font-semibold text-[#333]">
-              Your Appointments
-            </h6>
-            <Select>
-              <SelectTrigger className="cursor-pointer">
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem className="cursor-pointer" value="daily">
-                  Daily
-                </SelectItem>
-                <SelectItem className="cursor-pointer" value="weekly">
-                  Weekly
-                </SelectItem>
-                <SelectItem className="cursor-pointer" value="monthly">
-                  Monthly
-                </SelectItem>
-                <SelectItem className="cursor-pointer" value="yearly">
-                  Yearly
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Appointments Section with Empty State */}
-          <div className="space-y-5">
-            {transformedData && transformedData.length > 0 ? (
-              transformedData.map((appointment) => (
-                <CaregiverAppointmentWidget
-                  appointment={appointment}
-                  key={appointment.id}
-                />
-              ))
-            ) : (
-              <div className="flex flex-col items-center justify-center py-12">
-                <div className="mb-4 rounded-full bg-gray-50 p-4">
-                  <Calendar className="h-8 w-8 text-gray-400" />
-                </div>
-                <h3 className="mb-2 text-base font-medium text-gray-900">
-                  No appointments scheduled
-                </h3>
-                <p className="mb-6 text-center text-sm text-gray-500">
-                  You don&apos;t have any appointments yet. Schedule one to get
-                  started.
-                </p>
-                <Button className="text-sm">Schedule Appointment</Button>
-              </div>
-            )}
-          </div>
         </div>
         <div className="rounded-lg bg-white p-6">
           <div className="my-4 flex items-center justify-between">
