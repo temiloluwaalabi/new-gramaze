@@ -4,6 +4,7 @@ import { TableAppointment } from "@/components/table/columns/appointment-columns
 import {
   createAppointmentEndTime,
   determineAppointmentStatus,
+  formatAppointmentDate,
   generateAvatarUrl,
   getFullName,
 } from "@/lib/utils";
@@ -36,10 +37,9 @@ export const transformToTableAppointment = (
     id: enrichedAppointment.id.toString(),
     clientName,
     clientImage,
-    appointmentDate: new Date(
-      `${enrichedAppointment.date}T${enrichedAppointment.time}`
-    ),
+    appointmentDate: formatAppointmentDate(enrichedAppointment.date),
     consultantName,
+    appointmentTime: enrichedAppointment.time,
     consultantImage,
     status: determineAppointmentStatus(enrichedAppointment),
     selected: false,

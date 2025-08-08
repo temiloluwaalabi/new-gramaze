@@ -1,12 +1,17 @@
 "use client";
 import React from "react";
 
-import { caregiverScheduleData } from "@/config/constants";
+import { User } from "@/types";
 
 import { CaregiverHistory } from "../table/columns/caregiver-history";
 import { DataTable } from "../table/data-table";
 
-export default function CargiverHistoryDashboard() {
+type CaregiverHistoryPDashboardProps = {
+  caregivers: User[];
+};
+export default function CargiverHistoryDashboard({
+  caregivers,
+}: CaregiverHistoryPDashboardProps) {
   return (
     <section className="space-y-3 !bg-white px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <DataTable
@@ -24,7 +29,7 @@ export default function CargiverHistoryDashboard() {
           ],
         }}
         tableClassname="bg-white border border-[#E7EBED] !rounded-lg"
-        data={caregiverScheduleData}
+        data={caregivers}
       />
     </section>
   );

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { caregiverServices } from "@/lib/api/api";
+import { billingService, caregiverServices } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
 import { Appointment, ApiResponse, User } from "@/types";
 
@@ -219,6 +219,91 @@ export const rateCaregiver = async (values: {
     };
   } catch (error) {
     console.error("Rate Caregiver Error:", error);
+
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    throw new ApiError({
+      statusCode: 500,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      errorType: "UnknownError",
+    });
+  }
+};
+export const getUserBillHistory = async ({
+  date,
+  amount,
+  status,
+  per_page,
+}: {
+  date?: string;
+  status?: string;
+  per_page?: number;
+  amount?: number;
+} = {}) => {
+  try {
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      throw new ApiError({
+        statusCode: 401,
+        message: "No active session found",
+        errorType: "SessionError",
+      });
+    }
+
+    const response = await billingService.getUserBillHistory({
+      date,
+      amount,
+      status,
+      per_page,
+    });
+
+    if (ApiError.isAPiError(response)) {
+      throw response;
+    }
+
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: {
+        status: true;
+        message: string;
+        payments: {
+          current_page: number;
+          data: [];
+          from: number;
+          last_page: number;
+          per_page: number;
+          to: number;
+          total: number;
+        };
+      };
+      rawResponse: ApiResponse<{
+        status: true;
+        message: string;
+        payments: {
+          current_page: number;
+          data: [];
+          from: number;
+          last_page: number;
+          per_page: number;
+          to: number;
+          total: number;
+        };
+      }>;
+    };
+
+    console.log("SUCCESS RESPONSE", successResponse);
+    return {
+      success: true,
+      message: successResponse.message,
+      payments: successResponse.data.payments,
+    };
+  } catch (error) {
+    console.error("Get Caregiver History Error:", error);
 
     if (error instanceof ApiError) {
       throw error;

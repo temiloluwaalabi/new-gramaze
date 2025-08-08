@@ -2,16 +2,60 @@
 import Image from "next/image";
 import * as React from "react";
 
-import { paymentsData } from "@/config/constants";
+import { useUserStore } from "@/store/user-store";
 
 import PaymentMethod from "../shared/widget/payment-methods";
 import { ChangeCarePlanSheet } from "../sheets/change-care-plan-sheet";
-import { BillingColumn } from "../table/columns/billing-history";
+import { BillingColumn, Payment } from "../table/columns/billing-history";
 import { DataTable } from "../table/data-table";
 import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
-export const BillingPage = () => {
+export const paymentPlans = [
+  {
+    id: "ok_plan",
+    planTitle: "The OK Plan",
+    planOffers: [
+      "First 2 consultations",
+      "Doctor's visit",
+      "Caregiver's visit",
+      "Complementary investigations",
+    ],
+  },
+  {
+    id: "ck_plan",
+    planTitle: "The CK Plan",
+    planOffers: [
+      "First 2 consultations",
+      "Doctor's visit",
+      "Nursing Care",
+      "Nutrition Plan",
+      "Wellness Plan",
+      "Routine Check",
+      "Complementary investigations",
+    ],
+  },
+  {
+    id: "gold_care_plan",
+    planTitle: "The Gold Care Plan",
+    planOffers: [
+      "Doctor's visit",
+      "Nutrition Plan",
+      "Wellness Plan and tracker",
+      "Silver Premium Plan",
+      "Caregiver's Visit",
+      "Complementary investigations",
+      "Access to complementary Equipments",
+    ],
+  },
+];
+type BillingPageProps = {
+  payments: Payment[];
+};
+export const BillingPage = ({ payments }: BillingPageProps) => {
+  const { user } = useUserStore();
+
+  const selectedPlan = paymentPlans.find((plan) => plan.id === user?.plan);
   return (
     <section className="space-y-3 !bg-white px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <section>
@@ -55,7 +99,7 @@ export const BillingPage = () => {
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-[#333] lg:text-lg">
-                    The Gold Care Plan
+                    {selectedPlan?.planTitle}
                   </h3>
                   <p className="text-xs font-medium text-[#999] lg:text-sm">
                     Your subscription will renew on April 4
@@ -68,6 +112,7 @@ export const BillingPage = () => {
                     Change Plan
                   </Button>
                 }
+                user_id={user?.id || 0}
               />
             </div>
             <DataTable
@@ -83,7 +128,7 @@ export const BillingPage = () => {
                 ],
               }}
               tableClassname="bg-white border border-[#E7EBED] !rounded-lg"
-              data={paymentsData}
+              data={payments}
             />
           </TabsContent>
 

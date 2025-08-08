@@ -4,10 +4,11 @@ import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DEFAULT_IMAGE_URL } from "@/config/constants";
 import { formatDate } from "@/lib/utils";
-import { CaregiverSchedule } from "@/types";
+import { User } from "@/types";
 
-export const CaregiverHistory: ColumnDef<CaregiverSchedule>[] = [
+export const CaregiverHistory: ColumnDef<User>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -42,13 +43,13 @@ export const CaregiverHistory: ColumnDef<CaregiverSchedule>[] = [
         <div className="flex items-center space-x-2">
           <Avatar className="size-6">
             <AvatarFallback>CN</AvatarFallback>
-            <AvatarImage src={caregiver.caregiverImage} />
+            <AvatarImage src={DEFAULT_IMAGE_URL} />
           </Avatar>
           <Link
             href={`/dashboard/caregiver-history/${caregiver.id}`}
             className="text-sm font-medium"
           >
-            {caregiver.caregiverName}
+            {caregiver.first_name} {caregiver.last_name}
           </Link>
         </div>
       );
@@ -61,7 +62,7 @@ export const CaregiverHistory: ColumnDef<CaregiverSchedule>[] = [
       const appointment = row.original;
       return (
         <span className="text-sm font-normal text-[#262D31]">
-          {formatDate(appointment.startDate)}
+          {formatDate(appointment.created_at)}
         </span>
       );
     },
@@ -73,7 +74,7 @@ export const CaregiverHistory: ColumnDef<CaregiverSchedule>[] = [
       const appointment = row.original;
       return (
         <span className="text-sm font-normal text-[#262D31]">
-          {formatDate(appointment.endDate)}
+          {formatDate(appointment.updated_at)}
         </span>
       );
     },
