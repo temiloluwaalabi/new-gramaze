@@ -3,6 +3,7 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { updatePlan } from "@/app/actions/caregiver-patient.actions";
 import {
   getCaregiverHistory,
   getCaregiverHistoryDetails,
@@ -10,7 +11,6 @@ import {
 } from "@/app/actions/services/caregiver.actions";
 
 import { handleMutationError } from "./handle-mutation-error";
-import { updatePlan } from "@/app/actions/caregiver-patient.actions";
 
 // ============= CAREGIVER QUERIES =============
 export const useUpdatePlan = () => {

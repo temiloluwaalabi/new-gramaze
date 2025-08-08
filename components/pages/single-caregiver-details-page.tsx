@@ -3,8 +3,6 @@ import { Mail, Star } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
-import { caregiverScheduleData } from "@/config/constants";
-
 import { CaregiverHistory } from "../table/columns/caregiver-history";
 import { DataTable } from "../table/data-table";
 import { Button } from "../ui/button";
@@ -162,7 +160,7 @@ export default function SingleCaregiverDetailsPage() {
           ],
         }}
         tableClassname="bg-white border border-[#E7EBED] !rounded-lg"
-        data={caregiverScheduleData}
+        data={[]}
       />
     </section>
   );

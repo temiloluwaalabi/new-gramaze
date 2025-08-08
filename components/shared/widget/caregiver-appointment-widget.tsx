@@ -5,23 +5,12 @@ import * as React from "react";
 
 import { CaregiverAppointmentSheet } from "@/components/sheets/caregiver-appointment-sheet";
 import { Separator } from "@/components/ui/separator";
+import { DEFAULT_IMAGE_URL } from "@/config/constants";
 import { cn } from "@/lib/utils";
+import { Appointment } from "@/types";
 
 type Props = {
-  appointment: {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    location: string;
-    status: string;
-    avatar: string;
-    isVirtual?: boolean;
-    locationTag?: { fill: string; hue: string };
-  };
+  appointment: Appointment;
   isHori?: boolean;
 };
 export const CaregiverAppointmentWidget = ({ appointment, isHori }: Props) => {
@@ -31,7 +20,7 @@ export const CaregiverAppointmentWidget = ({ appointment, isHori }: Props) => {
         <div className="flex flex-row items-center justify-between gap-2 sm:gap-0">
           <div className="flex items-center gap-2 sm:gap-3">
             <Image
-              src={appointment.avatar}
+              src={DEFAULT_IMAGE_URL}
               width={36}
               height={36}
               className="size-8 rounded-full object-cover sm:size-[42px]"

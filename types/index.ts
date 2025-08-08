@@ -1,11 +1,11 @@
 // Common types
 type Status = "Completed" | "Cancelled" | "Pending";
 // type ActionOptions = 'view' | 'edit' | 'delete';
- 
+
 // 1. Patient Data (Image 1)
 export interface Patient {
-  id: string; 
-  patientId: string; 
+  id: string;
+  patientId: string;
   name: string;
   profileImage: string;
   gender: "Male" | "Female" | "Other";
@@ -47,8 +47,6 @@ export interface ApiResponse<T> {
   success?: boolean;
   [key: string]: T | string | boolean | undefined;
 }
-
-
 
 export interface Plan {
   plan_name: string;
@@ -93,9 +91,10 @@ export interface User {
 }
 export interface Appointment {
   id: number;
-  user_id: number | string;
-  appointment_type: string;
-  visit_type: string | null;
+  user_id: string | number;
+  caregiver_id: string | number;
+  appointment_type: "virtual" | "physical";
+  visit_type: "home" | "hospital" | null;
   date: string;
   time: string;
   location?: string | null;
@@ -104,7 +103,7 @@ export interface Appointment {
   home_address?: string | null;
   contact?: string | null;
   additional_note?: string | null;
-  extra_charges?: number | null;
+  extra_charges?: string | null; // Note: API returns string, not number
   hospital_name?: string | null;
   hospital_address?: string | null;
   created_at: string;
@@ -113,12 +112,25 @@ export interface Appointment {
   arrival_photo?: string | null;
   arrival_current_address?: string | null;
   additional_note_caregiver?: string | null;
-  caregiver_id: string;
+  status: "arrived" | "pending" | "completed" | "cancelled";
+  patient?: {
+    id: number;
+    first_name: string;
+    last_name: string;
+  };
+
   caregiver?: {
     id: number;
     first_name: string;
     last_name: string;
   };
+  // Computed properties for component compatibility
+  name?: string; // Will be derived from patient or caregiver
+  phone?: string; // Will be derived from contact
+  avatar?: string; // Will need to be provided or use default
+  startTime?: string; // Will be derived from time
+  endTime?: string; // Will be derived from time
+  isVirtual?: boolean; // Will be derived from appointment_type
 }
 
 export type MakeApiSuccess<T> = {
@@ -128,7 +140,6 @@ export type MakeApiSuccess<T> = {
   data: T;
   rawResponse: ApiResponse<T>;
 };
-
 
 // types/chat.ts
 export interface ChatUser {
@@ -152,8 +163,8 @@ export interface Message {
  * instead of conversationId, we supply senderId and receiverId
  */
 export interface SendMessagePayload {
-  senderId: string;    // map -> sender_id
-  receiverId: string;  // map -> receiver_id
+  senderId: string; // map -> sender_id
+  receiverId: string; // map -> receiver_id
   message: string;
 }
 
@@ -183,7 +194,7 @@ export interface BackendUser {
   last_name: string;
   email: string;
   phone?: string | null;
-  medical_file?: string | null; 
+  medical_file?: string | null;
   message_notification?: string | null;
 }
 

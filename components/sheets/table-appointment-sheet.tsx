@@ -103,15 +103,7 @@ export const TableAppointmentSheet = (props: Props) => {
                       Time
                     </span>
                     <span className="text-xs font-semibold text-black">
-                      {props.appointment.appointmentDate instanceof Date
-                        ? props.appointment.appointmentDate.toLocaleTimeString(
-                            [],
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )
-                        : props.appointment.appointmentDate}
+                      {props.appointment.appointmentTime}
                     </span>
                   </span>
                 </div>

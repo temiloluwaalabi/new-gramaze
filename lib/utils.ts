@@ -155,3 +155,25 @@ export const determineAppointmentStatus = (
 export const getFullName = (user: User): string => {
   return `${user.first_name} ${user.last_name}`.trim();
 };
+
+export function transformAppointmentData(
+  apiData: Appointment[]
+): Appointment[] {
+  return apiData.map((appointment) => {
+    const [startTime, endTime] = appointment.time.includes("–")
+      ? appointment.time.split(" – ")
+      : [appointment.time, ""];
+
+    return {
+      ...appointment,
+      name: appointment.patient
+        ? `${appointment.patient.first_name} ${appointment.patient.last_name}`
+        : "Unknown Patient",
+      phone: appointment.contact || "",
+      avatar: "/default-avatar.png", // Provide default avatar
+      startTime,
+      endTime,
+      isVirtual: appointment.appointment_type === "virtual",
+    };
+  });
+}

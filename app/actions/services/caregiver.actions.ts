@@ -47,11 +47,12 @@ export const getCaregiverHistory = async ({
       data: {
         status: true;
         message: string;
-        appointments: {
+        histories: {
           current_page: number;
           data: User[];
           from: number;
           last_page: number;
+          per_page: number;
           to: number;
           total: number;
         };
@@ -59,11 +60,12 @@ export const getCaregiverHistory = async ({
       rawResponse: ApiResponse<{
         status: true;
         message: string;
-        appointments: {
+        histories: {
           current_page: number;
           data: User[];
           from: number;
           last_page: number;
+          per_page: number;
           to: number;
           total: number;
         };
@@ -74,7 +76,7 @@ export const getCaregiverHistory = async ({
     return {
       success: true,
       message: successResponse.message,
-      caregivers: successResponse.data.appointments,
+      caregivers: successResponse.data.histories,
     };
   } catch (error) {
     console.error("Get Caregiver History Error:", error);

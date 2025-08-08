@@ -7,7 +7,9 @@ import { toast } from "sonner";
 import * as z from "zod";
 
 import { getUserInfo } from "@/app/actions/auth.actions";
+import { InitiatePayment } from "@/app/actions/payment.actions";
 import { FormFieldTypes } from "@/config/enum";
+import { useUpdatePlan } from "@/lib/queries/use-caregiver-query";
 import { ChangeCarePlanSchema } from "@/lib/schemas/main-schema.schema";
 import { useUserStore } from "@/store/user-store";
 
@@ -21,8 +23,6 @@ import {
 } from "../ui/accordion";
 import { Button } from "../ui/button";
 import { Form } from "../ui/form";
-import { InitiatePayment } from "@/app/actions/payment.actions";
-import { useUpdatePlan } from "@/lib/queries/use-caregiver-query";
 
 type ChangeCarePlanFormProps = {
   user_id: number;

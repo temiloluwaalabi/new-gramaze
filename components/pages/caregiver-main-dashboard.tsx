@@ -1,18 +1,21 @@
 "use client";
-import { ChevronRight, Mail } from "lucide-react";
+import {
+  ChevronRight,
+  Mail,
+  Calendar,
+  Users,
+  MessageSquare,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-import {
-  caregiverAppointmentData,
-  // chatMessagesData,
-  patientData,
-} from "@/config/constants";
-import { formatDate } from "@/lib/utils";
+import { formatDate, transformAppointmentData } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
+import { Appointment, User } from "@/types";
 
-// import { Message } from "../shared/message-widget";
+import { MessagePreview } from "./main-user-dashboard";
+import { Message } from "../shared/message-widget";
 import { CaregiverAppointmentWidget } from "../shared/widget/caregiver-appointment-widget";
 import { Button } from "../ui/button";
 import {
@@ -24,12 +27,25 @@ import {
 } from "../ui/select";
 import { Separator } from "../ui/separator";
 
-export default function CaregiverMainDashboardClient() {
+type CaregiverMainDashboardProps = {
+  appointments: Appointment[];
+  allPatients: User[];
+  messages: MessagePreview[];
+};
+
+export default function CaregiverMainDashboardClient({
+  appointments,
+  allPatients,
+  messages,
+}: CaregiverMainDashboardProps) {
   const { user } = useUserStore();
 
+  const transformedData =
+    appointments.length > 0 ? transformAppointmentData(appointments) : [];
+
   return (
-    <section className="grid grid-cols-12 gap-6 space-y-3 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
-      <div className="col-span-12 lg:col-span-6">
+    <section className="grid size-full grid-cols-12 gap-6 space-y-3 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
+      <div className="col-span-12 space-y-4 lg:col-span-6">
         <div className="rounded-lg bg-white p-6">
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-[#787878]">
@@ -63,7 +79,7 @@ export default function CaregiverMainDashboardClient() {
                 Date of Birth
               </span>
               <span className="text-xs font-semibold text-blue-600">
-                {formatDate(user?.dob ?? "")}
+                {user?.dob ? formatDate(user.dob) : "Not provided"}
               </span>
             </span>
             <span className="flex flex-col gap-[4px]">
@@ -71,7 +87,7 @@ export default function CaregiverMainDashboardClient() {
                 Phone Number
               </span>
               <span className="text-xs font-semibold text-blue-600">
-                {user?.phone}
+                {user?.phone || "Not provided"}
               </span>
             </span>
             <span className="flex flex-col gap-[4px]">
@@ -79,7 +95,7 @@ export default function CaregiverMainDashboardClient() {
                 Address
               </span>
               <span className="text-xs font-semibold text-blue-600">
-                {user?.address || null}
+                {user?.address || "Not provided"}
               </span>
             </span>
             <span className="flex flex-col gap-[4px]">
@@ -87,10 +103,11 @@ export default function CaregiverMainDashboardClient() {
                 Emergency Contact
               </span>
               <span className="text-xs font-semibold text-blue-600">
-                {user?.emergency_contact_phone || null}
+                {user?.emergency_contact_phone || "Not provided"}
               </span>
             </span>
           </div>
+
           <div className="my-4 flex items-center justify-between">
             <h6 className="text-lg font-semibold text-[#333]">
               Your Appointments
@@ -115,17 +132,89 @@ export default function CaregiverMainDashboardClient() {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Appointments Section with Empty State */}
           <div className="space-y-5">
-            {caregiverAppointmentData.map((appointment) => (
-              <CaregiverAppointmentWidget
-                appointment={appointment}
-                key={appointment.id}
-              />
-            ))}
+            {transformedData && transformedData.length > 0 ? (
+              transformedData.map((appointment) => (
+                <CaregiverAppointmentWidget
+                  appointment={appointment}
+                  key={appointment.id}
+                />
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="mb-4 rounded-full bg-gray-50 p-4">
+                  <Calendar className="h-8 w-8 text-gray-400" />
+                </div>
+                <h3 className="mb-2 text-base font-medium text-gray-900">
+                  No appointments scheduled
+                </h3>
+                <p className="mb-6 text-center text-sm text-gray-500">
+                  You don&apos;t have any appointments yet. Schedule one to get
+                  started.
+                </p>
+                <Button className="text-sm">Schedule Appointment</Button>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="rounded-lg bg-white p-6">
+          <div className="my-4 flex items-center justify-between">
+            <h6 className="text-lg font-semibold text-[#333]">
+              Your Appointments
+            </h6>
+            <Select>
+              <SelectTrigger className="cursor-pointer">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem className="cursor-pointer" value="daily">
+                  Daily
+                </SelectItem>
+                <SelectItem className="cursor-pointer" value="weekly">
+                  Weekly
+                </SelectItem>
+                <SelectItem className="cursor-pointer" value="monthly">
+                  Monthly
+                </SelectItem>
+                <SelectItem className="cursor-pointer" value="yearly">
+                  Yearly
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Appointments Section with Empty State */}
+          <div className="space-y-5">
+            {transformedData && transformedData.length > 0 ? (
+              transformedData.map((appointment) => (
+                <CaregiverAppointmentWidget
+                  appointment={appointment}
+                  key={appointment.id}
+                />
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="mb-4 rounded-full bg-gray-50 p-4">
+                  <Calendar className="h-8 w-8 text-gray-400" />
+                </div>
+                <h3 className="mb-2 text-base font-medium text-gray-900">
+                  No appointments scheduled
+                </h3>
+                <p className="mb-6 text-center text-sm text-gray-500">
+                  You don&apos;t have any appointments yet. Schedule one to get
+                  started.
+                </p>
+                <Button className="text-sm">Schedule Appointment</Button>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
       <div className="col-span-12 space-y-6 lg:col-span-6">
+        {/* Messages Section */}
         <div className="rounded-[6px] border border-[#E8E8E8] bg-white p-4">
           <div className="flex items-center justify-between">
             <h6 className="text-lg font-semibold text-[#333]">Messages</h6>
@@ -133,19 +222,36 @@ export default function CaregiverMainDashboardClient() {
               See all <ChevronRight className="size-5 text-gray-500" />
             </span>
           </div>
-          {/* <div>
-            {chatMessagesData.map((chat) => (
-              <Message
-                avatar={chat.sender.avatar}
-                name={chat.sender.name}
-                message={chat.message}
-                timestamp={chat.timestamp}
-                unreadCount={4}
-                key={chat.id}
-              />
-            ))}
-          </div> */}
+
+          {messages && messages.length > 0 ? (
+            <div>
+              {messages.slice(0, 4).map((msg: MessagePreview, idx: number) => (
+                <Message
+                  key={msg.id || idx}
+                  avatar={msg.avatar}
+                  name={msg.name}
+                  message={msg.message}
+                  timestamp={msg.timestamp}
+                  unreadCount={msg.unreadCount}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="mb-3 rounded-full bg-gray-50 p-3">
+                <MessageSquare className="h-6 w-6 text-gray-400" />
+              </div>
+              <span className="text-base font-medium text-[#71717a]">
+                No messages
+              </span>
+              <span className="mt-1 text-sm text-[#b0b0b0]">
+                Please send a message to start a conversation.
+              </span>
+            </div>
+          )}
         </div>
+
+        {/* Patients Section */}
         <div className="w-full rounded-[6px] bg-white p-3 shadow-sm sm:p-4">
           <div className="mb-3 flex items-center justify-between sm:mb-4">
             <h2 className="text-base font-medium text-gray-900 sm:text-lg">
@@ -161,38 +267,53 @@ export default function CaregiverMainDashboardClient() {
             </Link>
           </div>
 
-          <div className="space-y-3 sm:space-y-4">
-            {patientData.map((patient) => (
-              <div
-                key={patient.id}
-                className="flex items-center justify-between rounded-md p-1 transition-colors hover:bg-gray-50"
-              >
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <Image
-                    src={patient.avatar}
-                    alt={`${patient.name}'s avatar`}
-                    width={32}
-                    height={32}
-                    className="h-8 w-8 rounded-full object-cover sm:h-9 sm:w-9"
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 sm:text-base">
-                      {patient.name}
-                    </p>
-                    <p className="text-xs text-gray-500 sm:text-sm">
-                      {patient.phone}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  className="rounded-full p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
-                  aria-label={`Email ${patient.name}`}
+          {allPatients && allPatients.length > 0 ? (
+            <div className="space-y-3 sm:space-y-4">
+              {allPatients.slice(0, 5).map((patient) => (
+                <div
+                  key={patient.id}
+                  className="flex items-center justify-between rounded-md p-1 transition-colors hover:bg-gray-50"
                 >
-                  <Mail size={18} className="sm:size-5" />
-                </button>
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-600 sm:h-9 sm:w-9">
+                      {patient.first_name?.charAt(0)}
+                      {patient.last_name?.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 sm:text-base">
+                        {patient.first_name} {patient.last_name}
+                      </p>
+                      <p className="text-xs text-gray-500 sm:text-sm">
+                        {patient.phone || patient.email}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    className="rounded-full p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                    aria-label={`Email ${patient.first_name} ${patient.last_name}`}
+                  >
+                    <Mail size={18} className="sm:size-5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="mb-4 rounded-full bg-gray-50 p-4">
+                <Users className="h-8 w-8 text-gray-400" />
               </div>
-            ))}
-          </div>
+              <h3 className="mb-2 text-base font-medium text-gray-900">
+                No patients yet
+              </h3>
+              <p className="mb-6 text-center text-sm text-gray-500">
+                You haven&apos;t been assigned any patients yet. Check back
+                later or contact your administrator.
+              </p>
+              <Button variant="outline" className="text-sm">
+                Contact Support
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </section>

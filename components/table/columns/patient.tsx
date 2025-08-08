@@ -4,9 +4,38 @@ import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Patient } from "@/types";
+import { DEFAULT_IMAGE_URL } from "@/config/constants";
+import { User } from "@/types";
 
-export const PatientsColumn: ColumnDef<Patient>[] = [
+// Helper function to calculate age from date of birth
+const calculateAge = (dob: string | null): number | null => {
+  if (!dob) return null;
+
+  const birthDate = new Date(dob);
+  const today = new Date();
+
+  // Check if the date is valid
+  if (isNaN(birthDate.getTime())) return null;
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  return age;
+};
+
+// Helper function to get initials from first and last name
+const getInitials = (firstName: string, lastName: string): string => {
+  return `${firstName?.charAt(0) || ""}${lastName?.charAt(0) || ""}`.toUpperCase();
+};
+
+export const PatientsColumn: ColumnDef<User>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -35,54 +64,118 @@ export const PatientsColumn: ColumnDef<Patient>[] = [
     id: "clientName",
     header: "Name",
     cell: ({ row }) => {
-      const appointment = row.original;
+      const patient = row.original;
+      const initials = getInitials(patient.first_name, patient.last_name);
 
       return (
         <div className="flex items-center space-x-2">
-          <Avatar className="size-6">
-            <AvatarFallback>CN</AvatarFallback>
-            <AvatarImage src={appointment.profileImage} />
+          <Avatar className="size-8">
+            <AvatarFallback className="bg-blue-100 text-xs font-medium text-blue-600">
+              {initials}
+            </AvatarFallback>
+            <AvatarImage src={DEFAULT_IMAGE_URL} />
           </Avatar>
           <Link
-            href={`/caregiver/patients/${appointment.id}`}
-            className="text-sm font-medium"
+            href={`/caregiver/patients/${patient.id}`}
+            className="text-sm font-medium transition-colors hover:text-blue-600"
           >
-            {appointment.name}
-          </Link>{" "}
+            {patient.first_name} {patient.last_name}
+          </Link>
         </div>
       );
     },
   },
   {
-    accessorKey: "patientId",
-    header: "Patient ID",
+    accessorKey: "email",
+    header: "Email",
     cell: ({ row }) => {
-      const appointment = row.original;
-      return <span>{appointment.patientId}</span>;
+      const patient = row.original;
+      return (
+        <span className="text-sm text-gray-600">
+          {patient.email || "Not provided"}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "phone",
+    header: "Phone",
+    cell: ({ row }) => {
+      const patient = row.original;
+      return (
+        <span className="text-sm text-gray-600">
+          {patient.phone || "Not provided"}
+        </span>
+      );
     },
   },
   {
     accessorKey: "gender",
     header: "Gender",
     cell: ({ row }) => {
-      const appointment = row.original;
-      return <span>{appointment.gender}</span>;
+      const patient = row.original;
+      return (
+        <span className="text-sm text-gray-600 capitalize">
+          {patient.gender || "Not specified"}
+        </span>
+      );
     },
   },
   {
-    accessorKey: "age",
+    accessorKey: "dob",
     header: "Age",
     cell: ({ row }) => {
-      const appointment = row.original;
-      return <span>{appointment.age}</span>;
+      const patient = row.original;
+      const age = calculateAge(patient.dob);
+
+      return (
+        <span className="text-sm text-gray-600">
+          {age !== null ? `${age} years` : "Not provided"}
+        </span>
+      );
     },
   },
+  {
+    accessorKey: "user_status",
+    header: "Status",
+    cell: ({ row }) => {
+      const patient = row.original;
+      const status = patient.user_status;
 
+      const getStatusColor = (status: string) => {
+        switch (status?.toLowerCase()) {
+          case "active":
+            return "bg-green-100 text-green-800";
+          case "inactive":
+            return "bg-red-100 text-red-800";
+          case "pending":
+            return "bg-yellow-100 text-yellow-800";
+          default:
+            return "bg-gray-100 text-gray-800";
+        }
+      };
+
+      return (
+        <span
+          className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium capitalize ${getStatusColor(status)}`}
+        >
+          {status || "Unknown"}
+        </span>
+      );
+    },
+  },
   {
     id: "actions",
     header: "Action",
     cell: () => {
-      return <EllipsisVertical />;
+      return (
+        <button
+          className="rounded p-1 transition-colors hover:bg-gray-100"
+          aria-label="More options"
+        >
+          <EllipsisVertical className="h-4 w-4 text-gray-500" />
+        </button>
+      );
     },
   },
 ];

@@ -268,7 +268,11 @@ export const getCaregiverAppointments = async ({
       });
 
     if (ApiError.isAPiError(response)) {
-      throw response;
+      return {
+        success: false,
+        message: "Error fetching data",
+        appointments: [],
+      };
     }
 
     const successResponse = response as {

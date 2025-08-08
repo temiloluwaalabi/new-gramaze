@@ -24,7 +24,7 @@ import { Button } from "../ui/button";
 import { Calendar, CalendarDayButton } from "../ui/calendar";
 import { Separator } from "../ui/separator";
 
-type MessagePreview = {
+export type MessagePreview = {
   id: string;
   avatar: string;
   name: string;
@@ -157,7 +157,7 @@ export const MainUserDashboard = ({
               </span>
             </span>
           </div>
-          <div className="mt-3 flex hidden flex-col md:block">
+          <div className="mt-3 hidden flex-col md:block">
             <span className="text-xs font-normal text-[#66666B]">
               Current Caregivers
             </span>

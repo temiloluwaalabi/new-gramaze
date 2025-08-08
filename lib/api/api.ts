@@ -520,11 +520,12 @@ export const caregiverServices = {
       return makeApiRequest<{
         status: true;
         message: string;
-        appointments: {
+        histories: {
           current_page: number;
           data: User[];
           from: number;
           last_page: number;
+          per_page: number;
           to: number;
           total: number;
         };
@@ -559,6 +560,40 @@ export const caregiverServices = {
         appointment: Appointment;
       }>(`${gramazeEndpoints.caregiver.user.rating}`, "POST", {
         body: values,
+      });
+    },
+  },
+  caregiver: {
+    getPatientHistory: async ({
+      per_page,
+      end_date,
+      start_date,
+      caregiver,
+    }: {
+      start_date?: string;
+      caregiver?: string;
+      end_date?: string;
+      per_page?: number;
+    } = {}) => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        histories: {
+          current_page: number;
+          data: User[];
+          from: number;
+          last_page: number;
+          per_page: number;
+          to: number;
+          total: number;
+        };
+      }>(`${gramazeEndpoints.caregiver.patient.history}`, "GET", {
+        params: {
+          ...(per_page && { per_page }),
+          ...(start_date && { start_date }),
+          ...(typeof end_date !== "undefined" && { end_date }),
+          ...(caregiver && { caregiver }),
+        },
       });
     },
   },

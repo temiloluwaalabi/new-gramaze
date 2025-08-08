@@ -13,12 +13,10 @@ import { cn, formatDate } from "@/lib/utils";
 
 import { HealthVitalsChart } from "../charts/health-vitals-chart";
 import { HealthOverviewWidget } from "../shared/widget/health-overview-widget";
-import { HealthTrackerInfoSheet } from "../sheets/health-tracker-info-sheet";
 import { HealthTrackerColumn } from "../table/columns/health-tracker-reports";
 import { DataTable } from "../table/data-table";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Separator } from "../ui/separator";
 import { Skeleton } from "../ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
@@ -50,7 +48,9 @@ export const HealthTrackerPage = ({
 }: HealthTrackerPageProps) => {
   const data = healthTrackers.map((tracker) => {
     // blood_pressure is in "systolic/diastolic" format, e.g., "120/80"
-    const [systolicStr, diastolicStr] = (tracker.blood_pressure ?? "0/0").split("/");
+    const [systolicStr, diastolicStr] = (tracker.blood_pressure ?? "0/0").split(
+      "/"
+    );
     const systolic = Number(systolicStr);
     const diastolic = Number(diastolicStr);
 
@@ -199,7 +199,16 @@ export const HealthTrackerPage = ({
                     View all <ChevronRight className="size-4" />
                   </span>
                 </div>
-                <div className="space-y-4">
+                <div className="flex h-full flex-col items-center justify-center py-8 text-center text-[#7f7f7f]">
+                  <FileText className="mb-2 size-8 text-[#E8E8E8]" />
+                  <span className="text-sm font-medium">
+                    No caregiver notes found
+                  </span>
+                  <span className="mt-1 text-xs text-[#b6b6b6]">
+                    You have no caregiver note yet.
+                  </span>
+                </div>
+                {/* <div className="space-y-4">
                   <div>
                     <div className="space-y-1">
                       <HealthTrackerInfoSheet
@@ -225,7 +234,6 @@ export const HealthTrackerPage = ({
                     </span>
                   </div>
                   <Separator className="bg-[#E8E8E8]" />
-
                   <div>
                     <div className="space-y-1">
                       <HealthTrackerInfoSheet
@@ -250,7 +258,7 @@ export const HealthTrackerPage = ({
                       </span>
                     </span>
                   </div>
-                </div>
+                </div> */}
               </div>
             </section>
           </TabsContent>
@@ -310,56 +318,65 @@ export const HealthTrackerPage = ({
                   </div>
                 </div>
               </div>
-              <div className="grid gap-8 lg:grid-cols-2">
-                <div className="space-y-4 rounded-md border border-[#E8E8E8] p-4">
-                  <div className="space-y-1 border-b border-b-[#E8E8E8] pb-[12px]">
-                    <HealthTrackerInfoSheet
-                      sheetTrigger={
-                        <h2 className="text-base font-semibold text-[#333]">
-                          Blood pressure & diet advice
-                        </h2>
-                      }
-                    />
-                    <p className="text-sm font-normal text-[#66666b]">
-                      Blood pressure readings have been consistent. Maintain
-                      your current diet and monitor sodium intake. Slight
-                      improvement in mobility...
-                    </p>
-                  </div>
-                  <span className="mt-4 flex items-center gap-2">
-                    <span className="text-sm font-medium text-[#333]">
-                      Dr. Adebayo O.
-                    </span>
-                    <span className="text-sm font-normal text-[#AFAFAF]">
-                      18 Febraury 2025.
-                    </span>
-                  </span>
-                </div>
-                <div className="space-y-4 rounded-md border border-[#E8E8E8] p-4">
-                  <div className="space-y-1 border-b border-b-[#E8E8E8] pb-[12px]">
-                    <HealthTrackerInfoSheet
-                      sheetTrigger={
-                        <h2 className="text-base font-semibold text-[#333]">
-                          Blood pressure & diet advice
-                        </h2>
-                      }
-                    />
-                    <p className="text-sm font-normal text-[#66666b]">
-                      Blood pressure readings have been consistent. Maintain
-                      your current diet and monitor sodium intake. Slight
-                      improvement in mobility...
-                    </p>
-                  </div>
-                  <span className="mt-4 flex items-center gap-2">
-                    <span className="text-sm font-medium text-[#333]">
-                      Dr. Adebayo O.
-                    </span>
-                    <span className="text-sm font-normal text-[#AFAFAF]">
-                      18 Febraury 2025.
-                    </span>
-                  </span>
-                </div>
+              <div className="flex h-full flex-col items-center justify-center py-8 text-center text-[#7f7f7f]">
+                <FileText className="mb-2 size-8 text-[#E8E8E8]" />
+                <span className="text-sm font-medium">
+                  No caregiver notes found
+                </span>
+                <span className="mt-1 text-xs text-[#b6b6b6]">
+                  You have no caregiver note yet.
+                </span>
               </div>
+              {/* <div className="grid gap-8 lg:grid-cols-2">
+                <div className="space-y-4 rounded-md border border-[#E8E8E8] p-4">
+                  <div className="space-y-1 border-b border-b-[#E8E8E8] pb-[12px]">
+                    <HealthTrackerInfoSheet
+                      sheetTrigger={
+                        <h2 className="text-base font-semibold text-[#333]">
+                          Blood pressure & diet advice
+                        </h2>
+                      }
+                    />
+                    <p className="text-sm font-normal text-[#66666b]">
+                      Blood pressure readings have been consistent. Maintain
+                      your current diet and monitor sodium intake. Slight
+                      improvement in mobility...
+                    </p>
+                  </div>
+                  <span className="mt-4 flex items-center gap-2">
+                    <span className="text-sm font-medium text-[#333]">
+                      Dr. Adebayo O.
+                    </span>
+                    <span className="text-sm font-normal text-[#AFAFAF]">
+                      18 Febraury 2025.
+                    </span>
+                  </span>
+                </div>
+                <div className="space-y-4 rounded-md border border-[#E8E8E8] p-4">
+                  <div className="space-y-1 border-b border-b-[#E8E8E8] pb-[12px]">
+                    <HealthTrackerInfoSheet
+                      sheetTrigger={
+                        <h2 className="text-base font-semibold text-[#333]">
+                          Blood pressure & diet advice
+                        </h2>
+                      }
+                    />
+                    <p className="text-sm font-normal text-[#66666b]">
+                      Blood pressure readings have been consistent. Maintain
+                      your current diet and monitor sodium intake. Slight
+                      improvement in mobility...
+                    </p>
+                  </div>
+                  <span className="mt-4 flex items-center gap-2">
+                    <span className="text-sm font-medium text-[#333]">
+                      Dr. Adebayo O.
+                    </span>
+                    <span className="text-sm font-normal text-[#AFAFAF]">
+                      18 Febraury 2025.
+                    </span>
+                  </span>
+                </div>
+              </div> */}
             </div>
           </TabsContent>
         </Tabs>
