@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { billingService } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
 import { ApiResponse } from "@/types";
+
 import { getSession } from "./session.actions";
 
 export const InitiatePayment = async (
@@ -22,6 +23,7 @@ export const InitiatePayment = async (
         message: "Invalid credentials",
       };
     }
+
     const sessionToken = await getSession();
     if (!sessionToken) {
       throw new ApiError({
