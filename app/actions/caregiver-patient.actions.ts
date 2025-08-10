@@ -125,11 +125,7 @@ export const getCaregiverPatientHistory = async ({
             end_date: string;
             created_at: string;
             updated_at: string;
-            patient: {
-              id: number;
-              first_name: string;
-              last_name: string;
-            };
+            patient: Partial<User>;
           }[];
           from: number;
           last_page: number;
@@ -151,11 +147,7 @@ export const getCaregiverPatientHistory = async ({
             end_date: string;
             created_at: string;
             updated_at: string;
-            patient: {
-              id: number;
-              first_name: string;
-              last_name: string;
-            };
+            patient: Partial<User>;
           }[];
           from: number;
           last_page: number;

@@ -12,7 +12,7 @@ import React from "react";
 
 import { formatDate, transformAppointmentData } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
-import { Appointment } from "@/types";
+import { Appointment, User } from "@/types";
 
 import { MessagePreview } from "./main-user-dashboard";
 import { Message } from "../shared/message-widget";
@@ -29,20 +29,7 @@ import { Separator } from "../ui/separator";
 
 type CaregiverMainDashboardProps = {
   appointments: Appointment[];
-  allPatients: {
-    id: number;
-    user_id: string;
-    caregiver_id: string;
-    start_date: string;
-    end_date: string;
-    created_at: string;
-    updated_at: string;
-    patient: {
-      id: number;
-      first_name: string;
-      last_name: string;
-    };
-  }[];
+  allPatients: Partial<User>[];
   messages: MessagePreview[];
 };
 
@@ -238,21 +225,21 @@ export default function CaregiverMainDashboardClient({
                 >
                   <div className="flex items-center gap-2 sm:gap-3">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-600 sm:h-9 sm:w-9">
-                      {patient.patient.first_name?.charAt(0)}
-                      {patient.patient.last_name?.charAt(0)}
+                      {patient?.first_name?.charAt(0)}
+                      {patient?.last_name?.charAt(0)}
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-900 sm:text-base">
-                        {patient.patient.first_name} {patient.patient.last_name}
+                        {patient?.first_name} {patient?.last_name}
                       </p>
-                      {/* <p className="text-xs text-gray-500 sm:text-sm">
+                      <p className="text-xs text-gray-500 sm:text-sm">
                         {patient.phone || patient.email}
-                      </p> */}
+                      </p>
                     </div>
                   </div>
                   <button
                     className="rounded-full p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
-                    aria-label={`Email ${patient.patient.first_name} ${patient.patient.last_name}`}
+                    aria-label={`Email ${patient?.first_name} ${patient?.last_name}`}
                   >
                     <Mail size={18} className="sm:size-5" />
                   </button>
