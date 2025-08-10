@@ -101,7 +101,11 @@ export const getCaregiverPatientHistory = async ({
     });
 
     if (ApiError.isAPiError(response)) {
-      throw response;
+      return {
+        success: false,
+        message: "An error occured",
+        patients: [],
+      };
     }
 
     const successResponse = response as {

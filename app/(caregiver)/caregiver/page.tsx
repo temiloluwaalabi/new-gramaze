@@ -59,7 +59,11 @@ export default async function CaregiverMainDashboard() {
           ? appointments.appointments
           : appointments?.appointments?.data || []
       }
-      allPatients={patients?.patients?.data || []}
+      allPatients={
+        Array.isArray(patients.patients)
+          ? patients.patients
+          : patients.patients.data || []
+      }
     />
   );
 }
