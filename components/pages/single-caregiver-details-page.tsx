@@ -3,14 +3,33 @@ import { Mail, Star } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
+import { RatingWidget } from "../shared/rating-widget";
 import { CaregiverHistory } from "../table/columns/caregiver-history";
 import { DataTable } from "../table/data-table";
 import { Button } from "../ui/button";
-import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
-import { Textarea } from "../ui/textarea";
-
-export default function SingleCaregiverDetailsPage() {
+type SingleCaregiverDetailsPageProps = {
+  caregiverId: number;
+  // currentUser: User;
+  caregivers: {
+    id: number;
+    user_id: string;
+    caregiver_id: string;
+    start_date: string;
+    end_date: string;
+    created_at: string;
+    updated_at: string;
+    caregiver: {
+      id: number;
+      first_name: string;
+      last_name: string;
+    };
+  }[];
+};
+export default function SingleCaregiverDetailsPage({
+  caregivers,
+  caregiverId,
+}: SingleCaregiverDetailsPageProps) {
   return (
     <section className="space-y-3 px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <div className="flex flex-col gap-1">
@@ -110,42 +129,7 @@ export default function SingleCaregiverDetailsPage() {
             </div>
           </div>
         </div>
-        <div className="space-y-4 rounded-md border border-[#E8E8E8] bg-white p-6">
-          <div>
-            <h6 className="text-base font-medium text-[#333]">Rating</h6>
-            <p className="text-sm font-normal text-[#66666b]">
-              How many stars would you rate your caregiver
-            </p>
-          </div>
-          <div className="flex items-center gap-[12px]">
-            <span className="flex size-[40px] items-center justify-center rounded-[5px] border border-blue-50">
-              <Star className="size-6 text-[#E2E4E9]" />
-            </span>
-            <span className="flex size-[40px] items-center justify-center rounded-[5px] border border-blue-50">
-              <Star className="size-6 text-[#E2E4E9]" />
-            </span>
-            <span className="flex size-[40px] items-center justify-center rounded-[5px] border border-blue-50">
-              <Star className="size-6 text-[#E2E4E9]" />
-            </span>
-            <span className="flex size-[40px] items-center justify-center rounded-[5px] border border-blue-50">
-              <Star className="size-6 text-[#E2E4E9]" />
-            </span>
-            <span className="flex size-[40px] items-center justify-center rounded-[5px] border border-blue-50">
-              <Star className="size-6 text-[#E2E4E9]" />
-            </span>
-          </div>
-          <div className="relative space-y-3">
-            <Label>Leave a feedback (optional)</Label>
-            <Textarea
-              rows={10}
-              placeholder="Type review"
-              className="h-[90px] border border-blue-50"
-            />
-            <Button className="ml-auto flex !h-[42px] w-[138px] text-sm">
-              Send
-            </Button>
-          </div>
-        </div>
+        <RatingWidget caregiverId={caregiverId} />
       </div>
       <DataTable
         columns={CaregiverHistory}
@@ -160,7 +144,7 @@ export default function SingleCaregiverDetailsPage() {
           ],
         }}
         tableClassname="bg-white border border-[#E7EBED] !rounded-lg"
-        data={[]}
+        data={caregivers}
       />
     </section>
   );

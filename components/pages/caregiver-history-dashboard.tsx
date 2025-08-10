@@ -1,13 +1,24 @@
 "use client";
 import React from "react";
 
-import { User } from "@/types";
-
 import { CaregiverHistory } from "../table/columns/caregiver-history";
 import { DataTable } from "../table/data-table";
 
 type CaregiverHistoryPDashboardProps = {
-  caregivers: User[];
+  caregivers: {
+    id: number;
+    user_id: string;
+    caregiver_id: string;
+    start_date: string;
+    end_date: string;
+    created_at: string;
+    updated_at: string;
+    caregiver: {
+      id: number;
+      first_name: string;
+      last_name: string;
+    };
+  }[];
 };
 export default function CargiverHistoryDashboard({
   caregivers,

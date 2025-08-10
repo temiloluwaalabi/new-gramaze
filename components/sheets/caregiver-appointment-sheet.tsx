@@ -4,11 +4,22 @@ import {
   Camera,
   CheckCheck,
   Clock,
+  Loader2,
   Mail,
   MapPin,
 } from "lucide-react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import * as React from "react";
+
+import { getUserDetails } from "@/app/actions/services/users.actions";
+import { useMarkAppointmentAsArrived } from "@/lib/queries/use-appointment-query";
+import {
+  formatDate,
+  getAppointmentLocation,
+  getAppointmentTitle,
+} from "@/lib/utils";
+import { Appointment, User } from "@/types";
 
 import { AvatarNameEmail } from "../shared/avatar-name-email";
 import { Button } from "../ui/button";
@@ -25,17 +36,53 @@ import {
 import { Textarea } from "../ui/textarea";
 type Props = {
   sheetTrigger: React.ReactNode;
+  appointment: Appointment;
 };
 export const CaregiverAppointmentSheet = (props: Props) => {
+  const [opemSheet, setOpemSheet] = React.useState(false);
   const [showArrivalWidget, setshowArrivalWidget] = React.useState(false);
   const [confirmationMethod, setConfirmationMethod] = React.useState("");
+  const [appointmentPatient, setAppointmentPatient] = React.useState<User>();
+  const [additionalNotes, setAdditionalNotes] = React.useState(
+    props.appointment.additional_note_caregiver || ""
+  );
+  const pathname = usePathname();
+  const { isPending, mutateAsync: MarkAppointmentAsArrived } =
+    useMarkAppointmentAsArrived(pathname);
 
-  // const handleConfirm = () => {
-  //   // Handle confirmation logic here
-  //   console.log("Confirming arrival with method:", confirmationMethod);
-  // };
+  const getPatientDetails = React.useCallback(async () => {
+    if (!props.appointment.user_id) return;
+    // Fetch user details based on the patient ID from the appointment
+    const user = await getUserDetails(Number(props.appointment.user_id));
+    if (user.success) {
+      setAppointmentPatient(user.user);
+    }
+  }, [props.appointment.user_id]);
+
+  React.useEffect(() => {
+    getPatientDetails();
+  }, [getPatientDetails]);
+
+  const handleConfirmArrival = async () => {
+    try {
+      await MarkAppointmentAsArrived(
+        {
+          id: props.appointment.id,
+          additional_note_caregiver: additionalNotes,
+        },
+        {
+          onSuccess: () => {
+            setOpemSheet(false);
+          },
+        }
+      );
+      setshowArrivalWidget(false);
+    } catch (error) {
+      console.error("Error confirming arrival:", error);
+    }
+  };
   return (
-    <Sheet>
+    <Sheet open={opemSheet} onOpenChange={setOpemSheet}>
       <SheetTrigger>{props.sheetTrigger}</SheetTrigger>
       <SheetContent className="!w-[596px] max-w-full border-none bg-transparent p-5 md:!max-w-[596px]">
         {showArrivalWidget ? (
@@ -91,9 +138,10 @@ export const CaregiverAppointmentSheet = (props: Props) => {
             <div className="ml-auto !flex !flex-row items-center gap-4 p-0">
               <Button
                 className="!h-[49px] text-sm"
-                onClick={() => setshowArrivalWidget(false)}
+                onClick={handleConfirmArrival}
+                disabled={!confirmationMethod || isPending}
               >
-                Confirm Arrival
+                {isPending ? "Confirming..." : "Confirm Arrival"}
               </Button>
             </div>
           </div>
@@ -107,21 +155,21 @@ export const CaregiverAppointmentSheet = (props: Props) => {
             <div className="mb-6 gap-4 space-y-6">
               <div className="space-y-3">
                 <h6 className="text-2xl font-semibold text-black">
-                  At-home appointment
+                  {getAppointmentTitle(props.appointment)}
                 </h6>
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-[130px]">
                     <div className="flex items-center gap-2">
                       <Calendar className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
                       <span className="text-xs font-normal text-[#303030] sm:text-sm">
-                        Feb 25, 2025{" "}
+                        {formatDate(props.appointment.date)}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2">
                       <Clock className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
                       <span className="text-xs font-normal text-[#66666B] sm:text-sm">
-                        09:00 AM - 10:00 AM{" "}
+                        {props.appointment.time}
                       </span>
                     </div>
                   </div>
@@ -130,7 +178,7 @@ export const CaregiverAppointmentSheet = (props: Props) => {
                       <MapPin className="mt-0.5 size-4 flex-shrink-0 text-gray-500 sm:size-5" />
                       <div className="flex flex-col">
                         <span className="line-clamp-2 text-xs font-normal text-[#66666B] sm:line-clamp-none sm:text-sm">
-                          42 Bishop Oluwole Street, Victoria Island, Lagos{" "}
+                          {getAppointmentLocation(props.appointment)}
                         </span>
                       </div>
                     </div>
@@ -153,8 +201,10 @@ export const CaregiverAppointmentSheet = (props: Props) => {
                   Patient details
                 </h6>
                 <AvatarNameEmail
-                  name="Hafsat Idris"
-                  email="hafsat.idris@gmail.com"
+                  name={`${appointmentPatient?.first_name || ""} ${appointmentPatient?.last_name || ""}`.trim()}
+                  email={
+                    appointmentPatient?.email || props.appointment.contact || ""
+                  }
                   avatarImage="https://res.cloudinary.com/davidleo/image/upload/v1744896553/e1aa7d76f300fa1554e755fb776e171b_y9oajf.png"
                 />
                 <div className="flex items-center gap-[130px]">
@@ -163,7 +213,9 @@ export const CaregiverAppointmentSheet = (props: Props) => {
                       Date of Birth
                     </span>
                     <span className="text-xs font-semibold text-black">
-                      Feb 11, 1954
+                      {appointmentPatient?.dob
+                        ? formatDate(appointmentPatient?.dob)
+                        : "Not provided"}
                     </span>
                   </span>
                   <span className="flex w-full flex-col gap-[4px]">
@@ -171,7 +223,9 @@ export const CaregiverAppointmentSheet = (props: Props) => {
                       Address
                     </span>
                     <span className="text-xs font-semibold text-black">
-                      25 Osborne Road, Ikoyi, Lagos
+                      {props.appointment.home_address ||
+                        appointmentPatient?.address ||
+                        "Not provided"}
                     </span>
                   </span>
                 </div>
@@ -181,7 +235,7 @@ export const CaregiverAppointmentSheet = (props: Props) => {
                       Phone Number
                     </span>
                     <span className="text-xs font-semibold text-black">
-                      +234 815 319 3258
+                      {appointmentPatient?.phone || "Not provided"}
                     </span>
                   </span>
                   <span className="flex w-full flex-col gap-[4px]">
@@ -189,7 +243,8 @@ export const CaregiverAppointmentSheet = (props: Props) => {
                       Emergency Contact
                     </span>
                     <span className="text-xs font-semibold text-black">
-                      +234 815 319 3258
+                      {appointmentPatient?.emergency_contact_phone ||
+                        "Not provided"}
                     </span>
                   </span>
                 </div>
@@ -198,20 +253,42 @@ export const CaregiverAppointmentSheet = (props: Props) => {
                 <span className="mb-2 text-sm font-medium">
                   Additional notes
                 </span>
-                <Textarea rows={6} className="mt-3 h-[120px]" />
+                <Textarea
+                  disabled={isPending}
+                  rows={6}
+                  className="mt-3 h-[120px]"
+                  value={additionalNotes}
+                  onChange={(e) => setAdditionalNotes(e.target.value)}
+                  placeholder={
+                    props.appointment.additional_note ||
+                    "Add any additional notes about this appointment..."
+                  }
+                />{" "}
               </div>
             </div>
             <div className="my-6 mt-auto !flex !flex-row items-center gap-4 p-0">
-              <Button className="!h-[49px] !w-fit border border-gray-300 bg-transparent text-sm text-black">
+              <Button
+                disabled={isPending}
+                className="!h-[49px] !w-fit border border-gray-300 bg-transparent text-sm text-black"
+              >
                 <Mail />
                 Message patient
               </Button>
               <Button
-                className="!h-[49px] text-sm"
-                onClick={() => setshowArrivalWidget(true)}
+                className="flex !h-[49px] items-center gap-2 text-sm"
+                onClick={handleConfirmArrival}
+                disabled={isPending}
+                // disabled={props.appointment.status === "arrived"}
               >
-                <CheckCheck />
-                Mark as arrived
+                {isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <CheckCheck />
+                )}
+                Arrive
+                {/* {props.appointment.status === "arrived"
+                  ? "Already Arrived"
+                  : "Mark as arrived"} */}
               </Button>
             </div>
           </div>

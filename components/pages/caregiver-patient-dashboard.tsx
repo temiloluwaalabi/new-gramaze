@@ -1,13 +1,24 @@
 "use client";
 import React from "react";
 
-import { User } from "@/types";
-
 import { PatientsColumn } from "../table/columns/patient";
 import { DataTable } from "../table/data-table";
 
 type CaregiverPatientsClientPageProps = {
-  allPatients: User[];
+  allPatients: {
+    id: number;
+    user_id: string;
+    caregiver_id: string;
+    start_date: string;
+    end_date: string;
+    created_at: string;
+    updated_at: string;
+    patient: {
+      id: number;
+      first_name: string;
+      last_name: string;
+    };
+  }[];
 };
 export default function CaregiverPatientsClientPage({
   allPatients,

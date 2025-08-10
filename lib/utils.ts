@@ -177,3 +177,24 @@ export function transformAppointmentData(
     };
   });
 }
+export // Get appointment location based on type
+const getAppointmentLocation = (appointment: Appointment) => {
+  if (appointment.appointment_type === "virtual") {
+    return appointment.location || "Online";
+  } else if (appointment.visit_type === "hospital") {
+    return appointment.hospital_address || "Hospital";
+  } else if (appointment.visit_type === "home") {
+    return appointment.home_address || "Patient's Home";
+  }
+  return "Location TBD";
+};
+export const getAppointmentTitle = (appointment: Appointment) => {
+  if (appointment.appointment_type === "virtual") {
+    return "Virtual appointment";
+  } else if (appointment.visit_type === "hospital") {
+    return "Hospital appointment";
+  } else if (appointment.visit_type === "home") {
+    return "At-home appointment";
+  }
+  return "Appointment";
+};

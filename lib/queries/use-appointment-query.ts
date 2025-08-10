@@ -112,16 +112,16 @@ export const useGetCaregiverAppointmentDetails = (appointmentId: string) => {
 };
 
 // Caregiver Appointment Mutations
-export const useMarkAppointmentAsArrived = () => {
+export const useMarkAppointmentAsArrived = (pathname: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ["appointments", "markArrived"],
     mutationFn: async (values: {
-      id: string;
+      id: number;
       additional_note_caregiver: string;
     }) => {
-      const data = await markAppointmentAsArrived(values);
+      const data = await markAppointmentAsArrived(values, pathname);
       if (data.success) {
         return data;
       }

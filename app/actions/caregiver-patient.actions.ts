@@ -113,7 +113,20 @@ export const getCaregiverPatientHistory = async ({
         message: string;
         histories: {
           current_page: number;
-          data: User[];
+          data: {
+            id: number;
+            user_id: string;
+            caregiver_id: string;
+            start_date: string;
+            end_date: string;
+            created_at: string;
+            updated_at: string;
+            patient: {
+              id: number;
+              first_name: string;
+              last_name: string;
+            };
+          }[];
           from: number;
           last_page: number;
           per_page: number;
@@ -126,7 +139,20 @@ export const getCaregiverPatientHistory = async ({
         message: string;
         histories: {
           current_page: number;
-          data: User[];
+          data: {
+            id: number;
+            user_id: string;
+            caregiver_id: string;
+            start_date: string;
+            end_date: string;
+            created_at: string;
+            updated_at: string;
+            patient: {
+              id: number;
+              first_name: string;
+              last_name: string;
+            };
+          }[];
           from: number;
           last_page: number;
           per_page: number;

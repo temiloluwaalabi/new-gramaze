@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { billingService, caregiverServices } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
-import { Appointment, ApiResponse, User } from "@/types";
+import { Appointment, ApiResponse } from "@/types";
 
 import { getSession } from "../session.actions";
 
@@ -49,7 +49,20 @@ export const getCaregiverHistory = async ({
         message: string;
         histories: {
           current_page: number;
-          data: User[];
+          data: {
+            id: number;
+            user_id: string;
+            caregiver_id: string;
+            start_date: string;
+            end_date: string;
+            created_at: string;
+            updated_at: string;
+            caregiver: {
+              id: number;
+              first_name: string;
+              last_name: string;
+            };
+          }[];
           from: number;
           last_page: number;
           per_page: number;
@@ -62,7 +75,20 @@ export const getCaregiverHistory = async ({
         message: string;
         histories: {
           current_page: number;
-          data: User[];
+          data: {
+            id: number;
+            user_id: string;
+            caregiver_id: string;
+            start_date: string;
+            end_date: string;
+            created_at: string;
+            updated_at: string;
+            caregiver: {
+              id: number;
+              first_name: string;
+              last_name: string;
+            };
+          }[];
           from: number;
           last_page: number;
           per_page: number;

@@ -27,9 +27,10 @@ export const CaregiverAppointmentWidget = ({ appointment, isHori }: Props) => {
               alt={`${appointment.name}'s avatar`}
             />
             <CaregiverAppointmentSheet
+              appointment={appointment}
               sheetTrigger={
                 <div className="space-y-0.5 sm:space-y-1">
-                  <h4 className="line-clamp-1 cursor-pointer text-sm font-semibold text-[#303030] sm:text-base">
+                  <h4 className="line-clamp-1 cursor-pointer text-left text-sm font-semibold text-[#303030] sm:text-base">
                     {appointment.name}
                   </h4>
                   <p className="text-left text-xs font-normal text-[#66666B] sm:text-sm">
@@ -72,6 +73,12 @@ export const CaregiverAppointmentWidget = ({ appointment, isHori }: Props) => {
             <Clock className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
             <span className="text-xs font-normal text-[#66666B] sm:text-sm">
               {appointment.startTime} - {appointment.endTime}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
+            <span className="text-xs font-normal text-[#66666B] capitalize sm:text-sm">
+              {appointment.appointment_type} Appointment
             </span>
           </div>
 

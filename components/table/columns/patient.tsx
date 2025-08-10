@@ -5,37 +5,49 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DEFAULT_IMAGE_URL } from "@/config/constants";
-import { User } from "@/types";
 
 // Helper function to calculate age from date of birth
-const calculateAge = (dob: string | null): number | null => {
-  if (!dob) return null;
+// const calculateAge = (dob: string | null): number | null => {
+//   if (!dob) return null;
 
-  const birthDate = new Date(dob);
-  const today = new Date();
+//   const birthDate = new Date(dob);
+//   const today = new Date();
 
-  // Check if the date is valid
-  if (isNaN(birthDate.getTime())) return null;
+//   // Check if the date is valid
+//   if (isNaN(birthDate.getTime())) return null;
 
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
+//   let age = today.getFullYear() - birthDate.getFullYear();
+//   const monthDiff = today.getMonth() - birthDate.getMonth();
 
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < birthDate.getDate())
-  ) {
-    age--;
-  }
+//   if (
+//     monthDiff < 0 ||
+//     (monthDiff === 0 && today.getDate() < birthDate.getDate())
+//   ) {
+//     age--;
+//   }
 
-  return age;
-};
+//   return age;
+// };
 
 // Helper function to get initials from first and last name
 const getInitials = (firstName: string, lastName: string): string => {
   return `${firstName?.charAt(0) || ""}${lastName?.charAt(0) || ""}`.toUpperCase();
 };
 
-export const PatientsColumn: ColumnDef<User>[] = [
+export const PatientsColumn: ColumnDef<{
+  id: number;
+  user_id: string;
+  caregiver_id: string;
+  start_date: string;
+  end_date: string;
+  created_at: string;
+  updated_at: string;
+  patient: {
+    id: number;
+    first_name: string;
+    last_name: string;
+  };
+}>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -65,7 +77,10 @@ export const PatientsColumn: ColumnDef<User>[] = [
     header: "Name",
     cell: ({ row }) => {
       const patient = row.original;
-      const initials = getInitials(patient.first_name, patient.last_name);
+      const initials = getInitials(
+        patient.patient.first_name,
+        patient.patient.last_name
+      );
 
       return (
         <div className="flex items-center space-x-2">
@@ -79,7 +94,7 @@ export const PatientsColumn: ColumnDef<User>[] = [
             href={`/caregiver/patients/${patient.id}`}
             className="text-sm font-medium transition-colors hover:text-blue-600"
           >
-            {patient.first_name} {patient.last_name}
+            {patient.patient.first_name} {patient.patient.last_name}
           </Link>
         </div>
       );
@@ -88,35 +103,24 @@ export const PatientsColumn: ColumnDef<User>[] = [
   {
     accessorKey: "email",
     header: "Email",
-    cell: ({ row }) => {
-      const patient = row.original;
-      return (
-        <span className="text-sm text-gray-600">
-          {patient.email || "Not provided"}
-        </span>
-      );
+    cell: () => {
+      return <span className="text-sm text-gray-600">{"Not provided"}</span>;
     },
   },
   {
     accessorKey: "phone",
     header: "Phone",
-    cell: ({ row }) => {
-      const patient = row.original;
-      return (
-        <span className="text-sm text-gray-600">
-          {patient.phone || "Not provided"}
-        </span>
-      );
+    cell: () => {
+      return <span className="text-sm text-gray-600">{"Not provided"}</span>;
     },
   },
   {
     accessorKey: "gender",
     header: "Gender",
-    cell: ({ row }) => {
-      const patient = row.original;
+    cell: () => {
       return (
         <span className="text-sm text-gray-600 capitalize">
-          {patient.gender || "Not specified"}
+          {"Not specified"}
         </span>
       );
     },
@@ -124,23 +128,18 @@ export const PatientsColumn: ColumnDef<User>[] = [
   {
     accessorKey: "dob",
     header: "Age",
-    cell: ({ row }) => {
-      const patient = row.original;
-      const age = calculateAge(patient.dob);
+    cell: () => {
+      // const patient = row.original;
+      // const age = calculateAge(patient.dob);
 
-      return (
-        <span className="text-sm text-gray-600">
-          {age !== null ? `${age} years` : "Not provided"}
-        </span>
-      );
+      return <span className="text-sm text-gray-600">{"Not provided"}</span>;
     },
   },
   {
     accessorKey: "user_status",
     header: "Status",
-    cell: ({ row }) => {
-      const patient = row.original;
-      const status = patient.user_status;
+    cell: () => {
+      const status = "active";
 
       const getStatusColor = (status: string) => {
         switch (status?.toLowerCase()) {

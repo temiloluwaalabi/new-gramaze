@@ -367,7 +367,7 @@ export const appointmentService = {
       );
     },
     markAppointmentAsArrived: async (values: {
-      id: string;
+      id: number;
 
       additional_note_caregiver: string;
     }) => {
@@ -522,7 +522,20 @@ export const caregiverServices = {
         message: string;
         histories: {
           current_page: number;
-          data: User[];
+          data: {
+            id: number;
+            user_id: string;
+            caregiver_id: string;
+            start_date: string;
+            end_date: string;
+            created_at: string;
+            updated_at: string;
+            caregiver: {
+              id: number;
+              first_name: string;
+              last_name: string;
+            };
+          }[];
           from: number;
           last_page: number;
           per_page: number;
@@ -580,7 +593,20 @@ export const caregiverServices = {
         message: string;
         histories: {
           current_page: number;
-          data: User[];
+          data: {
+            id: number;
+            user_id: string;
+            caregiver_id: string;
+            start_date: string;
+            end_date: string;
+            created_at: string;
+            updated_at: string;
+            patient: {
+              id: number;
+              first_name: string;
+              last_name: string;
+            };
+          }[];
           from: number;
           last_page: number;
           per_page: number;
@@ -818,37 +844,66 @@ export const adminServices = {
         },
       });
     },
-
-    //  getUserDetails: async (userId: string) => {
-    // try {
-    //   const session = await getSession();
-    //   const response = await backendAPiClient.request({
-    //     method: 'GET',
-    //     maxBodyLength: Infinity,
-    //     url: `${gramazeEndpoints.onboarding.updateProfile}`,
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       Authorization: `Bearer ${session.accessToken}`,
-    //     },
-    //     data: {
-    //       first_name: values.first_name,
-    //       last_name: values.last_name,
-    //       dob: values.dob,
-    //       gender: values.gender,
-    //       phone: values.phoneNumber,
-    //       address: values.address,
-    //     },
-    //   });
-
-    //   console.log('RESPONSE TWO', response);
-    //   return {
-    //     status: response.data.status as boolean,
-    //     message: response.data.message as string,
-    //     user: response.data.user as User,
-    //   };
-    // } catch (error) {
-    //   return handleApiBackendError(error);
-    // }
+    getAllUsers: async () => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        data: {
+          users: User[];
+          pagination: {
+            page: number;
+            per_page: number;
+            last_page: number;
+            total: number;
+          };
+        };
+      }>(`${gramazeEndpoints.admin.user.all}`, "GET");
+    },
+    getActiveUsers: async () => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        data: {
+          users: User[];
+          pagination: {
+            page: number;
+            per_page: number;
+            last_page: number;
+            total: number;
+          };
+        };
+      }>(`${gramazeEndpoints.admin.user.active}`, "GET");
+    },
+    getInactiveUsers: async () => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        data: {
+          users: User[];
+          pagination: {
+            page: number;
+            per_page: number;
+            last_page: number;
+            total: number;
+          };
+        };
+      }>(`${gramazeEndpoints.admin.user.inactive}`, "GET");
+    },
+    getSuspendedUsers: async () => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        data: {
+          users: User[];
+          pagination: {
+            page: number;
+            per_page: number;
+            last_page: number;
+            total: number;
+          };
+        };
+      }>(`${gramazeEndpoints.admin.user.suspended}`, "GET");
+    },
   },
   patient_management: {
     getPatientStats: async () => {

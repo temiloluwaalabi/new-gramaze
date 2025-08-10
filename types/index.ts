@@ -91,7 +91,7 @@ export interface User {
 }
 export interface Appointment {
   id: number;
-  user_id: string | number;
+  user_id: string;
   caregiver_id: string | number;
   appointment_type: "virtual" | "physical";
   visit_type: "home" | "hospital" | null;

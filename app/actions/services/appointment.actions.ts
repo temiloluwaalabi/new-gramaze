@@ -393,10 +393,13 @@ export const getCaregiverAppointmentDetails = async (appointmentId: string) => {
   }
 };
 
-export const markAppointmentAsArrived = async (values: {
-  id: string;
-  additional_note_caregiver: string;
-}) => {
+export const markAppointmentAsArrived = async (
+  values: {
+    id: number;
+    additional_note_caregiver: string;
+  },
+  pathname: string
+) => {
   try {
     if (!values.id) {
       throw new ApiError({
@@ -440,7 +443,7 @@ export const markAppointmentAsArrived = async (values: {
 
     console.log("SUCCESS RESPONSE", successResponse);
     revalidatePath("/appointments");
-    revalidatePath("/");
+    revalidatePath(pathname);
     return {
       success: true,
       message: successResponse.message,
