@@ -20,7 +20,7 @@ export default function MobileQuickActions() {
         >
           <div className="flex h-full min-h-[70px] w-full items-center justify-center gap-2 rounded-lg bg-green-500 px-3 py-4 text-white shadow-md">
             <CalendarCheck className="h-5 w-5 shrink-0" />
-            <span className="text-sm font-medium whitespace-nowrap">
+            <span className="text-[12px] font-medium whitespace-nowrap">
               Book Appointment
             </span>
           </div>
@@ -32,7 +32,7 @@ export default function MobileQuickActions() {
         >
           <div className="flex h-full min-h-[70px] w-full items-center justify-center gap-2 rounded-lg bg-blue-500 px-3 py-4 text-white shadow-md">
             <HeartPulse className="h-5 w-5 shrink-0" />
-            <span className="text-sm font-medium whitespace-nowrap">
+            <span className="text-[12px] font-medium whitespace-nowrap">
               View Health Tracker
             </span>
           </div>
