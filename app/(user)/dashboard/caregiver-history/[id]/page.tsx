@@ -1,6 +1,10 @@
+import { notFound } from "next/navigation";
 import React from "react";
 
-import { getCaregiverHistory } from "@/app/actions/services/caregiver.actions";
+import {
+  getCaregiverHistory,
+  getCaregiverHistoryDetails,
+} from "@/app/actions/services/caregiver.actions";
 import SingleCaregiverDetailsPage from "@/components/pages/single-caregiver-details-page";
 
 export default async function SingleCaregiverDash({
@@ -10,8 +14,14 @@ export default async function SingleCaregiverDash({
 }) {
   // const users = await getAllUsers();
   const id = (await params).id;
-  // const pageUser = users.users.find((user) => user.id === Number(id));
+  const caregiver = await getCaregiverHistoryDetails(id.toString());
   const patientCaregivers = await getCaregiverHistory();
+
+  if (!caregiver.data) {
+    return notFound();
+  }
+
+  console.log("CAREGIVERSA", patientCaregivers);
 
   // if (!pageUser) {
   //   return notFound();
@@ -19,9 +29,10 @@ export default async function SingleCaregiverDash({
   return (
     <SingleCaregiverDetailsPage
       caregivers={patientCaregivers.caregivers.data.filter(
-        (user) => user.caregiver_id !== id.toString()
+        (user) => user.caregiver_id === id.toString()
       )}
       caregiverId={id}
+      caregiver={caregiver.data}
       // currentUser={pageUser}
     />
   );

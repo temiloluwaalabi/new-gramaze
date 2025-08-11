@@ -555,7 +555,20 @@ export const caregiverServices = {
       return makeApiRequest<{
         status: true;
         message: string;
-        appointment: Appointment;
+        caregiver: {
+          id: number;
+          first_name: string;
+          last_name: string;
+          email: string;
+          phone: string;
+          created_at: string;
+          caregiver_histories: {
+            id: number;
+            caregiver_id: string;
+            start_date: string;
+            end_date: string;
+          }[];
+        };
       }>(`${gramazeEndpoints.caregiver.user.detail}`, "GET", {
         params: {
           caregiver_id,

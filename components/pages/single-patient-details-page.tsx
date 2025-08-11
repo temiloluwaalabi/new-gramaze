@@ -1,6 +1,7 @@
 "use client";
 import {
   Calendar,
+  CalendarIcon,
   ChevronRight,
   Clock,
   Ellipsis,
@@ -153,56 +154,68 @@ export default function SinglePatientDetailsPage({
             </div>
           </div>
           <Separator className="my-4 bg-[#E8E8E8]" />
-          {appointments.map((appointment) => (
-            <div
-              className="rounded-[6px] border border-[#E8E8E8] bg-white p-3"
-              key={appointment.id}
-            >
-              <div className="space-y-3 sm:space-y-4">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <h4 className="line-clamp-1 cursor-pointer text-sm font-semibold text-[#303030] sm:text-base">
-                      {getAppointmentTitle(appointment)}
-                    </h4>
-                  </div>
-
-                  <div className="mt-1 flex items-center gap-2 self-end sm:mt-0 sm:self-auto">
-                    <Ellipsis className="size-4 text-gray-500 sm:size-5" />
-                  </div>
-                </div>
-
-                <Separator className="bg-[#E8E8E8]" />
-
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-[130px]">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
-                      <span className="text-xs font-normal text-[#303030] sm:text-sm">
-                        {formatDate(appointment.date)}
-                      </span>
+          {appointments.length > 0 ? (
+            appointments.map((appointment) => (
+              <div
+                className="rounded-[6px] border border-[#E8E8E8] bg-white p-3"
+                key={appointment.id}
+              >
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <h4 className="line-clamp-1 cursor-pointer text-sm font-semibold text-[#303030] sm:text-base">
+                        {getAppointmentTitle(appointment)}
+                      </h4>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <Clock className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
-                      <span className="text-xs font-normal text-[#66666B] sm:text-sm">
-                        {appointment.time}
-                      </span>
+                    <div className="mt-1 flex items-center gap-2 self-end sm:mt-0 sm:self-auto">
+                      <Ellipsis className="size-4 text-gray-500 sm:size-5" />
                     </div>
                   </div>
-                  <div className="flex items-center gap-[130px]">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="mt-0.5 size-4 flex-shrink-0 text-gray-500 sm:size-5" />
-                      <div className="flex flex-col">
-                        <span className="line-clamp-2 text-xs font-normal text-[#66666B] sm:line-clamp-none sm:text-sm">
-                          {getAppointmentLocation(appointment)}
+
+                  <Separator className="bg-[#E8E8E8]" />
+
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-[130px]">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
+                        <span className="text-xs font-normal text-[#303030] sm:text-sm">
+                          {formatDate(appointment.date)}
                         </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Clock className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
+                        <span className="text-xs font-normal text-[#66666B] sm:text-sm">
+                          {appointment.time}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-[130px]">
+                      <div className="flex items-start gap-2">
+                        <MapPin className="mt-0.5 size-4 flex-shrink-0 text-gray-500 sm:size-5" />
+                        <div className="flex flex-col">
+                          <span className="line-clamp-2 text-xs font-normal text-[#66666B] sm:line-clamp-none sm:text-sm">
+                            {getAppointmentLocation(appointment)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8">
+              <CalendarIcon className="mb-3 text-[#b0b0b0]" size={48} />
+              <span className="text-base font-medium text-[#71717a]">
+                No appointments found
+              </span>
+              <span className="mt-1 text-sm text-[#b0b0b0]">
+                You have no upcoming appointments at the moment.
+              </span>
             </div>
-          ))}
+          )}
         </div>
         <div className="space-y-6">
           <div className="h-fit rounded-[6px] border border-[#E8E8E8] bg-white p-4">

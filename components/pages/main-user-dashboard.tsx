@@ -12,7 +12,7 @@ import {
   formatDate,
 } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
-import { Appointment, User } from "@/types";
+import { Appointment } from "@/types";
 
 import { HealthVitalsChart } from "../charts/health-vitals-chart";
 import { Message } from "../shared/message-widget";
@@ -46,7 +46,20 @@ type MainUserDashboardProps = {
     user_id: string;
     caregiver_id: string;
   }[];
-  caregivers: User[];
+  caregivers: {
+    id: number;
+    user_id: string;
+    caregiver_id: string;
+    start_date: string;
+    end_date: string;
+    created_at: string;
+    updated_at: string;
+    caregiver: {
+      id: number;
+      first_name: string;
+      last_name: string;
+    };
+  }[];
   messages: MessagePreview[];
 };
 
@@ -57,24 +70,41 @@ export const MainUserDashboard = ({
   caregivers,
 }: MainUserDashboardProps) => {
   const { user } = useUserStore();
-  const presure = "120/56";
 
-  const data = healthTrackers.map((tracker) => {
-    // blood_pressure is in "systolic/diastolic" format, e.g., "120/80"
-    const [systolicStr, diastolicStr] = presure.split("/");
-    const systolic = Number(systolicStr);
-    const diastolic = Number(diastolicStr);
+  const data = (() => {
+    if (!healthTrackers?.length) return [];
 
-    return {
-      name: new Date(tracker.created_at).toLocaleDateString(),
-      bodyWeight: Number(tracker.weight),
-      bloodPressure: {
-        systolic,
-        diastolic,
-      },
-    };
-  });
-  console.log("USER", user);
+    // Sort by created_at ascending so carry-forward works correctly
+    const sorted = [...healthTrackers].sort(
+      (a, b) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+
+    let lastWeight = 0;
+
+    return sorted.map((tracker) => {
+      // Carry forward last recorded weight
+      if (tracker.weight) {
+        lastWeight = Number(tracker.weight) || lastWeight;
+      }
+
+      // Clean and parse blood pressure
+      let systolic = 0;
+      let diastolic = 0;
+      if (tracker.blood_pressure) {
+        const cleanedBP = tracker.blood_pressure.replace(/[^\d/]/g, "");
+        const [systolicStr, diastolicStr] = cleanedBP.split("/");
+        systolic = Number(systolicStr) || 0;
+        diastolic = Number(diastolicStr) || 0;
+      }
+
+      return {
+        name: new Date(tracker.created_at).toLocaleDateString(),
+        bodyWeight: lastWeight,
+        bloodPressure: { systolic, diastolic },
+      };
+    });
+  })();
   const [appointmentView, setAppointmentView] = React.useState("calendar");
 
   const isMobile = useIsMobile();
@@ -177,7 +207,8 @@ export const MainUserDashboard = ({
                   ))}
                 </div>
                 <span className="text-sm font-normal text-[#66666B]">
-                  {caregivers[0]?.first_name} {caregivers[0]?.last_name}
+                  {caregivers[0]?.caregiver.first_name}{" "}
+                  {caregivers[0]?.caregiver.last_name}
                   {caregivers.length > 1 && (
                     <span className="text-blue-600">
                       {` + ${caregivers.length - 1} other${caregivers.length - 1 > 1 ? "s" : ""}`}

@@ -4,7 +4,13 @@ import { revalidatePath } from "next/cache";
 
 import { billingService, caregiverServices } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
-import { Appointment, ApiResponse, User, PatientHistoryDetails } from "@/types";
+import {
+  Appointment,
+  ApiResponse,
+  User,
+  PatientHistoryDetails,
+  CaregiverHistoryDetails,
+} from "@/types";
 
 import { getSession } from "../session.actions";
 // Server action result type that matches Next.js patterns
@@ -127,30 +133,58 @@ export const getCaregiverHistory = async ({
   }
 };
 
-export const getCaregiverHistoryDetails = async (caregiver_id: string) => {
+export const getCaregiverHistoryDetails = async (
+  caregiver_id: string
+): Promise<ServerActionResult<CaregiverHistoryDetails>> => {
   try {
-    if (!caregiver_id) {
-      throw new ApiError({
-        statusCode: 400,
+    if (!caregiver_id || typeof caregiver_id !== "string") {
+      return {
+        success: false,
         message: "Caregiver ID is required",
-        errorType: "ValidationError",
-      });
+        errors: ["Caregiver ID is required"],
+      };
     }
 
     const sessionToken = await getSession();
     if (!sessionToken) {
-      throw new ApiError({
-        statusCode: 401,
-        message: "No active session found",
-        errorType: "SessionError",
-      });
+      return {
+        success: false,
+        message: "Authentication required",
+        errors: ["Please log in to continue"],
+      };
     }
 
     const response =
       await caregiverServices.user.getCaregiverHistoryDetails(caregiver_id);
 
     if (ApiError.isAPiError(response)) {
-      throw response;
+      const apiError = response as ApiError;
+
+      const result: ServerActionResult<CaregiverHistoryDetails> = {
+        success: false,
+        message: Array.isArray(apiError.message)
+          ? apiError.message[0]
+          : apiError.message || "An error occured",
+        errors: Array.isArray(apiError.message)
+          ? apiError.message[0]
+          : apiError.message || "An error occured",
+      };
+
+      if (apiError.errorType === "VALIDATION_ERROR" && apiError.rawErrors) {
+        result.fieldErrors = {};
+
+        if (apiError.rawErrors && typeof apiError.rawErrors === "object") {
+          for (const [field, messages] of Object.entries(apiError.rawErrors)) {
+            if (Array.isArray(messages)) {
+              result.fieldErrors[field] = messages;
+            } else if (typeof messages === "string") {
+              result.fieldErrors[field] = [messages];
+            }
+          }
+        }
+      }
+
+      return result;
     }
 
     const successResponse = response as {
@@ -160,34 +194,59 @@ export const getCaregiverHistoryDetails = async (caregiver_id: string) => {
       data: {
         status: true;
         message: string;
-        appointment: Appointment;
+        caregiver: {
+          id: number;
+          first_name: string;
+          last_name: string;
+          email: string;
+          phone: string;
+          created_at: string;
+          caregiver_histories: {
+            id: number;
+            caregiver_id: string;
+            start_date: string;
+            end_date: string;
+          }[];
+        };
       };
       rawResponse: ApiResponse<{
         status: true;
         message: string;
-        appointment: Appointment;
+        caregiver: {
+          id: number;
+          first_name: string;
+          last_name: string;
+          email: string;
+          phone: string;
+          created_at: string;
+          caregiver_histories: {
+            id: number;
+            caregiver_id: string;
+            start_date: string;
+            end_date: string;
+          }[];
+        };
       }>;
     };
 
     console.log("SUCCESS RESPONSE", successResponse);
     return {
       success: true,
-      message: successResponse.message,
-      appointment: successResponse.data.appointment,
+      message:
+        successResponse.message || "Caregiver details retrieved successfully",
+      data: successResponse.data.caregiver,
     };
   } catch (error) {
-    console.error("Get Caregiver History Details Error:", error);
+    console.error("Get patient History Details Error:", error);
 
-    if (error instanceof ApiError) {
-      throw error;
-    }
-
-    throw new ApiError({
-      statusCode: 500,
-      message:
+    // Handle unexpected errors
+    return {
+      success: false,
+      message: "An unexpected error occurred",
+      errors: [
         error instanceof Error ? error.message : "An unknown error occurred",
-      errorType: "UnknownError",
-    });
+      ],
+    };
   }
 };
 export const getPatientHistoryDetails = async (
