@@ -4,10 +4,17 @@ import { revalidatePath } from "next/cache";
 
 import { billingService, caregiverServices } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
-import { Appointment, ApiResponse } from "@/types";
+import { Appointment, ApiResponse, User, PatientHistoryDetails } from "@/types";
 
 import { getSession } from "../session.actions";
-
+// Server action result type that matches Next.js patterns
+export type ServerActionResult<T> = {
+  success: boolean;
+  message: string;
+  data?: T;
+  errors?: string[]; // For form validation errors
+  fieldErrors?: Record<string, string[]>; // For field-specific errors
+};
 export const getCaregiverHistory = async ({
   per_page,
   end_date,
@@ -181,6 +188,98 @@ export const getCaregiverHistoryDetails = async (caregiver_id: string) => {
         error instanceof Error ? error.message : "An unknown error occurred",
       errorType: "UnknownError",
     });
+  }
+};
+export const getPatientHistoryDetails = async (
+  patient_id: string
+): Promise<ServerActionResult<PatientHistoryDetails>> => {
+  try {
+    if (!patient_id || typeof patient_id !== "string") {
+      return {
+        success: false,
+        message: "Caregiver ID is required",
+        errors: ["Caregiver ID is required"],
+      };
+    }
+
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      return {
+        success: false,
+        message: "Authentication required",
+        errors: ["Please log in to continue"],
+      };
+    }
+
+    const response =
+      await caregiverServices.caregiver.getPatientHistoryDetails(patient_id);
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+
+      const result: ServerActionResult<PatientHistoryDetails> = {
+        success: false,
+        message: Array.isArray(apiError.message)
+          ? apiError.message[0]
+          : apiError.message || "An error occured",
+        errors: Array.isArray(apiError.message)
+          ? apiError.message[0]
+          : apiError.message || "An error occured",
+      };
+
+      if (apiError.errorType === "VALIDATION_ERROR" && apiError.rawErrors) {
+        result.fieldErrors = {};
+
+        if (apiError.rawErrors && typeof apiError.rawErrors === "object") {
+          for (const [field, messages] of Object.entries(apiError.rawErrors)) {
+            if (Array.isArray(messages)) {
+              result.fieldErrors[field] = messages;
+            } else if (typeof messages === "string") {
+              result.fieldErrors[field] = [messages];
+            }
+          }
+        }
+      }
+
+      return result;
+    }
+
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: {
+        status: true;
+        message: string;
+        patient: Partial<User>;
+      };
+      rawResponse: ApiResponse<{
+        status: true;
+        message: string;
+        patient: Partial<User>;
+      }>;
+    };
+
+    console.log("SUCCESS RESPONSE", successResponse);
+    return {
+      success: true,
+      message:
+        successResponse.message || "Patient details retrieved successfully",
+      data: {
+        patient: successResponse.data.patient,
+      },
+    };
+  } catch (error) {
+    console.error("Get patient History Details Error:", error);
+
+    // Handle unexpected errors
+    return {
+      success: false,
+      message: "An unexpected error occurred",
+      errors: [
+        error instanceof Error ? error.message : "An unknown error occurred",
+      ],
+    };
   }
 };
 

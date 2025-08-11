@@ -618,6 +618,17 @@ export const caregiverServices = {
         },
       });
     },
+    getPatientHistoryDetails: async (patient_id: string) => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        patient: Partial<User>;
+      }>(`${gramazeEndpoints.caregiver.patient.detail}`, "GET", {
+        params: {
+          patient_id,
+        },
+      });
+    },
   },
 };
 export const billingService = {
@@ -1070,6 +1081,31 @@ export const adminServices = {
       }>(`${gramazeEndpoints.admin.healthReport.delete}`, "POST", {
         pathname,
         body: values,
+      });
+    },
+  },
+  appointment_management: {
+    getAppointmentByUser: async ({
+      user_id,
+    }: {
+      user_id?: number;
+    } = {}) => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        appointments: {
+          current_page: number;
+          data: Appointment[];
+          from: number;
+          last_page: number;
+          per_page: number;
+          to: number;
+          total: number;
+        };
+      }>(`${gramazeEndpoints.admin.patient.getAppointments}`, "GET", {
+        params: {
+          ...(user_id && { user_id }),
+        },
       });
     },
   },

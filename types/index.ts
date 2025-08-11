@@ -228,3 +228,10 @@ export interface BackendConversation {
 }
 
 export type ConversationsResponse = BackendConversation[]; // API returns raw array
+
+// Define the data type based on your actual service response
+export type PatientHistoryDetails = {
+  // status: true;
+  // message: string;
+  patient: Partial<User>;
+};
