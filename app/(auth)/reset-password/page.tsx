@@ -10,6 +10,6 @@ export default function ResetPasswordPage() {
       bgImage="https://res.cloudinary.com/davidleo/image/upload/v1744665655/6d1514ca15ce0516275ee0946cc6fe7a_ntkzw0.jpg"
       authTitle="Reset Password"
       form={<ResetPasswordForm />}
-    />
+    /> 
   );
 }
