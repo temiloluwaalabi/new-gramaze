@@ -148,7 +148,7 @@ export const determineAppointmentStatus = (
   }
 
   // Future appointments are pending
-  return AppointmentStatus.Pending;
+  return AppointmentStatus.Completed;
 };
 
 // Helper function to get full name from user

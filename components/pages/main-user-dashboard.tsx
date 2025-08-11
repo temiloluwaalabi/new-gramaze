@@ -81,27 +81,30 @@ export const MainUserDashboard = ({
     );
 
     let lastWeight = 0;
+    let lastSystolic = 0;
+    let lastDiastolic = 0;
 
     return sorted.map((tracker) => {
-      // Carry forward last recorded weight
+      // Weight carry-forward
       if (tracker.weight) {
         lastWeight = Number(tracker.weight) || lastWeight;
       }
 
-      // Clean and parse blood pressure
-      let systolic = 0;
-      let diastolic = 0;
+      // Blood pressure carry-forward
       if (tracker.blood_pressure) {
         const cleanedBP = tracker.blood_pressure.replace(/[^\d/]/g, "");
         const [systolicStr, diastolicStr] = cleanedBP.split("/");
-        systolic = Number(systolicStr) || 0;
-        diastolic = Number(diastolicStr) || 0;
+        if (systolicStr) lastSystolic = Number(systolicStr) || lastSystolic;
+        if (diastolicStr) lastDiastolic = Number(diastolicStr) || lastDiastolic;
       }
 
       return {
         name: new Date(tracker.created_at).toLocaleDateString(),
         bodyWeight: lastWeight,
-        bloodPressure: { systolic, diastolic },
+        bloodPressure: {
+          systolic: lastSystolic,
+          diastolic: lastDiastolic,
+        },
       };
     });
   })();
