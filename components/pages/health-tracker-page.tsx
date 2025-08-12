@@ -19,7 +19,30 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+type Tracker = {
+  id: number;
+  blood_glucose: string | null;
+  blood_pressure: string | null;
+  weight: string | null;
+  pulse: string | null;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  caregiver_id: string;
+};
 
+type Vital = {
+  value: string;
+  updated_at: string;
+  id: number;
+};
+
+type LatestVitals = {
+  blood_pressure: Vital | null;
+  blood_glucose: Vital | null;
+  pulse: Vital | null;
+  weight: Vital | null;
+};
 type HealthTrackerPageProps = {
   healthTrackers: {
     id: number;
@@ -66,6 +89,45 @@ export const HealthTrackerPage = ({
   const [searchQuery, setSearchQuery] = React.useState("");
   const { isPending, data: HealthTracker } = useGetLastTracker();
 
+  const getLatestVitals = (trackers?: Tracker[]): LatestVitals | null => {
+    if (!trackers?.length) return null;
+
+    const sorted = [...trackers].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
+    const latest: LatestVitals = {
+      blood_pressure: null,
+      blood_glucose: null,
+      pulse: null,
+      weight: null,
+    };
+
+    for (const t of sorted) {
+      for (const key of [
+        "blood_pressure",
+        "blood_glucose",
+        "pulse",
+        "weight",
+      ] as const) {
+        if (!latest[key] && t[key]) {
+          latest[key] = {
+            value: t[key]!,
+            updated_at: t.updated_at,
+            id: t.id,
+          };
+        }
+      }
+      if (Object.values(latest).every(Boolean)) break;
+    }
+
+    return latest;
+  };
+
+  const latestVitals = getLatestVitals(healthTrackers);
+
+  console.log("HEALTH TRACKER", HealthTracker);
   return (
     <section className="space-y-3 !bg-white px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <section>
@@ -112,22 +174,22 @@ export const HealthTrackerPage = ({
               ) : HealthTracker?.health_tracker.blood_glucose ? (
                 <>
                   <HealthOverviewWidget
-                    title={HealthTracker.health_tracker.blood_glucose}
+                    title={latestVitals?.blood_glucose?.value ?? "0"}
                     category="Blood Glucose"
                     showStat
                   />
                   <HealthOverviewWidget
-                    title={HealthTracker.health_tracker.blood_pressure}
+                    title={latestVitals?.blood_pressure?.value ?? "0"}
                     category="Blood Pressure"
                     showStat
                   />
                   <HealthOverviewWidget
-                    title={`${HealthTracker.health_tracker.weight}kg`}
+                    title={`${latestVitals?.weight?.value ?? "0"}kg`}
                     category="Weight"
                     showStat
                   />
                   <HealthOverviewWidget
-                    title={`${HealthTracker.health_tracker.pulse}bpm`}
+                    title={`${latestVitals?.pulse?.value ?? "0"}bpm`}
                     category="Pulse"
                     showStat
                   />
