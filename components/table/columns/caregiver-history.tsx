@@ -9,9 +9,17 @@ import { formatDate } from "@/lib/utils";
 
 export const CaregiverHistory: ColumnDef<{
   id: number;
+  user_id: string;
   caregiver_id: string;
   start_date: string;
   end_date: string;
+  created_at: string;
+  updated_at: string;
+  caregiver: {
+    id: number;
+    first_name: string;
+    last_name: string;
+  };
 }>[] = [
   {
     id: "select",
@@ -39,8 +47,9 @@ export const CaregiverHistory: ColumnDef<{
   },
   {
     id: "caregiverName",
-    header: "Patient Name",
-    cell: () => {
+    header: " Name",
+    cell: ({ row }) => {
+      const caregiver = row.original;
       return (
         <div className="flex items-center space-x-2">
           <Avatar className="size-6">
@@ -48,11 +57,10 @@ export const CaregiverHistory: ColumnDef<{
             <AvatarImage src={DEFAULT_IMAGE_URL} />
           </Avatar>
           <Link
-            href={`/dashboard/caregiver-history/2`}
+            href={`/dashboard/caregiver-history/${caregiver.id}`}
             className="text-sm font-medium"
           >
-            Adebare Chris
-            {/* {caregiver.patient?.first_name} {caregiver.patient?.last_name} */}
+            {caregiver.caregiver.first_name} {caregiver?.caregiver.last_name}
           </Link>
         </div>
       );

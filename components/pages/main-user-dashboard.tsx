@@ -3,6 +3,7 @@ import { Calendar as CalendarIcon, List } from "lucide-react";
 import Image from "next/image";
 import * as React from "react";
 
+import { DEFAULT_IMAGE_URL } from "@/config/constants";
 import { getGreeting } from "@/hooks/use-greeting";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -205,7 +206,7 @@ export const MainUserDashboard = ({
                         idx > 0 && "-ml-4"
                       )}
                     >
-                      <AvatarImage src={"/default-avatar.png"} />
+                      <AvatarImage src={DEFAULT_IMAGE_URL} />
                     </Avatar>
                   ))}
                 </div>
