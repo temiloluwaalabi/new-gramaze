@@ -44,6 +44,7 @@ type SingleCaregiverDetailsPageProps = {
 };
 export default function SingleCaregiverDetailsPage({
   caregiver,
+  caregivers,
   caregiverId,
 }: SingleCaregiverDetailsPageProps) {
   return (
@@ -160,7 +161,7 @@ export default function SingleCaregiverDetailsPage({
           ],
         }}
         tableClassname="bg-white border border-[#E7EBED] !rounded-lg"
-        data={caregiver.caregiver_histories}
+        data={caregivers}
       />
     </section>
   );

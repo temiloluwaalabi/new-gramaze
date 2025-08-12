@@ -60,7 +60,7 @@ export const CaregiverHistory: ColumnDef<{
             href={`/dashboard/caregiver-history/${caregiver?.caregiver?.id}`}
             className="text-sm font-medium"
           >
-            {caregiver.caregiver?.first_name} {caregiver?.caregiver.last_name}
+            {caregiver?.caregiver?.first_name} {caregiver?.caregiver?.last_name}
           </Link>
         </div>
       );
