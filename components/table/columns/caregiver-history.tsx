@@ -57,10 +57,10 @@ export const CaregiverHistory: ColumnDef<{
             <AvatarImage src={DEFAULT_IMAGE_URL} />
           </Avatar>
           <Link
-            href={`/dashboard/caregiver-history/${caregiver.id}`}
+            href={`/dashboard/caregiver-history/${caregiver?.caregiver?.id}`}
             className="text-sm font-medium"
           >
-            {caregiver.caregiver.first_name} {caregiver?.caregiver.last_name}
+            {caregiver.caregiver?.first_name} {caregiver?.caregiver.last_name}
           </Link>
         </div>
       );
