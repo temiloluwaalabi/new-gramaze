@@ -8,8 +8,10 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 
+import { allRoutes } from "@/config/routes";
 import { formatDate, transformAppointmentData } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import { Appointment, User } from "@/types";
@@ -39,6 +41,7 @@ export default function CaregiverMainDashboardClient({
   messages,
 }: CaregiverMainDashboardProps) {
   const { user } = useUserStore();
+  const router = useRouter();
 
   const transformedData =
     appointments.length > 0 ? transformAppointmentData(appointments) : [];
@@ -66,7 +69,12 @@ export default function CaregiverMainDashboardClient({
                 <p className="text-sm font-normal text-[#66666B]">
                   {user?.email}
                 </p>
-                <Button className="!h-[24px] rounded-[4px] px-[7px] !py-[4px] text-sm font-medium text-white">
+                <Button
+                  onClick={() =>
+                    router.push(allRoutes.user.dashboard.settings.url)
+                  }
+                  className="!h-[24px] rounded-[4px] px-[7px] !py-[4px] text-sm font-medium text-white"
+                >
                   Manage profile
                 </Button>
               </div>
