@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import * as z from "zod";
 
 import { FormFieldTypes } from "@/config/enum";
@@ -56,7 +55,7 @@ export default function BiodataForm() {
     UpdateBiodata(values, {
       onSuccess: (data) => {
         setUser(data.user);
-        toast.success(data.message);
+        // toast.success(data.message);
         markStepComplete(currentStep);
         goToNextStep();
       },

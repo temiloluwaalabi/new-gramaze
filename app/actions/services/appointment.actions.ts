@@ -394,20 +394,18 @@ export const getCaregiverAppointmentDetails = async (appointmentId: string) => {
 };
 
 export const markAppointmentAsArrived = async (
-  values: {
-    id: number;
-    additional_note_caregiver: string;
-  },
+  values: FormData,
   pathname: string
 ) => {
   try {
-    if (!values.id) {
-      throw new ApiError({
-        statusCode: 400,
-        message: "Appointment ID is required",
-        errorType: "ValidationError",
-      });
-    }
+    // if (!values.id) {
+    //   throw new ApiError({
+    //     statusCode: 400,
+    //     message: "Appointment ID is required",
+    //     errorType: "ValidationError",
+    //   });
+    // }
+    console.log("FORMDATA", values);
 
     const sessionToken = await getSession();
     if (!sessionToken) {

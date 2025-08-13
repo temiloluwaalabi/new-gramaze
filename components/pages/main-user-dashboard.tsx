@@ -1,9 +1,11 @@
 "use client";
 import { Calendar as CalendarIcon, List } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import * as React from "react";
 
 import { DEFAULT_IMAGE_URL } from "@/config/constants";
+import { allRoutes } from "@/config/routes";
 import { getGreeting } from "@/hooks/use-greeting";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -71,7 +73,7 @@ export const MainUserDashboard = ({
   caregivers,
 }: MainUserDashboardProps) => {
   const { user } = useUserStore();
-
+  const router = useRouter();
   const data = (() => {
     if (!healthTrackers?.length) return [];
 
@@ -150,7 +152,12 @@ export const MainUserDashboard = ({
                 <p className="text-sm font-normal text-[#66666B]">
                   {user?.email}
                 </p>
-                <Button className="!h-[24px] rounded-[4px] px-[7px] !py-[4px] text-sm font-medium text-white">
+                <Button
+                  onClick={() =>
+                    router.push(allRoutes.user.dashboard.settings.url)
+                  }
+                  className="!h-[24px] rounded-[4px] px-[7px] !py-[4px] text-sm font-medium text-white"
+                >
                   Manage profile
                 </Button>
               </div>
@@ -191,7 +198,7 @@ export const MainUserDashboard = ({
               </span>
             </span>
           </div>
-          <div className="mt-3 hidden flex-col md:block">
+          <div className="mt-3 hidden flex-col md:flex">
             <span className="text-xs font-normal text-[#66666B]">
               Current Caregivers
             </span>

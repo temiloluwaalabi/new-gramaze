@@ -10,9 +10,9 @@ export default async function CaregiverPatientDash() {
   return (
     <CaregiverPatientsClientPage
       allPatients={
-        Array.isArray(patients.patients)
-          ? patients.patients
-          : patients.patients.data || []
+        patients?.success && Array.isArray(patients.histories.data)
+          ? patients.histories.data
+          : []
       }
     />
   );

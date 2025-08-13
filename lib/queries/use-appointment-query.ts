@@ -117,10 +117,9 @@ export const useMarkAppointmentAsArrived = (pathname: string) => {
 
   return useMutation({
     mutationKey: ["appointments", "markArrived"],
-    mutationFn: async (values: {
-      id: number;
-      additional_note_caregiver: string;
-    }) => {
+    mutationFn: async (values: FormData) => {
+      console.log("FORMDATA", values);
+
       const data = await markAppointmentAsArrived(values, pathname);
       if (data.success) {
         return data;

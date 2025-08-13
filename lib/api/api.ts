@@ -366,11 +366,7 @@ export const appointmentService = {
         {}
       );
     },
-    markAppointmentAsArrived: async (values: {
-      id: number;
-
-      additional_note_caregiver: string;
-    }) => {
+    markAppointmentAsArrived: async (values: FormData) => {
       return makeApiRequest<{
         status: true;
         message: string;

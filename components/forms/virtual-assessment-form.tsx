@@ -10,6 +10,7 @@ import { TIME_SLOTS } from "@/config/constants";
 import { FormFieldTypes } from "@/config/enum";
 import { useOnboarding } from "@/context/onboarding-context";
 import { VirtualAssessmentSchema } from "@/lib/schemas/user.schema";
+import { useUserStore } from "@/store/user-store";
 
 import { CustomFormField } from "../shared/custom-form-field";
 import { Button } from "../ui/button";
@@ -17,12 +18,13 @@ import { Form } from "../ui/form";
 import { SelectItem } from "../ui/select";
 
 export default function VirtualAssessmentForm() {
+  const { user } = useUserStore();
   const { data, updateData, currentStep, markStepComplete } = useOnboarding();
   const BiodataForm = useForm<z.infer<typeof VirtualAssessmentSchema>>({
     resolver: zodResolver(VirtualAssessmentSchema),
     defaultValues: {
       time: data.appointment.time || "",
-      email: data.appointment.email || "",
+      email: data.appointment.email || user?.email || "",
       date: data.appointment.date
         ? new Date(data.appointment.date)
         : new Date(),

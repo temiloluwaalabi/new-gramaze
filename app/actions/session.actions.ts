@@ -2,7 +2,7 @@
 
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
- 
+
 import { SessionData, sessionOptions, sleep } from "@/lib/auth/session";
 import { User } from "@/types";
 
@@ -42,7 +42,7 @@ export async function RegisterSession(accessToken: string) {
   // Set some initial session data, e.g., user ID or token
   Object.assign(session, {
     accessToken,
-    isLoggedIn: true,
+    isLoggedIn: false,
     isBoarded: false,
   });
   await session.save();

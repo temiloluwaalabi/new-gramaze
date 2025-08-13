@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { adminServices, caregiverServices } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
-import { ApiResponse, User } from "@/types";
+import { User } from "@/types";
 
 import { getSession } from "./session.actions";
 
@@ -72,6 +72,40 @@ export const updatePlan = async (
     });
   }
 };
+// Define clear return types
+interface CaregiverHistorySuccess {
+  success: true;
+  message: string;
+  histories: {
+    current_page: number;
+    data: {
+      id: number;
+      user_id: string;
+      caregiver_id: string;
+      start_date: string;
+      end_date: string;
+      created_at: string;
+      updated_at: string;
+      patient: Partial<User>;
+    }[];
+    from: number;
+    last_page: number;
+    per_page: number;
+    to: number;
+    total: number;
+  };
+  patients: Partial<User>[]; // For backward compatibility
+}
+
+interface CaregiverHistoryError {
+  success: false;
+  message: string;
+  histories: null;
+  patients: [];
+}
+
+type CaregiverHistoryResult = CaregiverHistorySuccess | CaregiverHistoryError;
+
 export const getCaregiverPatientHistory = async ({
   per_page,
   end_date,
@@ -82,7 +116,7 @@ export const getCaregiverPatientHistory = async ({
   caregiver?: string;
   end_date?: string;
   per_page?: number;
-} = {}) => {
+} = {}): Promise<CaregiverHistoryResult> => {
   try {
     const sessionToken = await getSession();
     if (!sessionToken) {
@@ -100,77 +134,41 @@ export const getCaregiverPatientHistory = async ({
       caregiver,
     });
 
+    // Check for API error properly
     if (ApiError.isAPiError(response)) {
       return {
         success: false,
-        message: "An error occured",
+        message: response.message || "An error occurred",
+        histories: null,
         patients: [],
       };
     }
 
-    const successResponse = response as {
-      success: true;
-      status: number;
-      message: string;
-      data: {
-        status: true;
-        message: string;
-        histories: {
-          current_page: number;
-          data: {
-            id: number;
-            user_id: string;
-            caregiver_id: string;
-            start_date: string;
-            end_date: string;
-            created_at: string;
-            updated_at: string;
-            patient: Partial<User>;
-          }[];
-          from: number;
-          last_page: number;
-          per_page: number;
-          to: number;
-          total: number;
-        };
+    // Type guard to ensure response has expected structure
+    if (!response?.data?.histories) {
+      return {
+        success: false,
+        message: "Invalid response format",
+        histories: null,
+        patients: [],
       };
-      rawResponse: ApiResponse<{
-        status: true;
-        message: string;
-        histories: {
-          current_page: number;
-          data: {
-            id: number;
-            user_id: string;
-            caregiver_id: string;
-            start_date: string;
-            end_date: string;
-            created_at: string;
-            updated_at: string;
-            patient: Partial<User>;
-          }[];
-          from: number;
-          last_page: number;
-          per_page: number;
-          to: number;
-          total: number;
-        };
-      }>;
-    };
+    }
 
-    console.log("SUCCESS RESPONSE", successResponse);
     return {
       success: true,
-      message: successResponse.message,
-      patients: successResponse.data.histories,
+      message: response.message || "Histories retrieved successfully",
+      histories: response.data.histories,
+      patients: response.data.histories.data.map((history) => history.patient), // For backward compatibility
     };
   } catch (error) {
     console.error("Get Caregiver History Error:", error);
 
+    // If it's already an ApiError, re-throw it
     if (error instanceof ApiError) {
       throw error;
     }
 
+    // For other errors, wrap in ApiError
     throw new ApiError({
       statusCode: 500,
       message:
