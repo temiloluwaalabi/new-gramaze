@@ -74,7 +74,7 @@ export const revertFormattedDate = (formattedDate: string) => {
     const parsed = dayjs(formattedDate, "DD MMM, YYYY");
 
     if (!parsed.isValid()) {
-      console.error("Invalid date format:", formattedDate);
+      // console.error("Invalid date format:", formattedDate);
       return null;
     }
 
@@ -113,7 +113,7 @@ export const revertFormattedDate = (formattedDate: string) => {
       },
     };
   } catch (error) {
-    console.error("Error parsing date:", formattedDate, error);
+    // console.error("Error parsing date:", formattedDate, error);
     return null;
   }
 };
@@ -130,7 +130,7 @@ export const parseAppointmentTimeToDateTime = (
     const appointmentDate = dayjs(date, "DD MMM, YYYY");
 
     if (!appointmentDate.isValid()) {
-      console.error("Invalid date:", date);
+      // console.error("Invalid date:", date);
       return { start: null, end: null };
     }
 
@@ -140,7 +140,7 @@ export const parseAppointmentTimeToDateTime = (
     const match = timeRange.match(timePattern);
 
     if (!match) {
-      console.error("Invalid time format:", timeRange);
+      // console.error("Invalid time format:", timeRange);
       return { start: null, end: null };
     }
 
@@ -173,7 +173,7 @@ export const parseAppointmentTimeToDateTime = (
       end: endDateTime.toDate(),
     };
   } catch (error) {
-    console.error("Error parsing appointment time:", error);
+    // console.error("Error parsing appointment time:", error);
     return { start: null, end: null };
   }
 };
@@ -333,7 +333,7 @@ export const combineDateAndTime = (
     const date = dayjs(dateString, "DD MMM, YYYY");
 
     if (!date.isValid()) {
-      console.error("Invalid date:", dateString);
+      // console.error("Invalid date:", dateString);
       return null;
     }
 
@@ -342,7 +342,7 @@ export const combineDateAndTime = (
     const match = timeString.match(timePattern);
 
     if (!match) {
-      console.error("Invalid time format:", timeString);
+      // console.error("Invalid time format:", timeString);
       return null;
     }
 
@@ -359,7 +359,7 @@ export const combineDateAndTime = (
     // Combine date and time
     return date.hour(hour24).minute(parseInt(minute)).second(0).toDate();
   } catch (error) {
-    console.error("Error combining date and time:", error);
+    // console.error("Error combining date and time:", error);
     return null;
   }
 };
