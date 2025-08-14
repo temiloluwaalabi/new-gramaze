@@ -438,79 +438,77 @@ export default function DayjsCalendar() {
         ))}
       </div>
 
-      {/* Day Column */}
-      <div className="flex-1">
-        <div
-          className={`flex h-16 flex-col items-center justify-center border-b bg-blue-600 !text-white ${
-            isToday(currentDate) ? "bg-blue-700" : ""
-          }`}
-        >
-          <div className="text-xs text-white uppercase">
-            {format(currentDate, "EEE")} {format(currentDate, "dd")}
+
+{/* Day Column */}
+<div className="flex-1">
+  <div
+    className={`flex h-16 flex-col items-center justify-center border-b bg-blue-600 !text-white ${
+      isToday(currentDate) ? "bg-blue-700" : ""
+    }`}
+  >
+    <div className="text-xs text-white uppercase">
+      {format(currentDate, "EEE")} {format(currentDate, "dd")}
+    </div>
+  </div>
+
+  {/* Added pt-[10px] so events have clear breathing room below the header */}
+  <div className="relative bg-white pt-[10px]">
+    {timeSlots.map((time) => (
+      <div key={time} className="h-20 border-b border-gray-200"></div>
+    ))}
+
+    {events
+      .filter((event) => {
+        const eventDate = dayjs(event.start).toDate();
+        return isSameDay(eventDate, currentDate);
+      })
+      .map((event) => {
+        // Combine date and time for accurate positioning
+        const startCombined = combineDateAndTime(event.start, event.startTime);
+        const endCombined = combineDateAndTime(
+          event.end ?? event.start,
+          event.endTime ?? event.startTime
+        );
+
+        const eventStart = startCombined
+          ? dayjs(startCombined)
+          : dayjs(event.start);
+        const eventEnd = endCombined
+          ? dayjs(endCombined)
+          : dayjs(event.end ?? event.start);
+
+        // Calculate position based on time slots (9 AM = 0px)
+        const dayStartHour = 9; // 9 AM
+        const pixelsPerMinute = 80 / 60; // 80px per hour slot
+
+        const minutesFromStart =
+          Math.max(0, (eventStart.hour() - dayStartHour) * 60 + eventStart.minute());
+
+        // Now add the same 10px offset to match the container padding
+        const topPosition = minutesFromStart * pixelsPerMinute;
+
+        // Calculate duration
+        const durationMinutes = Math.max(1, eventEnd.diff(eventStart, "minute"));
+        const height = Math.max(40, durationMinutes * pixelsPerMinute);
+
+        return (
+          <div
+            key={event.id}
+            className="absolute right-1 left-1 overflow-hidden rounded border-l-4 border-blue-500 bg-blue-100 shadow-sm"
+            style={{
+              top: `${topPosition}px`,
+              height: `${height}px`,
+              zIndex: 10,
+            }}
+          >
+            <EventComponent event={event} className="h-full p-2" />
           </div>
-        </div>
+        );
+      })}
+  </div>
+</div>
 
-        <div className="relative bg-white">
-          {timeSlots.map((time) => (
-            <div key={time} className="h-20 border-b border-gray-200"></div>
-          ))}
 
-          {events
-            .filter((event) => {
-              const eventDate = dayjs(event.start).toDate();
-              return isSameDay(eventDate, currentDate);
-            })
-            .map((event) => {
-              // Parse the event start time
-              const eventStart = dayjs(event.start);
-              const eventEnd = dayjs(event.end);
-
-              // Calculate position based on time slots (9 AM = 0px)
-              const dayStartHour = 9; // 9 AM
-              const eventHour = eventStart.hour();
-              const eventMinute = eventStart.minute();
-
-              // Calculate position
-              const hoursFromStart = eventHour - dayStartHour;
-              const minutesFromStart = hoursFromStart * 60 + eventMinute;
-              const pixelsPerMinute = 80 / 60; // 80px per hour slot
-
-              const topPosition = Math.max(
-                0,
-                minutesFromStart * pixelsPerMinute
-              );
-
-              // Calculate duration
-              const durationMinutes = eventEnd.diff(eventStart, "minute");
-              const height = Math.max(20, durationMinutes * pixelsPerMinute);
-
-              console.log("Event positioning:", {
-                eventTitle: event.title,
-                eventTime: event.appointmentTime,
-                eventHour,
-                eventMinute,
-                hoursFromStart,
-                minutesFromStart,
-                topPosition,
-                height,
-              });
-
-              return (
-                <div
-                  key={event.id}
-                  className="absolute right-1 left-1 overflow-hidden rounded border-l-4 border-blue-500 bg-blue-100 shadow-sm"
-                  style={{
-                    top: `${topPosition}px`,
-                    height: `${height}px`,
-                    zIndex: 10,
-                  }}
-                >
-                  <EventComponent event={event} className="h-full p-2" />
-                </div>
-              );
-            })}
-        </div>
-      </div>
     </div>
   );
   // Render week view
