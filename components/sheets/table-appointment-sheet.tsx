@@ -51,7 +51,7 @@ export const TableAppointmentSheet = (props: Props) => {
         <div className="custom-scrollbar flex h-full flex-col overflow-y-scroll rounded-[6px] border border-gray-300 bg-white p-4">
           <SheetHeader className="mb-4 p-0">
             <SheetTitle className="text-lg font-medium text-[#333333]">
-              Caregiver Appointment{" "}
+              Appointment{" "}
               <span className="h-[24px] w-[88px] border border-gray-300 bg-[#F1F5F9] px-[8px] py-[4px] text-xs font-medium text-[#66666B]">
                 ID {props.appointment.id}
               </span>
@@ -67,7 +67,7 @@ export const TableAppointmentSheet = (props: Props) => {
                 email="adanma.pep@gmail.com"
                 avatarImage="https://res.cloudinary.com/davidleo/image/upload/v1744896553/e1aa7d76f300fa1554e755fb776e171b_y9oajf.png"
               />
-              <div className="flex items-center gap-[130px]">
+              <div className="flex flex-col items-start gap-5 lg:flex-row lg:items-center lg:gap-[130px]">
                 <span className="flex w-full flex-col gap-[4px]">
                   <span className="text-xs font-normal text-[#66666B]">
                     Phone Number
@@ -89,7 +89,7 @@ export const TableAppointmentSheet = (props: Props) => {
                 <span className="text-sm font-medium text-[#333333]">
                   Booking Information
                 </span>
-                <div className="flex items-center gap-[130px]">
+                <div className="flex flex-col items-start gap-5 lg:flex-row lg:items-center lg:gap-[130px]">
                   <span className="flex w-full flex-col gap-[4px]">
                     <span className="text-xs font-normal text-[#66666B]">
                       Date
@@ -118,7 +118,7 @@ export const TableAppointmentSheet = (props: Props) => {
                 email={user?.email || ""}
                 avatarImage="https://res.cloudinary.com/davidleo/image/upload/v1744896553/e1aa7d76f300fa1554e755fb776e171b_y9oajf.png"
               />
-              <div className="flex items-center gap-[130px]">
+              <div className="flex flex-col items-start gap-5 lg:flex-row lg:items-center lg:gap-[130px]">
                 <span className="flex w-full flex-col gap-[4px]">
                   <span className="text-xs font-normal text-[#66666B]">
                     Date of Birth
@@ -136,7 +136,7 @@ export const TableAppointmentSheet = (props: Props) => {
                   </span>
                 </span>
               </div>
-              <div className="flex items-center gap-[130px]">
+              <div className="flex flex-col items-start gap-5 lg:flex-row lg:items-center lg:gap-[130px]">
                 <span className="flex w-full flex-col gap-[4px]">
                   <span className="text-xs font-normal text-[#66666B]">
                     Phone Number

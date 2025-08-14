@@ -45,7 +45,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGetUserAppointments } from "@/lib/queries/use-appointment-query";
-import { cn } from "@/lib/utils";
+import { cn, combineDateAndTime, formatDateToJSDate } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import { Appointment, User } from "@/types";
 
@@ -62,12 +62,15 @@ dayjs.extend(isBetween);
 export interface CalendarEvent {
   id: string;
   title: string;
-  start: Date;
-  end: Date;
+  start: string;
+  end: string;
+  appointmentTime: string;
   attendees?: {
     name: string;
     avatar?: string;
   }[];
+  startTime: string;
+  endTime: string;
   caregiver: User;
 }
 export interface EnrichedAppointment extends Appointment {
@@ -87,7 +90,7 @@ export default function DayjsCalendar() {
   const [isGridView, setIsGridView] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [screenSize, setScreenSize] = useState("large");
-  console.log("TABLE APPOINTMENT", tableAppointments);
+  console.log("TABLE APPOINTMENT", events);
 
   console.log("EVENTS", events);
   useEffect(() => {
@@ -232,18 +235,29 @@ export default function DayjsCalendar() {
                 />
               </Avatar>
 
-              <div className="">
+              <div className="flex flex-col items-start">
                 {/* Display name with truncation */}
-                <p className="truncate text-xs font-semibold wrap-break-word text-ellipsis">
-                  {screenSize !== "mobile"
-                    ? mainAttendee.name
-                    : mainAttendee.name.trim().split(" ")[0]}
-                </p>
+                {event.caregiver ? (
+                  <p className="truncate text-xs font-semibold wrap-break-word text-ellipsis">
+                    {screenSize !== "mobile" ? (
+                      <>
+                        {event.caregiver.first_name} {event.caregiver.last_name}
+                      </>
+                    ) : (
+                      <>
+                        {event.caregiver.first_name.trim().split(" ")[0]}
+                        {event.caregiver.last_name.trim().split(" ")[0]}
+                      </>
+                    )}
+                  </p>
+                ) : (
+                  <p className="text-xs">No caregiver</p>
+                )}
+
                 {/* Only show time on tablet and larger */}
                 {screenSize !== "mobile" && (
                   <p className="truncate text-left text-xs text-gray-500">
-                    {formatEventTime(event.start)} -{" "}
-                    {formatEventTime(event.end)}
+                    {event.start}
                   </p>
                 )}
               </div>
@@ -323,10 +337,10 @@ export default function DayjsCalendar() {
     }
   };
 
-  // Format time for display
-  const formatEventTime = (date: Date) => {
-    return dayjs(date).format("h A");
-  };
+  // // Format time for display
+  // const formatEventTime = (date: Date) => {
+  //   return dayjs(date).format("h A");
+  // };
   const timeSlots = [
     "9 AM",
     "10 AM",
@@ -354,7 +368,6 @@ export default function DayjsCalendar() {
     // const hasMultipleAttendees = event.attendees.length > 1;
     const mainAttendee = event.attendees[0];
     // const otherAttendeesCount = event.attendees.length - 1;
-
     return (
       <AppointmentSheet
         appointment={event}
@@ -374,16 +387,34 @@ export default function DayjsCalendar() {
                 className="rounded-full"
               />
             </Avatar>
-            <div className="flex flex-col">
-              <span className="text-xs font-semibold text-[#39414F]">
-                {mainAttendee.name}
-              </span>
+            <div>
+              {event.caregiver ? (
+                <p className="truncate text-xs font-semibold wrap-break-word text-ellipsis">
+                  {screenSize !== "mobile" ? (
+                    <>
+                      {event.caregiver.first_name} {event.caregiver.last_name}
+                    </>
+                  ) : (
+                    <>
+                      {event.caregiver.first_name.trim().split(" ")[0]}
+                      {event.caregiver.last_name.trim().split(" ")[0]}
+                    </>
+                  )}
+                </p>
+              ) : (
+                <p className="text-xs">No caregiver</p>
+              )}
               <span className="text-xs font-normal text-[#66666B]">
-                {formatEventTime(event.start)} - {formatEventTime(event.end)}
+                {(() => {
+                  const combinedDate = combineDateAndTime(
+                    event.start,
+                    event.startTime
+                  );
+                  return combinedDate
+                    ? dayjs(combinedDate).format("h:mm A")
+                    : "";
+                })()}
               </span>
-              {/* {hasMultipleAttendees && (
-            <span className="text-xs text-gray-500">+ {otherAttendeesCount} others</span>
-          )} */}
             </div>
           </div>
         }
@@ -391,11 +422,12 @@ export default function DayjsCalendar() {
     );
   };
 
+  // Updated calendar rendering logic
   const renderDayView = () => (
     <div className="flex">
       {/* Time Column */}
       <div className="w-20 shrink-0 border-r bg-blue-600 text-white">
-        <div className="h-16 border-b"></div> {/* Header spacer */}
+        <div className="h-16 border-b"></div>
         {timeSlots.map((time) => (
           <div
             key={time}
@@ -408,10 +440,9 @@ export default function DayjsCalendar() {
 
       {/* Day Column */}
       <div className="flex-1">
-        {/* Day Header */}
         <div
           className={`flex h-16 flex-col items-center justify-center border-b bg-blue-600 !text-white ${
-            isToday(currentDate) ? "bg-blue-100" : ""
+            isToday(currentDate) ? "bg-blue-700" : ""
           }`}
         >
           <div className="text-xs text-white uppercase">
@@ -419,67 +450,62 @@ export default function DayjsCalendar() {
           </div>
         </div>
 
-        {/* Day Appointments */}
         <div className="relative bg-white">
-          {/* Time slot dividers */}
           {timeSlots.map((time) => (
-            <div key={time} className="h-20 border-b"></div>
+            <div key={time} className="h-20 border-b border-gray-200"></div>
           ))}
 
-          {/* Events positioned absolutely */}
           {events
             .filter((event) => {
-              // Filter events for current day
               const eventDate = dayjs(event.start).toDate();
               return isSameDay(eventDate, currentDate);
             })
             .map((event) => {
-              // Calculate position and height based on start/end times
-              const startTime = dayjs(event.start);
-              const endTime = dayjs(event.end);
+              // Parse the event start time
+              const eventStart = dayjs(event.start);
+              const eventEnd = dayjs(event.end);
 
-              // Get day start time (9 AM) from first timeSlot
-              const dayStartHour = parseInt(timeSlots[0].split(" ")[0]);
-              const dayStartTime = dayjs(currentDate)
-                .hour(
-                  dayStartHour +
-                    (timeSlots[0].includes("PM") && dayStartHour !== 12
-                      ? 12
-                      : 0)
-                )
-                .minute(0);
+              // Calculate position based on time slots (9 AM = 0px)
+              const dayStartHour = 9; // 9 AM
+              const eventHour = eventStart.hour();
+              const eventMinute = eventStart.minute();
 
-              // Calculate minutes from day start to event start
-              const minutesFromDayStart = startTime.diff(
-                dayStartTime,
-                "minute"
+              // Calculate position
+              const hoursFromStart = eventHour - dayStartHour;
+              const minutesFromStart = hoursFromStart * 60 + eventMinute;
+              const pixelsPerMinute = 80 / 60; // 80px per hour slot
+
+              const topPosition = Math.max(
+                0,
+                minutesFromStart * pixelsPerMinute
               );
 
-              // Calculate event duration in minutes
-              const durationMinutes = endTime.diff(startTime, "minute");
+              // Calculate duration
+              const durationMinutes = eventEnd.diff(eventStart, "minute");
+              const height = Math.max(20, durationMinutes * pixelsPerMinute);
 
-              // Total height of time slots
-              const totalSlotsHeight = timeSlots.length * 80;
-              // Total minutes in displayed day
-              const totalMinutesDisplayed = timeSlots.length * 60;
-
-              // Calculate top position and height
-              const topPosition =
-                (minutesFromDayStart / totalMinutesDisplayed) *
-                totalSlotsHeight;
-              const height =
-                (durationMinutes / totalMinutesDisplayed) * totalSlotsHeight;
+              console.log("Event positioning:", {
+                eventTitle: event.title,
+                eventTime: event.appointmentTime,
+                eventHour,
+                eventMinute,
+                hoursFromStart,
+                minutesFromStart,
+                topPosition,
+                height,
+              });
 
               return (
                 <div
                   key={event.id}
-                  className="absolute right-0 left-0 mx-1 w-fit overflow-hidden rounded p-2 text-sm"
+                  className="absolute right-1 left-1 overflow-hidden rounded border-l-4 border-blue-500 bg-blue-100 shadow-sm"
                   style={{
-                    top: `${Math.max(0, topPosition)}px`,
-                    height: `${Math.max(20, height)}px`,
+                    top: `${topPosition}px`,
+                    height: `${height}px`,
+                    zIndex: 10,
                   }}
                 >
-                  <EventComponent event={event} />
+                  <EventComponent event={event} className="h-full p-2" />
                 </div>
               );
             })}
@@ -532,10 +558,11 @@ export default function DayjsCalendar() {
               {timeSlots.map((timeSlot) => {
                 // Find bookings for this time slot and day
                 const timeBookings = events.filter((booking) => {
-                  const bookingDate = new Date(booking.start);
+                  const bookingDate = formatDateToJSDate(booking.start);
                   return (
-                    isSameDay(bookingDate, day) &&
-                    format(bookingDate, "h a") === timeSlot.replace(" ", " ")
+                    isSameDay(bookingDate || new Date(0), day) &&
+                    format(bookingDate || new Date(0), "h a") ===
+                      timeSlot.replace(" ", " ")
                   );
                 });
 
@@ -577,8 +604,12 @@ export default function DayjsCalendar() {
         {/* Calendar days */}
         {monthDays.map((day, index) => {
           const dayBookings = events.filter((booking) =>
-            isSameDay(new Date(booking.start), day.date)
+            isSameDay(
+              formatDateToJSDate(booking.start) || new Date(0),
+              day.date
+            )
           );
+
           const eventsToShow = getEventsToShow();
 
           return (
