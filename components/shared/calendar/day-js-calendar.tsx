@@ -438,7 +438,7 @@ export default function DayjsCalendar() {
         ))}
       </div>
 
-     {/* Day Column */}
+
 {/* Day Column */}
 <div className="flex-1">
   <div
@@ -489,7 +489,7 @@ export default function DayjsCalendar() {
 
         // Calculate duration
         const durationMinutes = Math.max(1, eventEnd.diff(eventStart, "minute"));
-        const height = Math.max(20, durationMinutes * pixelsPerMinute);
+        const height = Math.max(40, durationMinutes * pixelsPerMinute);
 
         return (
           <div
@@ -497,7 +497,7 @@ export default function DayjsCalendar() {
             className="absolute right-1 left-1 overflow-hidden rounded border-l-4 border-blue-500 bg-blue-100 shadow-sm"
             style={{
               top: `${topPosition}px`,
-              // height: `${height}px`,
+              height: `${height}px`,
               zIndex: 10,
             }}
           >
