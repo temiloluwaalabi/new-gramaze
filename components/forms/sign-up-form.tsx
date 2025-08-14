@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
-// import { toast } from "sonner";
 import * as z from "zod";
 
 import { FormFieldTypes } from "@/config/enum";
@@ -33,14 +32,13 @@ export default function SignUpForm() {
   });
   const { safeSuccess, safeError } = useSafeToast();
 
-
   console.log("REGISTER STEP 1 FORM", SignUpForm.watch());
   const handleSubmit = (values: z.infer<typeof RegisterSchema>) => {
     RegisterStepOne(values, {
       onSuccess: (data) => {
         if (data?.status) {
           safeSuccess(
-            "register-success",  
+            "register-success",
             "Registration successful! Please check your email for verification."
           );
           router.push(`${allRoutes.auth.onboarding.url}?step=plan`);
@@ -48,13 +46,13 @@ export default function SignUpForm() {
       },
       onError: (error) => {
         safeError(
-          "register-error",  
+          "register-error",
           error.message || "An error occurred during registration."
         );
       },
     });
   };
-  
+
   return (
     <Form {...SignUpForm}>
       <form
@@ -128,7 +126,6 @@ export default function SignUpForm() {
             {isPending && <Loader2 className="me-2 size-4 animate-spin" />}
             Create an account
           </Button>
-         
         </div>
       </form>
     </Form>
