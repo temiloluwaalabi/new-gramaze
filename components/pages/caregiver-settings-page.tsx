@@ -1,9 +1,15 @@
 "use client";
-import { Bell, Laptop, User } from "lucide-react";
+import { Bell, Laptop, Loader2, User } from "lucide-react";
 import Image from "next/image";
 import * as React from "react";
+import { toast } from "sonner";
 
 import SecurityIcon from "@/icons/security-icon";
+import {
+  useInitiatePasswordReset,
+  useUpdateNotificationSetting,
+} from "@/lib/queries/use-auth-queries";
+import { formatDate } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 
 import UpdateAccountDataForm from "../forms/update-account-data-form";
@@ -62,6 +68,11 @@ export const CaregiverSettingsClientPage = () => {
   const [flowStep, setFlowStep] = React.useState<"form" | "confirmation">(
     "form"
   );
+  const { isPending, mutate: UpdateNotification } =
+    useUpdateNotificationSetting();
+
+  const { isPending: InitiatePending, mutate: InitiatePasswordReset } =
+    useInitiatePasswordReset();
 
   const [email, setEmail] = React.useState("");
   const [twoFactorEnabled, setTwoFactorEnabled] = React.useState(true);
@@ -82,12 +93,21 @@ export const CaregiverSettingsClientPage = () => {
     // Handle password reset logic here
     console.log("Password reset requested for:", email);
   };
-
-  const handlePasswordResetRequest = (submittedEmail: string) => {
+  const handlePasswordResetRequest = async (submittedEmail: string) => {
     setEmail(submittedEmail);
-    setFlowStep("confirmation");
-  };
 
+    InitiatePasswordReset(
+      {
+        email: submittedEmail,
+      },
+      {
+        onSuccess: async (data) => {
+          toast.success(data.message);
+          setFlowStep("confirmation");
+        },
+      }
+    );
+  };
   const handleCheckEmail = () => {
     // In a real app, this might redirect to email provider or back to login
     console.log("Redirecting to email client...");
@@ -116,6 +136,49 @@ export const CaregiverSettingsClientPage = () => {
         return category;
       })
     );
+  };
+  const handleNotification = async () => {
+    const messages = categories.find(
+      (cat) => cat.id.toLowerCase() === "messages"
+    );
+    const activity = categories.find(
+      (cat) => cat.id.toLowerCase() === "activity"
+    );
+    const reminder = categories.find(
+      (cat) => cat.id.toLowerCase() === "reminders"
+    );
+
+    // Helper function to determine notification type
+    const getNotificationType = (category: typeof messages) => {
+      if (!category) return "sms"; // default fallback
+      if (category.emailEnabled) return "email";
+      if (category.smsEnabled) return "sms";
+      return "sms"; // default if neither is enabled
+    };
+
+    const JSON_VALUE = {
+      activities_notification: getNotificationType(messages),
+      factor_authentication: getNotificationType(activity),
+      reminder_notification: getNotificationType(reminder),
+    };
+
+    console.log("JSON_VALUE", JSON_VALUE);
+
+    try {
+      UpdateNotification(JSON_VALUE, {
+        onSuccess: (data) => {
+          toast.success(data.message);
+        },
+        onError: (error) => {
+          toast.error(
+            error.message || "Failed to update notification settings"
+          );
+        },
+      });
+    } catch (error) {
+      console.error("Error updating notifications:", error);
+      toast.error("An unexpected error occurred");
+    }
   };
   return (
     <section className="max-w-5xl space-y-3 !bg-white px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
@@ -165,15 +228,15 @@ export const CaregiverSettingsClientPage = () => {
                   />
                   <div className="space-y-1">
                     <h4 className="text-base font-semibold text-[#303030]">
-                      Ebiwariamachree@gmail.com
+                      {user?.email}
                     </h4>
                     <p className="text-sm font-normal text-[#66666B]">
-                      Member since January 2025
+                      Member since {formatDate(user?.created_at || "")}
                     </p>
                   </div>
                 </div>
                 <Button className="!h-[38px] text-sm font-normal">
-                  Edit Profile
+                  Edit Profile Image
                 </Button>
               </div>
               <Separator className="bg-[#E8E8E8]" />
@@ -210,7 +273,8 @@ export const CaregiverSettingsClientPage = () => {
                               onCheckedChange={(checked) =>
                                 handleToggle(category.id, "sms", checked)
                               }
-                              className="data-[state=checked]:bg-gray-200"
+                              disabled={isPending}
+                              className="data-[state=checked]:bg-blue-600"
                             />
                             <span className="text-sm font-medium">SMS</span>
                           </div>
@@ -221,6 +285,7 @@ export const CaregiverSettingsClientPage = () => {
                               onCheckedChange={(checked) =>
                                 handleToggle(category.id, "email", checked)
                               }
+                              disabled={isPending}
                               className="data-[state=checked]:bg-blue-600"
                             />
                             <span className="text-sm font-medium">Email</span>
@@ -231,6 +296,16 @@ export const CaregiverSettingsClientPage = () => {
                     {index < categories.length - 1 && <Separator />}
                   </div>
                 ))}
+                <Button
+                  onClick={handleNotification}
+                  disabled={isPending}
+                  className="flex items-center gap-2"
+                >
+                  {isPending && (
+                    <Loader2 className="me-2 size-4 animate-spin" />
+                  )}
+                  Update Settings
+                </Button>
               </div>
             </div>
           </TabsContent>
@@ -267,9 +342,13 @@ export const CaregiverSettingsClientPage = () => {
                         required
                       />
                       <Button
+                        disabled={InitiatePending}
                         onClick={() => handlePasswordResetRequest(email)}
                         className="relative mt-4 ml-auto flex !h-[38px] text-sm font-normal"
                       >
+                        {InitiatePending && (
+                          <Loader2 className="me-2 size-4 animate-spin" />
+                        )}
                         Send Link
                       </Button>
                     </div>

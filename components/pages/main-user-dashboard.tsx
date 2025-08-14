@@ -1,8 +1,11 @@
 "use client";
 import { Calendar as CalendarIcon, List } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import * as React from "react";
 
+import { DEFAULT_IMAGE_URL } from "@/config/constants";
+import { allRoutes } from "@/config/routes";
 import { getGreeting } from "@/hooks/use-greeting";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -12,7 +15,7 @@ import {
   formatDate,
 } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
-import { Appointment, User } from "@/types";
+import { Appointment } from "@/types";
 
 import { HealthVitalsChart } from "../charts/health-vitals-chart";
 import { Message } from "../shared/message-widget";
@@ -24,7 +27,7 @@ import { Button } from "../ui/button";
 import { Calendar, CalendarDayButton } from "../ui/calendar";
 import { Separator } from "../ui/separator";
 
-type MessagePreview = {
+export type MessagePreview = {
   id: string;
   avatar: string;
   name: string;
@@ -46,7 +49,20 @@ type MainUserDashboardProps = {
     user_id: string;
     caregiver_id: string;
   }[];
-  caregivers: User[];
+  caregivers: {
+    id: number;
+    user_id: string;
+    caregiver_id: string;
+    start_date: string;
+    end_date: string;
+    created_at: string;
+    updated_at: string;
+    caregiver: {
+      id: number;
+      first_name: string;
+      last_name: string;
+    };
+  }[];
   messages: MessagePreview[];
 };
 
@@ -57,24 +73,44 @@ export const MainUserDashboard = ({
   caregivers,
 }: MainUserDashboardProps) => {
   const { user } = useUserStore();
-  const presure = "120/56";
+  const router = useRouter();
+  const data = (() => {
+    if (!healthTrackers?.length) return [];
 
-  const data = healthTrackers.map((tracker) => {
-    // blood_pressure is in "systolic/diastolic" format, e.g., "120/80"
-    const [systolicStr, diastolicStr] = presure.split("/");
-    const systolic = Number(systolicStr);
-    const diastolic = Number(diastolicStr);
+    // Sort by created_at ascending so carry-forward works correctly
+    const sorted = [...healthTrackers].sort(
+      (a, b) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
 
-    return {
-      name: new Date(tracker.created_at).toLocaleDateString(),
-      bodyWeight: Number(tracker.weight),
-      bloodPressure: {
-        systolic,
-        diastolic,
-      },
-    };
-  });
-  console.log("USER", user);
+    let lastWeight = 0;
+    let lastSystolic = 0;
+    let lastDiastolic = 0;
+
+    return sorted.map((tracker) => {
+      // Weight carry-forward
+      if (tracker.weight) {
+        lastWeight = Number(tracker.weight) || lastWeight;
+      }
+
+      // Blood pressure carry-forward
+      if (tracker.blood_pressure) {
+        const cleanedBP = tracker.blood_pressure.replace(/[^\d/]/g, "");
+        const [systolicStr, diastolicStr] = cleanedBP.split("/");
+        if (systolicStr) lastSystolic = Number(systolicStr) || lastSystolic;
+        if (diastolicStr) lastDiastolic = Number(diastolicStr) || lastDiastolic;
+      }
+
+      return {
+        name: new Date(tracker.created_at).toLocaleDateString(),
+        bodyWeight: lastWeight,
+        bloodPressure: {
+          systolic: lastSystolic,
+          diastolic: lastDiastolic,
+        },
+      };
+    });
+  })();
   const [appointmentView, setAppointmentView] = React.useState("calendar");
 
   const isMobile = useIsMobile();
@@ -116,7 +152,12 @@ export const MainUserDashboard = ({
                 <p className="text-sm font-normal text-[#66666B]">
                   {user?.email}
                 </p>
-                <Button className="!h-[24px] rounded-[4px] px-[7px] !py-[4px] text-sm font-medium text-white">
+                <Button
+                  onClick={() =>
+                    router.push(allRoutes.user.dashboard.settings.url)
+                  }
+                  className="!h-[24px] rounded-[4px] px-[7px] !py-[4px] text-sm font-medium text-white"
+                >
                   Manage profile
                 </Button>
               </div>
@@ -157,7 +198,7 @@ export const MainUserDashboard = ({
               </span>
             </span>
           </div>
-          <div className="mt-3 flex hidden flex-col md:block">
+          <div className="mt-3 hidden flex-col md:flex">
             <span className="text-xs font-normal text-[#66666B]">
               Current Caregivers
             </span>
@@ -172,12 +213,13 @@ export const MainUserDashboard = ({
                         idx > 0 && "-ml-4"
                       )}
                     >
-                      <AvatarImage src={"/default-avatar.png"} />
+                      <AvatarImage src={DEFAULT_IMAGE_URL} />
                     </Avatar>
                   ))}
                 </div>
                 <span className="text-sm font-normal text-[#66666B]">
-                  {caregivers[0]?.first_name} {caregivers[0]?.last_name}
+                  {caregivers[0]?.caregiver.first_name}{" "}
+                  {caregivers[0]?.caregiver.last_name}
                   {caregivers.length > 1 && (
                     <span className="text-blue-600">
                       {` + ${caregivers.length - 1} other${caregivers.length - 1 > 1 ? "s" : ""}`}

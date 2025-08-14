@@ -268,7 +268,11 @@ export const getCaregiverAppointments = async ({
       });
 
     if (ApiError.isAPiError(response)) {
-      throw response;
+      return {
+        success: false,
+        message: "Error fetching data",
+        appointments: [],
+      };
     }
 
     const successResponse = response as {
@@ -389,18 +393,19 @@ export const getCaregiverAppointmentDetails = async (appointmentId: string) => {
   }
 };
 
-export const markAppointmentAsArrived = async (values: {
-  id: string;
-  additional_note_caregiver: string;
-}) => {
+export const markAppointmentAsArrived = async (
+  values: FormData,
+  pathname: string
+) => {
   try {
-    if (!values.id) {
-      throw new ApiError({
-        statusCode: 400,
-        message: "Appointment ID is required",
-        errorType: "ValidationError",
-      });
-    }
+    // if (!values.id) {
+    //   throw new ApiError({
+    //     statusCode: 400,
+    //     message: "Appointment ID is required",
+    //     errorType: "ValidationError",
+    //   });
+    // }
+    console.log("FORMDATA", values);
 
     const sessionToken = await getSession();
     if (!sessionToken) {
@@ -436,7 +441,7 @@ export const markAppointmentAsArrived = async (values: {
 
     console.log("SUCCESS RESPONSE", successResponse);
     revalidatePath("/appointments");
-    revalidatePath("/");
+    revalidatePath(pathname);
     return {
       success: true,
       message: successResponse.message,

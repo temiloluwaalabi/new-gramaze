@@ -86,7 +86,7 @@ export const useSetUserTypeMutation = () => {
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);
       // Show a success toast message
-      toast.success(data.message || "User type set successfully!");
+      // toast.success(data.message || "User type set successfully!");
       return data;
     },
     onError: (error) => {
@@ -108,7 +108,7 @@ export const useSetUserPlanMutation = () => {
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);
       // Show a success toast message
-      toast.success(data.message || "User plan set successfully!");
+      // toast.success(data.message || "User plan set successfully!");
       return data;
     },
     onError: (error) => {
@@ -297,7 +297,7 @@ export const useUpdateNotificationSetting = () => {
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);
       // Show a success toast message
-      toast.success(data.message || "Login successful!");
+      // toast.success(data.message || "Login successful!");
       return data;
     },
     onError: (error) => {
@@ -324,7 +324,7 @@ export const usePasswordReset = () => {
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);
       // Show a success toast message
-      toast.success(data.message || "Login successful!");
+      // toast.success(data.message || "Login successful!");
       return data;
     },
     onError: (error) => {
@@ -346,7 +346,7 @@ export const useInitiatePasswordReset = (authSide?: boolean) => {
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);
       // Show a success toast message
-      toast.success(data.message || "Login successful!");
+      // toast.success(data.message || "Login successful!");
       return data;
     },
     onError: (error) => {

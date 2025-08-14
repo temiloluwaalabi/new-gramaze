@@ -2,8 +2,9 @@
 
 import { TableAppointment } from "@/components/table/columns/appointment-columns";
 import {
-  createAppointmentEndTime,
+  convertTo24Hour,
   determineAppointmentStatus,
+  formatAppointmentDate,
   generateAvatarUrl,
   getFullName,
 } from "@/lib/utils";
@@ -36,10 +37,9 @@ export const transformToTableAppointment = (
     id: enrichedAppointment.id.toString(),
     clientName,
     clientImage,
-    appointmentDate: new Date(
-      `${enrichedAppointment.date}T${enrichedAppointment.time}`
-    ),
+    appointmentDate: formatAppointmentDate(enrichedAppointment.date),
     consultantName,
+    appointmentTime: enrichedAppointment.time,
     consultantImage,
     status: determineAppointmentStatus(enrichedAppointment),
     selected: false,
@@ -74,15 +74,32 @@ export const transformToCalendarEvent = (
     });
   }
 
+  // Parse just the start time for positioning
+  const timePattern = /(\d{1,2}):(\d{2})\s*(AM|PM)/i;
+  const match = enrichedAppointment.time.match(timePattern);
+
+  let startTime = "";
+  let endTime = "";
+
+  if (match) {
+    const [, hour, minute, period] = match;
+    // Convert to 24-hour format for easier processing
+    const hour24 = convertTo24Hour(parseInt(hour), period.toUpperCase());
+    startTime = `${hour24.toString().padStart(2, "0")}:${minute}:00`;
+
+    // For end time, add 1 hour as default (you can adjust this logic)
+    const endHour24 = hour24 + 1;
+    endTime = `${endHour24.toString().padStart(2, "0")}:${minute}:00`;
+  }
   return {
     id: enrichedAppointment.id.toString(),
     title: `${clientName} - ${enrichedAppointment.appointment_type}`,
-    start: new Date(`${enrichedAppointment.date}T${enrichedAppointment.time}`),
-    end: createAppointmentEndTime(
-      enrichedAppointment.date,
-      enrichedAppointment.time
-    ),
+    start: formatAppointmentDate(enrichedAppointment.date),
+    end: formatAppointmentDate(enrichedAppointment.date),
+    appointmentTime: enrichedAppointment.time,
     attendees,
+    startTime,
+    endTime,
     caregiver: enrichedAppointment.caregiverDetails as User,
   };
 };

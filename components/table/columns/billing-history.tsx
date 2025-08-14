@@ -3,8 +3,18 @@ import { EllipsisVertical } from "lucide-react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn, formatDate } from "@/lib/utils";
-import { Payment } from "@/types";
-
+export interface Payment {
+  id: number;
+  payment: string;
+  amount: string;
+  user_email: string;
+  status: "pending" | "completed" | "failed";
+  payment_description: string;
+  payment_type: string;
+  referenceId: string;
+  created_at: string;
+  updated_at: string;
+}
 export const BillingColumn: ColumnDef<Payment>[] = [
   {
     id: "select",
@@ -34,36 +44,64 @@ export const BillingColumn: ColumnDef<Payment>[] = [
     id: "amount",
     header: "Amount",
     cell: ({ row }) => {
-      const appointment = row.original;
+      const payment = row.original;
 
       return (
         <div>
-          <h4>${appointment.amount}</h4>
+          <h4>₦{payment.amount}</h4>
         </div>
       );
     },
   },
   {
-    accessorKey: "date",
+    accessorKey: "created_at",
     header: "Date",
     cell: ({ row }) => {
-      const appointment = row.original;
+      const payment = row.original;
       return (
         <span className="text-sm font-normal text-[#262D31]">
-          {formatDate(appointment.date)}
+          {formatDate(payment.created_at)}
         </span>
       );
     },
   },
   {
-    accessorKey: "description",
+    accessorKey: "payment_description",
     header: "Description",
     cell: ({ row }) => {
-      const appointment = row.original;
+      const payment = row.original;
 
       return (
         <div>
-          <p>{appointment.description}</p>
+          <p>{payment.payment_description}</p>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "payment_type",
+    header: "Payment Type",
+    cell: ({ row }) => {
+      const payment = row.original;
+
+      return (
+        <div>
+          <p className="capitalize">
+            {payment.payment_type?.replace("_", " ")}
+          </p>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "referenceId",
+    header: "Reference ID",
+    cell: ({ row }) => {
+      const payment = row.original;
+
+      return (
+        <div>
+          <p className="font-mono text-sm">{payment.referenceId}</p>
         </div>
       );
     },
@@ -72,17 +110,18 @@ export const BillingColumn: ColumnDef<Payment>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.original;
+      const payment = row.original;
 
       return (
         <span
           className={cn(
-            "h-[24px] rounded-[12px] px-[12px] py-[5px] text-xs font-normal",
-            status.status === "Completed" && "bg-green-100 text-green-600",
-            status.status === "Cancelled" && "bg-red-100 text-red-600"
+            "h-[24px] rounded-[12px] px-[12px] py-[5px] text-xs font-normal capitalize",
+            payment.status === "completed" && "bg-green-100 text-green-600",
+            payment.status === "pending" && "bg-yellow-100 text-yellow-600",
+            payment.status === "failed" && "bg-red-100 text-red-600"
           )}
         >
-          {status.status}
+          {payment.status}
         </span>
       );
     },

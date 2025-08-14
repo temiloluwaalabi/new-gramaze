@@ -38,58 +38,9 @@ const StepNotFound = ({ step }: { step: string }) => (
   </div>
 );
 
-// // Step access denied component
-// const StepAccessDenied = ({
-//   step,
-//   nextStep,
-// }: {
-//   step: string;
-//   nextStep: string | null;
-// }) => (
-//   <div className="flex h-64 items-center justify-center">
-//     <div className="text-center">
-//       <h2 className="mb-2 text-xl font-semibold text-gray-800">
-//         Step Not Accessible
-//       </h2>
-//       <p className="mb-4 text-gray-600">
-//         You need to complete previous steps before accessing "{step}".
-//       </p>
-//       {nextStep && (
-//         <button
-//           onClick={() =>
-//             (window.location.href = `/onboarding?step=${nextStep}`)
-//           }
-//           className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700"
-//         >
-//           Go to Next Available Step
-//         </button>
-//       )}
-//     </div>
-//   </div>
-// );
-
 export const OnboardingClientPage = () => {
   const searchParams = useSearchParams();
   const step = searchParams.get("step") || "plan";
-
-  // // Show loading state
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex items-center justify-start h-full">
-  //       <OnboardingLoader />
-  //     </div>
-  //   );
-  // }
-
-  // Check if step is accessible
-  // if (!isStepAccessible(step)) {
-  //   const nextStep = getNextAccessibleStep();
-  //   return (
-  //     <div className="flex items-center justify-start h-full">
-  //       <StepAccessDenied step={step} nextStep={nextStep} />
-  //     </div>
-  //   );
-  // }
 
   // Render the current step
   const renderStep = () => {

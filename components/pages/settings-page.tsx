@@ -386,6 +386,7 @@ export const SettingsClientPage = () => {
                     Change Plan
                   </Button>
                 }
+                user_id={user?.id || 0}
               />
             </div>
             <div className="space-y-2">

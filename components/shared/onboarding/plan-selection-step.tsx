@@ -17,11 +17,11 @@ import { useUserStore } from "@/store/user-store";
 import { PricingPlan } from "./pricing-plan";
 import { StepFooter } from "./step-footer";
 import { StepHeader } from "./step-header";
-
 export const paymentPlans = [
   {
-    id: "ok-plan",
+    id: "ok_plan",
     planTitle: "The OK Plan",
+    amount: 5000,
     planOffers: [
       "First 2 consultations",
       "Doctor's visit",
@@ -30,8 +30,9 @@ export const paymentPlans = [
     ],
   },
   {
-    id: "ck-plan",
+    id: "ck_plan",
     planTitle: "The CK Plan",
+    amount: 10000,
     planOffers: [
       "First 2 consultations",
       "Doctor's visit",
@@ -43,8 +44,10 @@ export const paymentPlans = [
     ],
   },
   {
-    id: "gold-plan",
+    id: "gold_care_plan",
     planTitle: "The Gold Care Plan",
+    amount: 20000,
+
     planOffers: [
       "Doctor's visit",
       "Nutrition Plan",

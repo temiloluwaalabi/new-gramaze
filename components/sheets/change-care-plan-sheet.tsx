@@ -11,11 +11,14 @@ import {
 } from "../ui/sheet";
 type Props = {
   sheetTrigger: React.ReactNode;
+  user_id: number;
 };
 export const ChangeCarePlanSheet = (props: Props) => {
+  const [openSheet, setOpenSheet] = React.useState(false);
+
   return (
-    <Sheet>
-     <SheetTrigger asChild>{props.sheetTrigger}</SheetTrigger>
+    <Sheet open={openSheet} onOpenChange={setOpenSheet}>
+      <SheetTrigger>{props.sheetTrigger}</SheetTrigger>
       <SheetContent className="!w-[596px] max-w-full border-none bg-transparent p-5 md:!max-w-[596px]">
         {" "}
         <div className="custom-scrollbar flex h-full flex-col overflow-y-scroll rounded-[6px] border border-gray-300 bg-white p-4">
@@ -24,7 +27,10 @@ export const ChangeCarePlanSheet = (props: Props) => {
               Change Care Plan
             </SheetTitle>
           </SheetHeader>
-          <ChangeCarePlanForm />
+          <ChangeCarePlanForm
+            user_id={props.user_id}
+            setOpenSheet={setOpenSheet}
+          />{" "}
         </div>
       </SheetContent>
     </Sheet>

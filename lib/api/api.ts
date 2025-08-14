@@ -2,7 +2,10 @@ import { format } from "date-fns";
 
 import { getSession } from "@/app/actions/session.actions";
 import { gramazeEndpoints } from "@/config/routes";
-import { Appointment, Plan, User,
+import {
+  Appointment,
+  Plan,
+  User,
   ChatListResponse,
   MessagesResponse,
   SendMessagePayload,
@@ -10,14 +13,15 @@ import { Appointment, Plan, User,
   SearchUsersResponse,
   BackendMessagesResponse,
   ConversationsResponse,
-  ChatUser,} from "@/types";
+  ChatUser,
+} from "@/types";
 
 import { ApiError, backendAPiClient } from "./api-client";
 import { handleApiBackendError, makeApiRequest } from "./api-request-setup";
 import {
   BiodataSchemaType,
   LoginSchemaType,
-  RegisterSchemaType, 
+  RegisterSchemaType,
 } from "../schemas/user.schema";
 
 export const authService = {
@@ -362,11 +366,7 @@ export const appointmentService = {
         {}
       );
     },
-    markAppointmentAsArrived: async (values: {
-      id: string;
-
-      additional_note_caregiver: string;
-    }) => {
+    markAppointmentAsArrived: async (values: FormData) => {
       return makeApiRequest<{
         status: true;
         message: string;
@@ -516,11 +516,25 @@ export const caregiverServices = {
       return makeApiRequest<{
         status: true;
         message: string;
-        appointments: {
+        histories: {
           current_page: number;
-          data: User[];
+          data: {
+            id: number;
+            user_id: string;
+            caregiver_id: string;
+            start_date: string;
+            end_date: string;
+            created_at: string;
+            updated_at: string;
+            caregiver: {
+              id: number;
+              first_name: string;
+              last_name: string;
+            };
+          }[];
           from: number;
           last_page: number;
+          per_page: number;
           to: number;
           total: number;
         };
@@ -537,7 +551,20 @@ export const caregiverServices = {
       return makeApiRequest<{
         status: true;
         message: string;
-        appointment: Appointment;
+        caregiver: {
+          id: number;
+          first_name: string;
+          last_name: string;
+          email: string;
+          phone: string;
+          created_at: string;
+          caregiver_histories: {
+            id: number;
+            caregiver_id: string;
+            start_date: string;
+            end_date: string;
+          }[];
+        };
       }>(`${gramazeEndpoints.caregiver.user.detail}`, "GET", {
         params: {
           caregiver_id,
@@ -555,6 +582,60 @@ export const caregiverServices = {
         appointment: Appointment;
       }>(`${gramazeEndpoints.caregiver.user.rating}`, "POST", {
         body: values,
+      });
+    },
+  },
+  caregiver: {
+    getPatientHistory: async ({
+      per_page,
+      end_date,
+      start_date,
+      caregiver,
+    }: {
+      start_date?: string;
+      caregiver?: string;
+      end_date?: string;
+      per_page?: number;
+    } = {}) => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        histories: {
+          current_page: number;
+          data: {
+            id: number;
+            user_id: string;
+            caregiver_id: string;
+            start_date: string;
+            end_date: string;
+            created_at: string;
+            updated_at: string;
+            patient: Partial<User>;
+          }[];
+          from: number;
+          last_page: number;
+          per_page: number;
+          to: number;
+          total: number;
+        };
+      }>(`${gramazeEndpoints.caregiver.patient.history}`, "GET", {
+        params: {
+          ...(per_page && { per_page }),
+          ...(start_date && { start_date }),
+          ...(typeof end_date !== "undefined" && { end_date }),
+          ...(caregiver && { caregiver }),
+        },
+      });
+    },
+    getPatientHistoryDetails: async (patient_id: string) => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        patient: Partial<User>;
+      }>(`${gramazeEndpoints.caregiver.patient.detail}`, "GET", {
+        params: {
+          patient_id,
+        },
       });
     },
   },
@@ -583,6 +664,22 @@ export const billingService = {
         ...values,
         callback_url: process.env.NEXT_PUBLIC_ADMIN_URL,
       },
+    });
+  },
+  initiatePayment: async (values: {
+    plan_code: string;
+    callback_url: string;
+  }) => {
+    return makeApiRequest<{
+      status: true;
+      message: string;
+      initiate_payment_data: {
+        authorization_url: string;
+        access_code: string;
+        reference: string;
+      };
+    }>(`${gramazeEndpoints.billing.user.buyPlan}`, "POST", {
+      body: values,
     });
   },
   verifyPayment: async (reference: string) => {
@@ -614,6 +711,7 @@ export const billingService = {
         data: [];
         from: number;
         last_page: number;
+        per_page: number;
         to: number;
         total: number;
       };
@@ -627,10 +725,6 @@ export const billingService = {
     });
   },
 };
-
-
-
-
 
 async function unwrapApiResult<T>(resPromise: Promise<unknown>): Promise<T> {
   const raw = await resPromise;
@@ -653,7 +747,6 @@ async function unwrapApiResult<T>(resPromise: Promise<unknown>): Promise<T> {
   return raw as T;
 }
 
-
 export const chatServices = {
   fetchChatList: async (): Promise<ChatListResponse> => {
     const resPromise = makeApiRequest<ChatListResponse>(
@@ -669,7 +762,9 @@ export const chatServices = {
         ? gramazeEndpoints.chats.fetchMessages(userId)
         : `${String(gramazeEndpoints.chats.fetchMessages)}?user_id=${encodeURIComponent(userId)}`;
 
-    const raw = await unwrapApiResult<BackendMessagesResponse>(makeApiRequest<BackendMessagesResponse>(url, "GET"));
+    const raw = await unwrapApiResult<BackendMessagesResponse>(
+      makeApiRequest<BackendMessagesResponse>(url, "GET")
+    );
 
     const backendMessages = Array.isArray(raw?.messages) ? raw.messages : [];
 
@@ -685,8 +780,9 @@ export const chatServices = {
     return { messages: mapped };
   },
 
- 
-  sendMessage: async (payload: SendMessagePayload): Promise<SendMessageResponse> => {
+  sendMessage: async (
+    payload: SendMessagePayload
+  ): Promise<SendMessageResponse> => {
     // transform frontend payload -> backend payload shape
     const body = {
       sender_id: payload.senderId,
@@ -705,7 +801,9 @@ export const chatServices = {
     return unwrapApiResult<SendMessageResponse>(resPromise);
   },
 
-  markMessageAsRead: async (messageId: string): Promise<{ message: string }> => {
+  markMessageAsRead: async (
+    messageId: string
+  ): Promise<{ message: string }> => {
     const resPromise = makeApiRequest<{ message: string }>(
       gramazeEndpoints.chats.markAsRead,
       "POST",
@@ -726,11 +824,13 @@ export const chatServices = {
     return unwrapApiResult<SearchUsersResponse>(resPromise);
   },
 
- 
   fetchConversations: async (): Promise<ChatUser[]> => {
-    const resPromise = makeApiRequest<ConversationsResponse>(gramazeEndpoints.chats.fetchConversations, "GET");
+    const resPromise = makeApiRequest<ConversationsResponse>(
+      gramazeEndpoints.chats.fetchConversations,
+      "GET"
+    );
     const raw = await unwrapApiResult<ConversationsResponse>(resPromise);
-  
+
     // raw is an array of { id, first_name }
     const convs = Array.isArray(raw) ? raw : [];
     const mapped = convs.map((c) => {
@@ -742,13 +842,10 @@ export const chatServices = {
         message_notification: null,
       };
     }) as ChatUser[];
-  
+
     return mapped;
   },
-  
 };
-
-
 
 export const adminServices = {
   user_management: {
@@ -763,36 +860,263 @@ export const adminServices = {
         },
       });
     },
-    //  getUserDetails: async (userId: string) => {
-    // try {
-    //   const session = await getSession();
-    //   const response = await backendAPiClient.request({
-    //     method: 'GET',
-    //     maxBodyLength: Infinity,
-    //     url: `${gramazeEndpoints.onboarding.updateProfile}`,
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       Authorization: `Bearer ${session.accessToken}`,
-    //     },
-    //     data: {
-    //       first_name: values.first_name,
-    //       last_name: values.last_name,
-    //       dob: values.dob,
-    //       gender: values.gender,
-    //       phone: values.phoneNumber,
-    //       address: values.address,
-    //     },
-    //   });
+    getAllUsers: async () => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        data: {
+          users: User[];
+          pagination: {
+            page: number;
+            per_page: number;
+            last_page: number;
+            total: number;
+          };
+        };
+      }>(`${gramazeEndpoints.admin.user.all}`, "GET");
+    },
+    getActiveUsers: async () => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        data: {
+          users: User[];
+          pagination: {
+            page: number;
+            per_page: number;
+            last_page: number;
+            total: number;
+          };
+        };
+      }>(`${gramazeEndpoints.admin.user.active}`, "GET");
+    },
+    getInactiveUsers: async () => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        data: {
+          users: User[];
+          pagination: {
+            page: number;
+            per_page: number;
+            last_page: number;
+            total: number;
+          };
+        };
+      }>(`${gramazeEndpoints.admin.user.inactive}`, "GET");
+    },
+    getSuspendedUsers: async () => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        data: {
+          users: User[];
+          pagination: {
+            page: number;
+            per_page: number;
+            last_page: number;
+            total: number;
+          };
+        };
+      }>(`${gramazeEndpoints.admin.user.suspended}`, "GET");
+    },
+  },
+  patient_management: {
+    getPatientStats: async () => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        data: {
+          total_patients: number;
+          active_patients: number;
+          suspended_patients: number;
+          high_risky_patient: number;
+        };
+      }>(`${gramazeEndpoints.admin.patient.stats}`, "GET");
+    },
 
-    //   console.log('RESPONSE TWO', response);
-    //   return {
-    //     status: response.data.status as boolean,
-    //     message: response.data.message as string,
-    //     user: response.data.user as User,
-    //   };
-    // } catch (error) {
-    //   return handleApiBackendError(error);
-    // }
+    updatePlan: async (
+      values: {
+        user_id: number;
+        plan: string;
+      },
+      pathname: string
+    ) => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        user: User;
+      }>(`${gramazeEndpoints.admin.plan.update}`, "POST", {
+        pathname,
+        body: values,
+      });
+    },
+    addHealthTracker: async (
+      values: {
+        blood_glucose?: string;
+        blood_pressure?: string;
+        weight?: number;
+        pulse?: number;
+        user_id: number;
+        caregiver_id: number;
+      },
+      pathname: string
+    ) => {
+      console.log("NEW VALUES", values);
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        tracker: {
+          id: number;
+          blood_glucose: string;
+          blood_pressure: string;
+          weight: string;
+          pulse: string;
+          created_at: string;
+          updated_at: string;
+          user_id: number;
+          caregiver_id: number;
+        };
+      }>(`${gramazeEndpoints.admin.healthTracker.add}`, "POST", {
+        pathname,
+        body: {
+          ...values,
+          weight: Number(values.weight),
+          pulse: Number(values.pulse),
+        },
+      });
+    },
+    updateHealthTracker: async (
+      values: {
+        blood_glucose?: string;
+        blood_pressure?: string;
+        weight?: string;
+        pulse?: string;
+        user_id: number;
+        caregiver_id: number;
+        id: number;
+      },
+      pathname: string
+    ) => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        tracker: {
+          id: number;
+          blood_glucose: string;
+          blood_pressure: string;
+          weight: string;
+          pulse: string;
+          created_at: string;
+          updated_at: string;
+          user_id: number;
+          caregiver_id: number;
+        };
+      }>(`${gramazeEndpoints.admin.healthTracker.update}`, "POST", {
+        pathname,
+        body: values,
+      });
+    },
+    fetchHealthTracker: async (values: { user_id: number }) => {
+      try {
+        const session = await getSession();
+        const response = await backendAPiClient.request({
+          method: "POST",
+          maxBodyLength: Infinity,
+          url: `${gramazeEndpoints.admin.healthTracker.fetch}`,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.accessToken}`,
+          },
+          data: {
+            user_id: values.user_id,
+          },
+        });
+        console.log("HEALTH_TRACKER_RESPONSE", response.data);
+        return {
+          status: response.data.status as boolean,
+          message: response.data.message as string,
+          tracker: response.data.trackers as {
+            id: number;
+            blood_glucose: string;
+            blood_pressure: string;
+            weight: string;
+            pulse: string;
+            created_at: string;
+            updated_at: string;
+            user_id: string;
+            caregiver_id: string;
+          }[],
+        };
+      } catch (error) {
+        return handleApiBackendError(error);
+      }
+    },
+    addHealthReport: async (values: FormData, pathname: string) => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        user: User;
+      }>(`${gramazeEndpoints.admin.healthReport.add}`, "POST", {
+        pathname,
+        body: values,
+      });
+    },
+    fetchUserHealthReports: async (
+      values: {
+        user_id: string;
+      },
+      pathname?: string
+    ) => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        data: [];
+      }>(`${gramazeEndpoints.admin.healthReport.fetch}`, "POST", {
+        pathname,
+        body: values,
+      });
+    },
+    deleteHealthReport: async (
+      values: {
+        id: string;
+      },
+      pathname: string
+    ) => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        data: [];
+      }>(`${gramazeEndpoints.admin.healthReport.delete}`, "POST", {
+        pathname,
+        body: values,
+      });
+    },
+  },
+  appointment_management: {
+    getAppointmentByUser: async ({
+      user_id,
+    }: {
+      user_id?: number;
+    } = {}) => {
+      return makeApiRequest<{
+        status: true;
+        message: string;
+        appointments: {
+          current_page: number;
+          data: Appointment[];
+          from: number;
+          last_page: number;
+          per_page: number;
+          to: number;
+          total: number;
+        };
+      }>(`${gramazeEndpoints.admin.patient.getAppointments}`, "GET", {
+        params: {
+          ...(user_id && { user_id }),
+        },
+      });
+    },
   },
 };
 export const helpCenterServices = {

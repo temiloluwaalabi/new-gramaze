@@ -5,23 +5,12 @@ import * as React from "react";
 
 import { CaregiverAppointmentSheet } from "@/components/sheets/caregiver-appointment-sheet";
 import { Separator } from "@/components/ui/separator";
+import { DEFAULT_IMAGE_URL } from "@/config/constants";
 import { cn } from "@/lib/utils";
+import { Appointment } from "@/types";
 
 type Props = {
-  appointment: {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-    date: string;
-    startTime: string;
-    endTime: string;
-    location: string;
-    status: string;
-    avatar: string;
-    isVirtual?: boolean;
-    locationTag?: { fill: string; hue: string };
-  };
+  appointment: Appointment;
   isHori?: boolean;
 };
 export const CaregiverAppointmentWidget = ({ appointment, isHori }: Props) => {
@@ -31,16 +20,17 @@ export const CaregiverAppointmentWidget = ({ appointment, isHori }: Props) => {
         <div className="flex flex-row items-center justify-between gap-2 sm:gap-0">
           <div className="flex items-center gap-2 sm:gap-3">
             <Image
-              src={appointment.avatar}
+              src={DEFAULT_IMAGE_URL}
               width={36}
               height={36}
               className="size-8 rounded-full object-cover sm:size-[42px]"
               alt={`${appointment.name}'s avatar`}
             />
             <CaregiverAppointmentSheet
+              appointment={appointment}
               sheetTrigger={
                 <div className="space-y-0.5 sm:space-y-1">
-                  <h4 className="line-clamp-1 cursor-pointer text-sm font-semibold text-[#303030] sm:text-base">
+                  <h4 className="line-clamp-1 cursor-pointer text-left text-sm font-semibold text-[#303030] sm:text-base">
                     {appointment.name}
                   </h4>
                   <p className="text-left text-xs font-normal text-[#66666B] sm:text-sm">
@@ -83,6 +73,12 @@ export const CaregiverAppointmentWidget = ({ appointment, isHori }: Props) => {
             <Clock className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
             <span className="text-xs font-normal text-[#66666B] sm:text-sm">
               {appointment.startTime} - {appointment.endTime}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
+            <span className="text-xs font-normal text-[#66666B] capitalize sm:text-sm">
+              {appointment.appointment_type} Appointment
             </span>
           </div>
 

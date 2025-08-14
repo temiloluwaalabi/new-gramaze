@@ -10,6 +10,7 @@ import * as z from "zod";
 import { FormFieldTypes } from "@/config/enum";
 import { useUpdateProfile } from "@/lib/queries/use-auth-queries";
 import { BiodataSchema } from "@/lib/schemas/user.schema";
+import { useUserStore } from "@/store/user-store";
 import { User } from "@/types";
 
 import { CustomFormField } from "../shared/custom-form-field";
@@ -24,6 +25,7 @@ type UpdateAccountDataFormProps = {
 export default function UpdateAccountDataForm({
   user,
 }: UpdateAccountDataFormProps) {
+  const { setUser } = useUserStore();
   console.log("USER", user);
   const BiodataForm = useForm<z.infer<typeof BiodataSchema>>({
     resolver: zodResolver(BiodataSchema),
@@ -48,7 +50,8 @@ export default function UpdateAccountDataForm({
     console.log(values);
     UpdateProfile(values, {
       onSuccess: (data) => {
-        // setUser(data.user);
+        console.log("DATA", data);
+        setUser(data.user);
         toast.success(data.message);
       },
     });
@@ -70,7 +73,7 @@ export default function UpdateAccountDataForm({
               label="First Name"
               fieldType={FormFieldTypes.INPUT}
               inputType="text"
-              disabled={true}
+              // disabled={true}
               placeholder="Firstname"
             />
             <CustomFormField
@@ -79,13 +82,13 @@ export default function UpdateAccountDataForm({
               label="Last Name"
               fieldType={FormFieldTypes.INPUT}
               inputType="text"
-              disabled={true}
+              // disabled={true}
               placeholder="lastname"
             />
             <CustomFormField
               control={BiodataForm.control}
               name="dob"
-              disabled={true}
+              // disabled={true}
               label="Date of birth"
               fieldType={FormFieldTypes.DATE_PICKER}
             />
@@ -95,7 +98,7 @@ export default function UpdateAccountDataForm({
               label="Address"
               fieldType={FormFieldTypes.INPUT}
               inputType="text"
-              disabled={true}
+              // disabled={true}
               placeholder="Address"
             />
             <CustomFormField
@@ -103,7 +106,7 @@ export default function UpdateAccountDataForm({
               name="gender"
               label="Gender"
               fieldType={FormFieldTypes.SELECT}
-              disabled={true}
+              // disabled={true}
               placeholder="Select Gender"
             >
               {[
@@ -135,7 +138,7 @@ export default function UpdateAccountDataForm({
               name="phoneNumber"
               label="Phone Number"
               fieldType={FormFieldTypes.PHONE_INPUT}
-              disabled={true}
+              // disabled={true}
               placeholder="Please enter your number"
             />
             <CustomFormField
@@ -144,7 +147,7 @@ export default function UpdateAccountDataForm({
               label="Email address"
               fieldType={FormFieldTypes.INPUT}
               inputType="email"
-              disabled={true}
+              // disabled={true}
               placeholder="deltapikin@aol.com"
             />
           </div>

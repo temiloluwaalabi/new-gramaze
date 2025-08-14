@@ -13,14 +13,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn, formatAppointmentDate } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 // Interface definitions
 export interface TableAppointment {
   id: string;
   clientName: string;
   clientImage: string;
-  appointmentDate: Date;
+  appointmentDate: string;
+  appointmentTime: string;
   consultantName: string;
   consultantImage: string;
   status: AppointmentStatus;
@@ -88,7 +89,19 @@ export const AppointmentColumn: ColumnDef<TableAppointment>[] = [
       const appointment = row.original;
       return (
         <span className="text-sm font-normal text-[#262D31]">
-          {formatAppointmentDate(new Date(appointment.appointmentDate))}
+          {appointment.appointmentDate}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "appointmentTime",
+    header: "Date",
+    cell: ({ row }) => {
+      const appointment = row.original;
+      return (
+        <span className="text-sm font-normal text-[#262D31]">
+          {appointment.appointmentTime}
         </span>
       );
     },

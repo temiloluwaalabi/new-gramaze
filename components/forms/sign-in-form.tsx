@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
-// import { toast } from "sonner";
 import * as z from "zod";
 
 import { FormFieldTypes } from "@/config/enum";
@@ -19,7 +18,6 @@ import { useUserStore } from "@/store/user-store";
 import { CustomFormField } from "../shared/custom-form-field";
 import { Button } from "../ui/button";
 import { Form } from "../ui/form";
-
 
 export default function SignInForm() {
   const { isPending, mutate: LoginUser } = useLoginMutation();
@@ -46,7 +44,10 @@ export default function SignInForm() {
         }
       },
       onError: (error) => {
-        safeError("login-error", error.message || "An error occurred during signing in..");
+        safeError(
+          "login-error",
+          error.message || "An error occurred during signing in.."
+        );
       },
     });
   };

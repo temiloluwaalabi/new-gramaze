@@ -3,6 +3,7 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { updatePlan } from "@/app/actions/caregiver-patient.actions";
 import {
   getCaregiverHistory,
   getCaregiverHistoryDetails,
@@ -12,6 +13,40 @@ import {
 import { handleMutationError } from "./handle-mutation-error";
 
 // ============= CAREGIVER QUERIES =============
+export const useUpdatePlan = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["admin", "patients", "updatePlan"],
+    mutationFn: async (values: {
+      user_id: number;
+      plan: string;
+      pathname: string;
+    }) => {
+      const data = await updatePlan(
+        { user_id: values.user_id, plan: values.plan },
+        values.pathname
+      );
+      if (data.success) {
+        return data;
+      }
+      throw new Error(data.message || "Updating plan failed");
+    },
+    onSuccess: (data) => {
+      console.log("SUCCESS DATA", data);
+      // toast.success(data.message || "Plan updated successfully!");
+
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ["admin", "patients"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "dashboard"] });
+
+      return data;
+    },
+    onError: (error) => {
+      handleMutationError(error);
+    },
+  });
+};
 
 // Get Caregiver History
 export const useGetCaregiverHistory = ({

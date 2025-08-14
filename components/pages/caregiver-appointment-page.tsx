@@ -1,9 +1,10 @@
 "use client";
-import { CalendarIcon, List, Search } from "lucide-react";
+import { Calendar, CalendarIcon, List, Search } from "lucide-react";
 import React, { useState } from "react";
+import { Button } from "react-day-picker";
 
-import { caregiverAppointmentData } from "@/config/constants";
-import { cn } from "@/lib/utils";
+import { cn, transformAppointmentData } from "@/lib/utils";
+import { Appointment } from "@/types";
 
 import { CaregiverAppointmentWidget } from "../shared/widget/caregiver-appointment-widget";
 import { Input } from "../ui/input";
@@ -15,9 +16,17 @@ import {
   SelectValue,
 } from "../ui/select";
 
-export default function CaregiverAppointmentClientPage() {
+type CaregiverAppointmentClientPageProps = {
+  appointments: Appointment[];
+};
+
+export default function CaregiverAppointmentClientPage({
+  appointments,
+}: CaregiverAppointmentClientPageProps) {
   const [isGridView, setIsGridView] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const transformedData =
+    appointments.length > 0 ? transformAppointmentData(appointments) : [];
 
   // Toggle between Grid and List view
   const toggleGridView = () => {
@@ -89,14 +98,31 @@ export default function CaregiverAppointmentClientPage() {
             </div>
           </div>
         </div>
-        <div className="space-y-3">
-          {caregiverAppointmentData.map((appointment) => (
-            <CaregiverAppointmentWidget
-              isHori={true}
-              appointment={appointment}
-              key={appointment.id}
-            />
-          ))}
+
+        {/* Appointments Section with Empty State */}
+        <div className="space-y-5">
+          {transformedData && transformedData.length > 0 ? (
+            transformedData.map((appointment) => (
+              <CaregiverAppointmentWidget
+                appointment={appointment}
+                key={appointment.id}
+              />
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="mb-4 rounded-full bg-gray-50 p-4">
+                <Calendar className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="mb-2 text-base font-medium text-gray-900">
+                No appointments scheduled
+              </h3>
+              <p className="mb-6 text-center text-sm text-gray-500">
+                You don&apos;t have any appointments yet. Schedule one to get
+                started.
+              </p>
+              <Button className="text-sm">Schedule Appointment</Button>
+            </div>
+          )}
         </div>
       </div>
     </section>

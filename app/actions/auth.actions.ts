@@ -365,9 +365,14 @@ export const UpdateUserProfile = async (values: BiodataSchemaType) => {
 
     // At this point, response is not an ApiError
     const successResponse = response as unknown as {
-      status: true;
+      success: boolean;
+      status: number;
       message: string;
-      user: User;
+      data: {
+        status: boolean;
+        message: string;
+        user: User;
+      };
     };
 
     console.log("SUCCESS RESPONSE", successResponse);
@@ -375,7 +380,7 @@ export const UpdateUserProfile = async (values: BiodataSchemaType) => {
     return {
       success: true,
       message: successResponse.message,
-      user: successResponse.user,
+      user: successResponse.data.user,
     };
   } catch (error) {
     console.error("Update BIODATA ERROR:", error);

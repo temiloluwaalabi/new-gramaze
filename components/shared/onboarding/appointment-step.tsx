@@ -4,7 +4,6 @@ import { Clock, Loader2, Video } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import * as React from "react";
-import { toast } from "sonner";
 
 import AtHomeVisitForm from "@/components/forms/at-home-viisit-form";
 import HospitalVisitForm from "@/components/forms/hospital-visit-form";
@@ -13,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useOnboarding } from "@/context/onboarding-context";
+import useSafeToast from "@/hooks/useSafeToast";
 import {
   usePhysicalHospitalAppointment,
   usePhysicalVirtualAppointment,
@@ -34,6 +34,8 @@ export const AppointmentStep = () => {
   const parsedDate = data.appointment.date
     ? new Date(data.appointment.date)
     : new Date();
+  const { safeSuccess } = useSafeToast();
+
   const { isPending: VirtualPending, mutate: BookVirtualAppointment } =
     useVirtualAppointment();
   const { isPending: HomePhysicalPending, mutate: HomePhysicalAppointment } =
@@ -103,7 +105,7 @@ export const AppointmentStep = () => {
       BookVirtualAppointment(JSONVALUES, {
         onSuccess: (data) => {
           updateData("appointmentReadyForReview", false);
-          toast.success(data.message);
+          safeSuccess("book-virtual-appointment", data.message);
           router.push("/booked");
         },
       });
@@ -121,8 +123,11 @@ export const AppointmentStep = () => {
         HomePhysicalAppointment(JSONVALUES, {
           onSuccess: (data) => {
             updateData("appointmentReadyForReview", false);
-
-            toast.success(data.message);
+            safeSuccess(
+              "physical-home-appointment",
+              data.message ||
+                "Physical home appointment scheduled successfully!"
+            );
             router.push("/booked");
           },
         });
@@ -140,7 +145,11 @@ export const AppointmentStep = () => {
         HospitalPhysicalAppointment(JSONVALUES, {
           onSuccess: (data) => {
             updateData("appointmentReadyForReview", false);
-            toast.success(data.message);
+            safeSuccess(
+              "physical-hospital-appointment",
+              data.message ||
+                "Physical home appointment scheduled successfully!"
+            );
             router.push("/booked");
           },
         });

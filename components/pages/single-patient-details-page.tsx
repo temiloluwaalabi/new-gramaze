@@ -1,6 +1,7 @@
 "use client";
 import {
   Calendar,
+  CalendarIcon,
   ChevronRight,
   Clock,
   Ellipsis,
@@ -12,12 +13,26 @@ import Image from "next/image";
 import React from "react";
 
 import CalendarBlankIcon from "@/icons/calendar-blank";
+import {
+  formatDate,
+  getAppointmentLocation,
+  getAppointmentTitle,
+} from "@/lib/utils";
+import { Appointment, User } from "@/types";
 
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 
-export default function SinglePatientDetailsPage() {
+type SinglePatientDetailsPageProps = {
+  patient: Partial<User>;
+  appointments: Appointment[];
+};
+
+export default function SinglePatientDetailsPage({
+  patient,
+  appointments,
+}: SinglePatientDetailsPageProps) {
   return (
     <section className="h-full gap-6 space-y-3 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -35,13 +50,13 @@ export default function SinglePatientDetailsPage() {
             />
             <div className="space-y-1">
               <h4 className="text-base font-semibold text-[#303030]">
-                Hafsat Idris
+                {patient.first_name} {patient.last_name}
               </h4>
               <div className="space-x-3 text-sm font-normal text-[#66666B]">
                 <span>
-                  Gender: <b>Female</b>
+                  Gender: <b className="capitalize">{patient.gender}</b>
                 </span>
-                <span>DOB: Feb 11, 1954</span>
+                <span>DOB: {formatDate(patient.dob || "")}</span>
               </div>
               <div className="mt-2 flex items-center gap-2">
                 <Button
@@ -77,7 +92,7 @@ export default function SinglePatientDetailsPage() {
                     Phone Number
                   </span>
                   <span className="text-xs font-semibold text-black">
-                    +234 815 319 3258
+                    {patient?.phone || "not-provided"}
                   </span>
                 </span>
 
@@ -86,7 +101,7 @@ export default function SinglePatientDetailsPage() {
                     Emergency Contact
                   </span>
                   <span className="text-xs font-semibold text-black">
-                    +234 815 319 3258
+                    {patient.emergency_contact_phone || "not-provided"}
                   </span>
                 </span>
               </div>
@@ -101,7 +116,7 @@ export default function SinglePatientDetailsPage() {
                     Start date
                   </span>
                   <span className="text-xs font-semibold text-black">
-                    Feb 11, 1954
+                    {formatDate(patient.created_at || "")}
                   </span>
                 </span>
                 <span className="flex flex-col gap-[4px]">
@@ -109,7 +124,7 @@ export default function SinglePatientDetailsPage() {
                     End date
                   </span>
                   <span className="text-xs font-semibold text-black">
-                    Feb 11, 1954
+                    not-provided
                   </span>
                 </span>
               </div>
@@ -139,51 +154,68 @@ export default function SinglePatientDetailsPage() {
             </div>
           </div>
           <Separator className="my-4 bg-[#E8E8E8]" />
-          <div className="rounded-[6px] border border-[#E8E8E8] bg-white p-3">
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <h4 className="line-clamp-1 cursor-pointer text-sm font-semibold text-[#303030] sm:text-base">
-                    At-Home Visit
-                  </h4>
-                </div>
+          {appointments.length > 0 ? (
+            appointments.map((appointment) => (
+              <div
+                className="rounded-[6px] border border-[#E8E8E8] bg-white p-3"
+                key={appointment.id}
+              >
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <h4 className="line-clamp-1 cursor-pointer text-sm font-semibold text-[#303030] sm:text-base">
+                        {getAppointmentTitle(appointment)}
+                      </h4>
+                    </div>
 
-                <div className="mt-1 flex items-center gap-2 self-end sm:mt-0 sm:self-auto">
-                  <Ellipsis className="size-4 text-gray-500 sm:size-5" />
-                </div>
-              </div>
-
-              <Separator className="bg-[#E8E8E8]" />
-
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-[130px]">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
-                    <span className="text-xs font-normal text-[#303030] sm:text-sm">
-                      Feb 25, 2025{" "}
-                    </span>
+                    <div className="mt-1 flex items-center gap-2 self-end sm:mt-0 sm:self-auto">
+                      <Ellipsis className="size-4 text-gray-500 sm:size-5" />
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Clock className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
-                    <span className="text-xs font-normal text-[#66666B] sm:text-sm">
-                      09:00 AM - 10:00 AM{" "}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-[130px]">
-                  <div className="flex items-start gap-2">
-                    <MapPin className="mt-0.5 size-4 flex-shrink-0 text-gray-500 sm:size-5" />
-                    <div className="flex flex-col">
-                      <span className="line-clamp-2 text-xs font-normal text-[#66666B] sm:line-clamp-none sm:text-sm">
-                        42 Bishop Oluwole Street, Victoria Island, Lagos{" "}
-                      </span>
+                  <Separator className="bg-[#E8E8E8]" />
+
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-[130px]">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
+                        <span className="text-xs font-normal text-[#303030] sm:text-sm">
+                          {formatDate(appointment.date)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <Clock className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
+                        <span className="text-xs font-normal text-[#66666B] sm:text-sm">
+                          {appointment.time}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-[130px]">
+                      <div className="flex items-start gap-2">
+                        <MapPin className="mt-0.5 size-4 flex-shrink-0 text-gray-500 sm:size-5" />
+                        <div className="flex flex-col">
+                          <span className="line-clamp-2 text-xs font-normal text-[#66666B] sm:line-clamp-none sm:text-sm">
+                            {getAppointmentLocation(appointment)}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8">
+              <CalendarIcon className="mb-3 text-[#b0b0b0]" size={48} />
+              <span className="text-base font-medium text-[#71717a]">
+                No appointments found
+              </span>
+              <span className="mt-1 text-sm text-[#b0b0b0]">
+                You have no upcoming appointments at the moment.
+              </span>
             </div>
-          </div>
+          )}
         </div>
         <div className="space-y-6">
           <div className="h-fit rounded-[6px] border border-[#E8E8E8] bg-white p-4">

@@ -1,8 +1,12 @@
 import { clsx, type ClassValue } from "clsx";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { twMerge } from "tailwind-merge";
 
 import { AppointmentStatus } from "@/components/table/columns/appointment-columns";
 import { Appointment, User } from "@/types";
+
+dayjs.extend(customParseFormat);
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -53,18 +57,139 @@ export const formatAppointmentDate = (date: Date | string): string => {
   const year = dateObj.getFullYear();
 
   // Format hours for 12-hour clock with AM/PM
-  let hours = dateObj.getHours();
-  const ampm = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12;
-  hours = hours || 12; // Convert 0 to 12
+  // let hours = dateObj.getHours();
+  // const ampm = hours >= 12 ? "PM" : "AM";
+  // hours = hours % 12;
+  // hours = hours || 12; // Convert 0 to 12
 
   // Format minutes with leading zero
-  const minutes = dateObj.getMinutes().toString().padStart(2, "0");
+  // const minutes = dateObj.getMinutes().toString().padStart(2, "0");
 
   // Combine all parts
-  return `${day} ${month}, ${year} ${hours}:${minutes}${ampm}`;
+  return `${day} ${month}, ${year}`;
+};
+export const revertFormattedDate = (formattedDate: string) => {
+  try {
+    // Parse the formatted date "19 Aug, 2025"
+    const parsed = dayjs(formattedDate, "DD MMM, YYYY");
+
+    if (!parsed.isValid()) {
+      // console.error("Invalid date format:", formattedDate);
+      return null;
+    }
+
+    return {
+      // Standard formats
+      iso: parsed.format("YYYY-MM-DD"), // "2025-08-19"
+      standard: parsed.format("YYYY-MM-DD HH:mm:ss"), // "2025-08-19 00:00:00"
+      jsDate: parsed.toDate(), // JavaScript Date object
+      timestamp: parsed.valueOf(), // Unix timestamp in milliseconds
+
+      // Alternative formats
+      american: parsed.format("MM/DD/YYYY"), // "08/19/2025"
+      european: parsed.format("DD/MM/YYYY"), // "19/08/2025"
+      readable: parsed.format("MMMM D, YYYY"), // "August 19, 2025"
+      short: parsed.format("MMM D, YYYY"), // "Aug 19, 2025"
+
+      // With time (if you need to add specific time)
+      withTime: (timeString: string) => {
+        // Example: addTimeToDate("19 Aug, 2025", "02:15 PM")
+        const timePattern = /(\d{1,2}):(\d{2})\s*(AM|PM)/i;
+        const match = timeString.match(timePattern);
+
+        if (match) {
+          const [, hour, minute, period] = match;
+          const hour24 =
+            period.toLowerCase() === "pm" && parseInt(hour) !== 12
+              ? parseInt(hour) + 12
+              : period.toLowerCase() === "am" && parseInt(hour) === 12
+                ? 0
+                : parseInt(hour);
+
+          return parsed.hour(hour24).minute(parseInt(minute)).second(0);
+        }
+
+        return parsed;
+      },
+    };
+  } catch (error) {
+    // console.error("Error parsing date:", formattedDate, error);
+    return null;
+  }
+};
+export const formatDateToJSDate = (formattedDate: string): Date | null => {
+  const result = revertFormattedDate(formattedDate);
+  return result ? result.jsDate : null;
+};
+export const parseAppointmentTimeToDateTime = (
+  date: string,
+  timeRange: string
+) => {
+  try {
+    // Parse the date part (e.g., "28 Aug, 2025")
+    const appointmentDate = dayjs(date, "DD MMM, YYYY");
+
+    if (!appointmentDate.isValid()) {
+      // console.error("Invalid date:", date);
+      return { start: null, end: null };
+    }
+
+    // Parse the time range (e.g., "02:15 PM – 03:00 PM")
+    const timePattern =
+      /(\d{1,2}):(\d{2})\s*(AM|PM)\s*[–-]\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i;
+    const match = timeRange.match(timePattern);
+
+    if (!match) {
+      // console.error("Invalid time format:", timeRange);
+      return { start: null, end: null };
+    }
+
+    const [, startHour, startMin, startPeriod, endHour, endMin, endPeriod] =
+      match;
+
+    // Convert to 24-hour format
+    const start24Hour = convertTo24Hour(
+      parseInt(startHour),
+      startPeriod.toUpperCase()
+    );
+    const end24Hour = convertTo24Hour(
+      parseInt(endHour),
+      endPeriod.toUpperCase()
+    );
+
+    // Create start and end datetime objects
+    const startDateTime = appointmentDate
+      .hour(start24Hour)
+      .minute(parseInt(startMin))
+      .second(0);
+
+    const endDateTime = appointmentDate
+      .hour(end24Hour)
+      .minute(parseInt(endMin))
+      .second(0);
+
+    return {
+      start: startDateTime.toDate(),
+      end: endDateTime.toDate(),
+    };
+  } catch (error) {
+    // console.error("Error parsing appointment time:", error);
+    return { start: null, end: null };
+  }
 };
 
+// Helper function to convert 12-hour to 24-hour format
+export const convertTo24Hour = (hour: number, period: string): number => {
+  if (period === "AM") {
+    return hour === 12 ? 0 : hour;
+  } else {
+    return hour === 12 ? 12 : hour + 12;
+  }
+};
+// Example usage:
+// const dateStr = "19 Aug, 2025 1:00AM";
+// const parsedDate = parseAppointmentDate(dateStr);
+// console.log(parsedDate); // Returns a Date object or null if inval
 // Utility function for date formatting
 export const formatDate = (
   date: Date | string,
@@ -154,4 +279,87 @@ export const determineAppointmentStatus = (
 // Helper function to get full name from user
 export const getFullName = (user: User): string => {
   return `${user.first_name} ${user.last_name}`.trim();
+};
+
+export function transformAppointmentData(
+  apiData: Appointment[]
+): Appointment[] {
+  return apiData.map((appointment) => {
+    const [startTime, endTime] = appointment.time.includes("–")
+      ? appointment.time.split(" – ")
+      : [appointment.time, ""];
+
+    return {
+      ...appointment,
+      name: appointment.patient
+        ? `${appointment.patient.first_name} ${appointment.patient.last_name}`
+        : "Unknown Patient",
+      phone: appointment.contact || "",
+      avatar: "/default-avatar.png", // Provide default avatar
+      startTime,
+      endTime,
+      isVirtual: appointment.appointment_type === "virtual",
+    };
+  });
+}
+export // Get appointment location based on type
+const getAppointmentLocation = (appointment: Appointment) => {
+  if (appointment.appointment_type === "virtual") {
+    return appointment.location || "Online";
+  } else if (appointment.visit_type === "hospital") {
+    return appointment.hospital_address || "Hospital";
+  } else if (appointment.visit_type === "home") {
+    return appointment.home_address || "Patient's Home";
+  }
+  return "Location TBD";
+};
+export const getAppointmentTitle = (appointment: Appointment) => {
+  if (appointment.appointment_type === "virtual") {
+    return "Virtual appointment";
+  } else if (appointment.visit_type === "hospital") {
+    return "Hospital appointment";
+  } else if (appointment.visit_type === "home") {
+    return "At-home appointment";
+  }
+  return "Appointment";
+};
+// Function to combine date and time into full datetime
+export const combineDateAndTime = (
+  dateString: string,
+  timeString: string
+): Date | null => {
+  try {
+    // Parse the date
+    const date = dayjs(dateString, "DD MMM, YYYY");
+
+    if (!date.isValid()) {
+      // console.error("Invalid date:", dateString);
+      return null;
+    }
+
+    // Parse the time (e.g., "02:15 PM")
+    const timePattern = /(\d{1,2}):(\d{2})\s*(AM|PM)/i;
+    const match = timeString.match(timePattern);
+
+    if (!match) {
+      // console.error("Invalid time format:", timeString);
+      return null;
+    }
+
+    const [, hour, minute, period] = match;
+
+    // Convert to 24-hour format
+    let hour24 = parseInt(hour);
+    if (period.toLowerCase() === "pm" && hour24 !== 12) {
+      hour24 += 12;
+    } else if (period.toLowerCase() === "am" && hour24 === 12) {
+      hour24 = 0;
+    }
+
+    // Combine date and time
+    return date.hour(hour24).minute(parseInt(minute)).second(0).toDate();
+  } catch (error) {
+    // console.error("Error combining date and time:", error);
+    return null;
+  }
 };

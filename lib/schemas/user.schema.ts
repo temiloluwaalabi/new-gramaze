@@ -50,6 +50,11 @@ export const MedicalHistorySchema = z.object({
   history: z.string(),
   files: z.array(z.instanceof(File)),
 });
+export const MarkAppointmentAsArrivedSchema = z.object({
+  additional_note_caregiver: z.string(),
+  arrival_photo: z.instanceof(File).optional(),
+  arrival_current_address: z.optional(z.string()),
+});
 export const VirtualAssessmentSchema = z.object({
   time: z.string(),
   date: z.date(),
@@ -62,6 +67,9 @@ export type RegisterSchemaType = z.infer<typeof RegisterSchema>;
 export type LoginSchemaType = z.infer<typeof LoginSchema>;
 export type BiodataSchemaType = z.infer<typeof BiodataSchema>;
 export type MedicalHistorySchemaType = z.infer<typeof MedicalHistorySchema>;
+export type MarkAppointmentAsArrivedSchemaType = z.infer<
+  typeof MarkAppointmentAsArrivedSchema
+>;
 export type VirtualAssessmentSchemaType = z.infer<
   typeof VirtualAssessmentSchema
 >;

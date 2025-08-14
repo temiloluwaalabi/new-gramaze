@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart';
+} from "@/components/ui/chart";
 
 const chartConfig = {
   desktop: {
-    label: 'Body weight',
-    color: '#F59E0B', // Amber-500
+    label: "Body weight",
+    color: "#F59E0B",
   },
   mobile: {
-    label: 'Blood pressure (Systolic)',
-    color: '#3B82F6', // Blue-500
+    label: "Blood pressure (Systolic)",
+    color: "#3B82F6",
   },
   mobile2: {
-    label: 'Blood pressure (Diastolic)',
-    color: '#6366F1', // Indigo-500
+    label: "Blood pressure (Diastolic)",
+    color: "#6366F1",
   },
 } satisfies ChartConfig;
 
@@ -36,7 +36,7 @@ type HealthVitalsChartProps = {
   }[];
 };
 
-function getChartData(data: HealthVitalsChartProps['data']) {
+function getChartData(data: HealthVitalsChartProps["data"]) {
   // Flatten blood pressure for recharts
   return data.map((d) => ({
     name: d.name,
@@ -49,13 +49,13 @@ function getChartData(data: HealthVitalsChartProps['data']) {
 export function HealthVitalsChart({ data }: HealthVitalsChartProps) {
   if (!data || data.length === 0) {
     return (
-      <Card className="bg-white border border-[#F0F2F5] shadow-none">
+      <Card className="border border-[#F0F2F5] bg-white shadow-none">
         <CardHeader>
-          <CardTitle className="text-xs md:text-sm text-[#71717A] font-medium">
+          <CardTitle className="text-xs font-medium text-[#71717A] md:text-sm">
             Health vitals
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-40 text-muted-foreground">
+        <CardContent className="text-muted-foreground flex h-40 items-center justify-center">
           No health records have been recorded.
         </CardContent>
       </Card>
@@ -64,13 +64,13 @@ export function HealthVitalsChart({ data }: HealthVitalsChartProps) {
 
   if (data.length < 2) {
     return (
-      <Card className="bg-white border border-[#F0F2F5] shadow-none">
+      <Card className="border border-[#F0F2F5] bg-white shadow-none">
         <CardHeader>
-          <CardTitle className="text-xs md:text-sm text-[#71717A] font-medium">
+          <CardTitle className="text-xs font-medium text-[#71717A] md:text-sm">
             Health vitals
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-40 text-muted-foreground">
+        <CardContent className="text-muted-foreground flex h-40 items-center justify-center">
           Not enough data to display chart.
         </CardContent>
       </Card>
@@ -80,34 +80,37 @@ export function HealthVitalsChart({ data }: HealthVitalsChartProps) {
   const chartData = getChartData(data);
 
   return (
-    <Card className="bg-white border border-[#F0F2F5] shadow-none">
-      <CardHeader className="pb-0 flex items-center justify-between">
-        <CardTitle className="text-xs md:text-sm text-[#71717A] font-medium">
+    <Card className="border border-[#F0F2F5] bg-white shadow-none">
+      <CardHeader className="flex items-center justify-between pb-0">
+        <CardTitle className="text-xs font-medium text-[#71717A] md:text-sm">
           Health vitals
         </CardTitle>
         <div className="flex items-center gap-6 px-4 pb-2">
-          <div className="flex flex-col lg:flex-row items-center gap-2">
+          <div className="flex flex-col items-center gap-2 lg:flex-row">
             <span className="h-px w-[20px] rounded-full bg-yellow-400" />
-            <span className="text-xs md:text-sm text-muted-foreground font-medium">
+            <span className="text-muted-foreground text-xs font-medium md:text-sm">
               Body weight
             </span>
           </div>
-          <div className="flex flex-col lg:flex-row items-center gap-2">
+          <div className="flex flex-col items-center gap-2 lg:flex-row">
             <span className="h-px w-[20px] rounded-full bg-blue-500" />
-            <span className="text-xs md:text-sm text-muted-foreground font-medium">
+            <span className="text-muted-foreground text-xs font-medium md:text-sm">
               Systolic BP
             </span>
           </div>
-          <div className="flex flex-col lg:flex-row items-center gap-2">
+          <div className="flex flex-col items-center gap-2 lg:flex-row">
             <span className="h-px w-[20px] rounded-full bg-indigo-500" />
-            <span className="text-xs md:text-sm text-muted-foreground font-medium">
+            <span className="text-muted-foreground text-xs font-medium md:text-sm">
               Diastolic BP
             </span>
           </div>
         </div>
       </CardHeader>
       <CardContent className="pt-4">
-        <ChartContainer config={chartConfig} className="h-auto lg:h-[324px] w-full">
+        <ChartContainer
+          config={chartConfig}
+          className="h-auto w-full lg:h-[324px]"
+        >
           <AreaChart
             accessibilityLayer
             data={chartData}
@@ -118,17 +121,29 @@ export function HealthVitalsChart({ data }: HealthVitalsChartProps) {
               right: 12,
             }}
           >
-            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#E5E7EB" />
-            <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} />
+            <CartesianGrid
+              vertical={false}
+              strokeDasharray="3 3"
+              stroke="#E5E7EB"
+            />
+            <XAxis
+              dataKey="name"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+            />
             <YAxis
               tickLine={false}
               axisLine={false}
               tickMargin={10}
               domain={[0, 250]}
               tickCount={6}
-              tick={{ fontSize: 12, fill: '#6B7280' }}
+              tick={{ fontSize: 12, fill: "#6B7280" }}
             />
-            <ChartTooltip cursor={{ strokeDasharray: '3 3' }} content={<ChartTooltipContent />} />
+            <ChartTooltip
+              cursor={{ strokeDasharray: "3 3" }}
+              content={<ChartTooltipContent />}
+            />
             <defs>
               <linearGradient id="fillSystolic" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.2} />
@@ -152,9 +167,9 @@ export function HealthVitalsChart({ data }: HealthVitalsChartProps) {
               dot={{ r: 3 }}
               activeDot={{
                 r: 6,
-                stroke: '#3B82F6',
+                stroke: "#3B82F6",
                 strokeWidth: 2,
-                fill: 'white',
+                fill: "white",
               }}
               name="Systolic BP"
             />
@@ -167,9 +182,9 @@ export function HealthVitalsChart({ data }: HealthVitalsChartProps) {
               dot={{ r: 3 }}
               activeDot={{
                 r: 6,
-                stroke: '#6366F1',
+                stroke: "#6366F1",
                 strokeWidth: 2,
-                fill: 'white',
+                fill: "white",
               }}
               name="Diastolic BP"
             />

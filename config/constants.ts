@@ -1,5 +1,5 @@
 import { CaregiverSchedule, MedicalDocument, Patient, Payment } from "@/types";
-const DEFAULT_IMAGE_URL =
+export const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/davidleo/image/upload/v1744904805/a7a43fbe914a6e94b710e593d67989bf_ciwm02.png";
 
 export const durations = [

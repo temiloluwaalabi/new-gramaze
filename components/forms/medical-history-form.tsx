@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import * as z from "zod";
 
 import { FormFieldTypes } from "@/config/enum";
@@ -45,8 +44,7 @@ export default function MedicalHistoryForm() {
     }
     console.log("FORMDATA", formData);
     UpdateMedicalReport(formData, {
-      onSuccess: (data) => {
-        toast.success(data.message || "");
+      onSuccess: () => {
         markStepComplete(currentStep);
         window.location.href = allRoutes.user.dashboard.home.url;
         resetState();
