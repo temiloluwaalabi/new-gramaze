@@ -23,7 +23,7 @@ type CaregiverAppointmentClientPageProps = {
 export default function CaregiverAppointmentClientPage({
   appointments,
 }: CaregiverAppointmentClientPageProps) {
-  const [isGridView, setIsGridView] = useState(true);
+  const [isGridView, setIsGridView] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const transformedData =
     appointments.length > 0 ? transformAppointmentData(appointments) : [];

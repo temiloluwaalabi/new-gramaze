@@ -111,7 +111,7 @@ export const MainUserDashboard = ({
       };
     });
   })();
-  const [appointmentView, setAppointmentView] = React.useState("calendar");
+  const [appointmentView, setAppointmentView] = React.useState("list");
 
   const isMobile = useIsMobile();
 
@@ -492,6 +492,7 @@ export const MainUserDashboard = ({
                 </div>
               )}
             </div>
+
             <div className="rounded-[6px] border border-[#E8E8E8] bg-white p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[#71717a]">
@@ -537,6 +538,7 @@ export const MainUserDashboard = ({
             </div>
           </div>
         </div>
+
       </section>
     </section>
   );
