@@ -87,7 +87,7 @@ export default function DayjsCalendar() {
   const [isEnriching, setIsEnriching] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState("month");
-  const [isGridView, setIsGridView] = useState(true);
+  const [isGridView, setIsGridView] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [screenSize, setScreenSize] = useState("large");
   console.log("TABLE APPOINTMENT", events);
