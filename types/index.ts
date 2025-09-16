@@ -118,7 +118,6 @@ export interface Appointment {
     first_name: string;
     last_name: string;
   };
-
   caregiver?: {
     id: number;
     first_name: string;

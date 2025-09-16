@@ -106,7 +106,7 @@ export const AppointmentStep = () => {
         onSuccess: (data) => {
           updateData("appointmentReadyForReview", false);
           safeSuccess("book-virtual-appointment", data.message);
-          router.push("/booked");
+          router.push(`/booked?id=${data.appointment.id}`);
         },
       });
     } else {
@@ -319,14 +319,14 @@ export const AppointmentStep = () => {
               <span>Location</span>
 
               <span className="text-xs md:text-sm">
-                zoommtg://zoom.us/join?eueu
+                The meeting link will be sent to your email
               </span>
             </span>
             <span className="flex items-center justify-between border-gray-300 py-3">
               <span>Additional Notes</span>
 
               <span className="text-xs md:text-sm">
-                The patient uses a hearing aid
+                {data.appointment.notes || "N/A"}
               </span>
             </span>
             <Button

@@ -301,7 +301,7 @@ export const appointmentService = {
         message: string;
         appointment: Appointment;
       }>(
-        `${gramazeEndpoints.appointment.user.detail}/${appointmentId}`,
+        `${gramazeEndpoints.appointment.user.detail}?id=${appointmentId}`,
         "GET",
         {}
       );
