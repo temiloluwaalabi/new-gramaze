@@ -625,6 +625,7 @@ export const VirtualAppointment = async (values: {
   location: string;
   meeting_link: string;
   additional_address: string;
+  hospital_id: number;
 }) => {
   try {
     console.log("VALUES", values);

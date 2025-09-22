@@ -14,6 +14,8 @@ import {
   BackendMessagesResponse,
   ConversationsResponse,
   ChatUser,
+  hospital,
+  lgas,
 } from "@/types";
 
 import { ApiError, backendAPiClient } from "./api-client";
@@ -191,6 +193,7 @@ export const authService = {
       location: string;
       meeting_link: string;
       additional_address: string;
+      hospital_id: number;
     },
     pathname: string
   ) => {
@@ -723,6 +726,29 @@ export const billingService = {
         ...(per_page && { per_page }),
       },
     });
+  },
+};
+
+export const hospitalServices = {
+  getAllHospitals: async () => {
+    return makeApiRequest<hospital[]>(
+      `${gramazeEndpoints.hospitals.action}`,
+      "GET"
+    );
+  },
+  getAllStates: async () => {
+    return makeApiRequest<
+      {
+        id: number;
+        name: string;
+        is_active: string;
+        created_at: string;
+        updated_at: string;
+      }[]
+    >(`${gramazeEndpoints.hospitals.state}`, "GET");
+  },
+  getAllLGAs: async () => {
+    return makeApiRequest<lgas[]>(`${gramazeEndpoints.hospitals.lga}`, "GET");
   },
 };
 

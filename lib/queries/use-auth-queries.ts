@@ -171,6 +171,7 @@ export const useVirtualAppointment = () => {
       location: string;
       meeting_link: string;
       additional_address: string;
+      hospital_id: number;
     }) => {
       const data = await VirtualAppointment(values);
       if (data.success) {

@@ -14,6 +14,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useOnboarding } from "@/context/onboarding-context";
 import useSafeToast from "@/hooks/useSafeToast";
 import {
+  useGetAllHospitals,
+  useGetAllLGAs,
+  useGetAllStates,
+} from "@/lib/queries/use-appointment-query";
+import {
   usePhysicalHospitalAppointment,
   usePhysicalVirtualAppointment,
   useVirtualAppointment,
@@ -44,6 +49,13 @@ export const AppointmentStep = () => {
     isPending: HospitalPhysicalPending,
     mutate: HospitalPhysicalAppointment,
   } = usePhysicalHospitalAppointment();
+
+  const { data: AllHospitals } = useGetAllHospitals();
+  const { data: AllStates } = useGetAllStates();
+  const { data: AllLGAs } = useGetAllLGAs();
+
+  console.log("STATES", AllStates);
+  console.log("LGAS", AllLGAs);
 
   const appointmentLoading =
     VirtualPending || HomePhysicalPending || HospitalPhysicalPending;
@@ -97,10 +109,11 @@ export const AppointmentStep = () => {
       const JSONVALUES = {
         appointment_type: "virtual",
         date: format(parsedDate, "yyyy-MM-dd"),
-        time: "14:00",
+        time,
         location: "Online via Zoom",
         meeting_link: "https://zoom.us/j/1234567890",
         additional_address: "N/A",
+        hospital_id: Number(address),
       };
       BookVirtualAppointment(JSONVALUES, {
         onSuccess: (data) => {
@@ -254,7 +267,11 @@ export const AppointmentStep = () => {
                 {physicalVisitType === "at-home-visit" ? (
                   <AtHomeVisitForm />
                 ) : (
-                  <HospitalVisitForm />
+                  <HospitalVisitForm
+                    hospitals={AllHospitals?.hospitals || []}
+                    states={AllStates?.states || []}
+                    lgas={AllLGAs?.states || []}
+                  />
                 )}
               </div>
             ) : (
@@ -281,7 +298,11 @@ export const AppointmentStep = () => {
                     </span>
                   </div>
                 </div>
-                <VirtualAssessmentForm />
+                <VirtualAssessmentForm
+                  hospitals={AllHospitals?.hospitals || []}
+                  states={AllStates?.states || []}
+                  lgas={AllLGAs?.states || []}
+                />
               </div>
             )}
           </>

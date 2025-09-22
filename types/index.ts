@@ -248,3 +248,32 @@ export type CaregiverHistoryDetails = {
     end_date: string;
   }[];
 };
+export type State = {
+  id: number;
+  name: string;
+  is_active: string;
+  created_at: string;
+  updated_at: string;
+};
+export type lgas = {
+  id: number;
+  name: string;
+  state_id: string;
+  is_active: string;
+  created_at: string;
+  updated_at: string;
+  state: State;
+};
+export type hospital = {
+  id: number;
+  name: string;
+  address: string;
+  phone: string;
+  contact_person: string;
+  state_id: number;
+  lga_id: number;
+  created_at: string;
+  updated_at: string;
+  state: State;
+  lga: lgas;
+};

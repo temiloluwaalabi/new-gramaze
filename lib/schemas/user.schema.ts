@@ -61,6 +61,9 @@ export const VirtualAssessmentSchema = z.object({
   address: z.optional(z.string()),
   email: z.string(),
   notes: z.string(),
+  state: z.optional(z.string()),
+  lga: z.optional(z.string()),
+  hospital_id: z.optional(z.string()),
 });
 
 export type RegisterSchemaType = z.infer<typeof RegisterSchema>;

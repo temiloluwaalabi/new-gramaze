@@ -6,18 +6,25 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { TIME_SLOTS, affiliateHospitals } from "@/config/constants";
+import { TIME_SLOTS } from "@/config/constants";
 import { FormFieldTypes } from "@/config/enum";
 import { useOnboarding } from "@/context/onboarding-context";
 import { VirtualAssessmentSchema } from "@/lib/schemas/user.schema";
 import { useUserStore } from "@/store/user-store";
+import { hospital, lgas, State } from "@/types";
 
 import { CustomFormField } from "../shared/custom-form-field";
 import { Button } from "../ui/button";
 import { Form } from "../ui/form";
 import { SelectItem } from "../ui/select";
 
-export default function HospitalVisitForm() {
+type HospitalVisitFormProps = {
+  hospitals: hospital[];
+  states: State[];
+  lgas: lgas[];
+};
+
+export default function HospitalVisitForm(props: HospitalVisitFormProps) {
   const { user } = useUserStore();
   const { data, updateData, currentStep, markStepComplete } = useOnboarding();
   const BiodataForm = useForm<z.infer<typeof VirtualAssessmentSchema>>({
@@ -42,15 +49,19 @@ export default function HospitalVisitForm() {
       time: values.time,
       notes: values.notes,
       address:
-        affiliateHospitals.find((hospital) => hospital.id === values.address)
-          ?.location || "",
+        props.hospitals.find(
+          (hospital) => hospital.id.toString() === values.address
+        )?.address || "",
       hospitalName:
-        affiliateHospitals.find((hospital) => hospital.id === values.address)
-          ?.name || "",
+        props.hospitals.find(
+          (hospital) => hospital.id.toString() === values.address
+        )?.name || "",
     });
     updateData("appointmentReadyForReview", true);
     markStepComplete(currentStep);
   };
+
+  console.log("FORM", BiodataForm.watch());
   return (
     <Form {...BiodataForm}>
       <form
@@ -58,34 +69,90 @@ export default function HospitalVisitForm() {
         onSubmit={BiodataForm.handleSubmit(handleSubmit)}
       >
         <div className="space-y-4">
-          <div>
+          <div className="grid grid-cols-2 gap-4">
             <CustomFormField
               control={BiodataForm.control}
-              name="address"
-              label="Location"
+              name="state"
+              label="Select State"
               fieldType={FormFieldTypes.SELECT}
               // disabled={isPending}
-              placeholder="Your address"
+              placeholder="Your State"
             >
-              {affiliateHospitals.map((hospital) => (
+              {props.states.map((hospital) => (
                 <SelectItem
-                  key={hospital.id}
-                  value={hospital.id}
+                  key={hospital.id.toString()}
+                  value={hospital.id.toString()}
                   className="mb-2 cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
                     <MapPin />
                     <span className="flex flex-col items-start gap-1">
                       <span>{hospital.name}</span>
-                      <span>{hospital.location}</span>
                     </span>
                   </span>
                 </SelectItem>
               ))}
             </CustomFormField>
-            <span className="mt-2 flex items-center gap-1 text-gray-500">
-              <MapPin /> Use current location
-            </span>
+            <CustomFormField
+              control={BiodataForm.control}
+              name="lga"
+              label="Select LGA"
+              fieldType={FormFieldTypes.SELECT}
+              // disabled={isPending}
+              placeholder="Your LGA"
+            >
+              {props.lgas
+                .filter(
+                  (lga) => lga.state_id === BiodataForm.getValues("state")
+                )
+                .map((hospital) => (
+                  <SelectItem
+                    key={hospital.id.toString()}
+                    value={hospital.id.toString()}
+                    className="mb-2 cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <MapPin />
+                      <span className="flex flex-col items-start gap-1">
+                        <span>{hospital.name}</span>
+                      </span>
+                    </span>
+                  </SelectItem>
+                ))}
+            </CustomFormField>
+          </div>
+          <div>
+            <CustomFormField
+              control={BiodataForm.control}
+              name="address"
+              label="Select Hospital"
+              fieldType={FormFieldTypes.SELECT}
+              // disabled={isPending}
+              placeholder="Your address"
+            >
+              {props.hospitals
+                .filter(
+                  (hospital) =>
+                    hospital.state_id.toString() ===
+                      BiodataForm.watch("state") &&
+                    hospital.lga_id.toString() === BiodataForm.watch("lga")
+                )
+                .map((hospital) => (
+                  <SelectItem
+                    key={hospital.id.toString()}
+                    value={hospital.id.toString()}
+                    className="mb-2 cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <MapPin />
+                      <span className="flex flex-col items-start gap-1">
+                        <span>{hospital.name}</span>
+                        <span>{hospital.address}</span>
+                      </span>
+                    </span>
+                  </SelectItem>
+                ))}
+            </CustomFormField>
           </div>
           <div className="flex items-center space-x-4">
             <CustomFormField

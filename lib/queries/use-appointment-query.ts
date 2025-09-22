@@ -11,6 +11,11 @@ import {
   markAppointmentAsArrived,
   confirmAppointmentArrival,
 } from "@/app/actions/services/appointment.actions";
+import {
+  getAllHospitals,
+  getALlLGAs,
+  getAllStates,
+} from "@/app/actions/services/hospital.actions";
 
 import { handleMutationError } from "./handle-mutation-error";
 
@@ -106,6 +111,30 @@ export const useGetCaregiverAppointmentDetails = (appointmentId: string) => {
     queryKey: ["appointments", "caregiver", "detail", appointmentId],
     queryFn: () => getCaregiverAppointmentDetails(appointmentId),
     enabled: !!appointmentId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+export const useGetAllHospitals = () => {
+  return useQuery({
+    queryKey: ["getAllHospitals"],
+    queryFn: () => getAllHospitals(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+export const useGetAllStates = () => {
+  return useQuery({
+    queryKey: ["states"],
+    queryFn: () => getAllStates(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+export const useGetAllLGAs = () => {
+  return useQuery({
+    queryKey: ["lgas"],
+    queryFn: () => getALlLGAs(),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
