@@ -3,7 +3,12 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { updatePlan } from "@/app/actions/caregiver-patient.actions";
+import {
+  addHealthTracker,
+  fetchHealthTracker,
+  updateHealthTracker,
+  updatePlan,
+} from "@/app/actions/caregiver-patient.actions";
 import {
   getCaregiverHistory,
   getCaregiverHistoryDetails,
@@ -70,6 +75,16 @@ export const useGetCaregiverHistory = ({
       getCaregiverHistory({ per_page, end_date, start_date, caregiver }),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+export const useGetHealthTracker = (userId?: number) => {
+  return useQuery({
+    queryKey: ["admin", "patients", "healthTracker", userId],
+    queryFn: () => fetchHealthTracker({ user_id: userId! }),
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 5 * 60 * 1000, // 5 minutes
   });
 };
 
@@ -141,4 +156,93 @@ export const useRefetchCaregivers = () => {
       queryClient.invalidateQueries({ queryKey: ["caregivers"] });
     },
   };
+};
+export const useAddHealthTracker = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["admin", "patients", "addHealthTracker"],
+    mutationFn: async (values: {
+      valued: {
+        [metricCode: string]: string | number; // Dynamic metric values
+        user_id: number;
+        caregiver_id: number;
+      };
+      pathname: string;
+    }) => {
+      console.log("VALUES", values);
+      const data = await addHealthTracker(values.valued, values.pathname);
+      if (data.success) {
+        return data;
+      }
+      throw new Error(data.message || "Adding health tracker failed");
+    },
+    onSuccess: (data, variables) => {
+      console.log("SUCCESS DATA", data);
+      // toast.success(data.message || 'Health tracker added successfully!');
+
+      // Invalidate related queries
+      queryClient.invalidateQueries({
+        queryKey: [
+          "admin",
+          "patients",
+          "healthTracker",
+          variables.valued.user_id,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "patients", "healthTracker"],
+      });
+
+      return data;
+    },
+    onError: (error) => {
+      handleMutationError(error);
+    },
+  });
+};
+
+export const useUpdateHealthTracker = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ["admin", "patients", "updateHealthTracker"],
+    mutationFn: async (values: {
+      valued: {
+        [metricCode: string]: string | number; // Dynamic metric values
+        user_id: number;
+        caregiver_id: number;
+        id: number;
+      };
+      pathname: string;
+    }) => {
+      const data = await updateHealthTracker(values.valued, values.pathname);
+      if (data.success) {
+        return data;
+      }
+      throw new Error(data.message || "Updating health tracker failed");
+    },
+    onSuccess: (data, variables) => {
+      console.log("SUCCESS DATA", data);
+      // toast.success(data.message || 'Health tracker updated successfully!');
+
+      // Invalidate related queries
+      queryClient.invalidateQueries({
+        queryKey: [
+          "admin",
+          "patients",
+          "healthTracker",
+          variables.valued.user_id,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["admin", "patients", "healthTracker"],
+      });
+
+      return data;
+    },
+    onError: (error) => {
+      handleMutationError(error);
+    },
+  });
 };

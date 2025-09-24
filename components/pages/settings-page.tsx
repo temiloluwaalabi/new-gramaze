@@ -26,7 +26,6 @@ import MedicalFilesDisplay from "./medical-files";
 import UpdateAccountDataForm from "../forms/update-account-data-form";
 import PasswordResetConfirmation from "../shared/password-reset-confirmation";
 import { PageTitleHeader } from "../shared/widget/page-title-header";
-import { ChangeCarePlanSheet } from "../sheets/change-care-plan-sheet";
 import { UpdateMedicalRecordSheet } from "../sheets/update-medical-record-sheet";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -380,14 +379,14 @@ export const SettingsClientPage = () => {
                   </p>
                 </div>
               </div>
-              <ChangeCarePlanSheet
+              {/* <ChangeCarePlanSheet
                 sheetTrigger={
                   <Button className="!h-[45px] rounded-[6px] border border-[#DCDCDC] bg-white p-3 text-base font-normal text-[#333] hover:bg-white">
                     Change Plan
                   </Button>
                 }
                 user_id={user?.id || 0}
-              />
+              /> */}
             </div>
             <div className="space-y-2">
               <h4 className="text-lg font-semibold text-[#333]">

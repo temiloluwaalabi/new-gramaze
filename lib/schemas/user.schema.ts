@@ -11,7 +11,10 @@ export const LoginSchema = z.object({
   password: validatePassword,
   rememberMe: z.boolean().optional(),
 });
-
+export const AddHealthVitalSchema = z.object({
+  name: z.string(),
+  value: z.string(),
+});
 export const RegisterSchema = z.object({
   first_name: z.string(),
   last_name: z.string(),
@@ -76,3 +79,4 @@ export type MarkAppointmentAsArrivedSchemaType = z.infer<
 export type VirtualAssessmentSchemaType = z.infer<
   typeof VirtualAssessmentSchema
 >;
+export type AddHealthVitalsType = z.infer<typeof AddHealthVitalSchema>;

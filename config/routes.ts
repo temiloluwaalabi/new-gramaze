@@ -227,8 +227,8 @@ export const gramazeEndpoints = {
 
     // Health tracker management
     healthTracker: {
-      add: "/admin/health-tracker/add",
-      update: "/admin/health-tracker/update",
+      add: "/caregiver/health-tracker/add",
+      update: "/caregiver/health-tracker/update",
       fetch: "/admin/health-tracker/fetch",
     },
 
@@ -237,6 +237,7 @@ export const gramazeEndpoints = {
       add: "/admin/health-report/add",
       fetch: "/admin/health-report/fetch",
       delete: "/admin/health-report/delete",
+      fetchHealthMetrics: "/health/get/health/metrics",
     },
 
     // Payment management

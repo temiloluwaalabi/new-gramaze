@@ -1,6 +1,6 @@
 "use server";
 
-import { healthTrackerService } from "@/lib/api/api";
+import { adminServices, healthTrackerService } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
 import { ApiResponse } from "@/types";
 
@@ -415,6 +415,60 @@ export const getUserHealthNotes = async ({
     };
   } catch (error) {
     console.error("Get User Health Notes Error:", error);
+
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    throw new ApiError({
+      statusCode: 500,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      errorType: "UnknownError",
+    });
+  }
+};
+export const getAllHealthMetrics = async () => {
+  try {
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      throw new ApiError({
+        statusCode: 401,
+        message: "No active session found",
+        errorType: "SessionError",
+      });
+    }
+
+    const response =
+      await adminServices.patient_management.fetchHealthMetrics();
+
+    if (ApiError.isAPiError(response)) {
+      throw response;
+    }
+
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: {
+        status: true;
+        metric_types: {
+          id: number;
+          name: string;
+          code: string;
+          created_at: string;
+          updated_at: string;
+        }[];
+      };
+    };
+
+    return {
+      success: true,
+      message: successResponse.message,
+      metrics: successResponse.data.metric_types,
+    };
+  } catch (error) {
+    console.error("Get Appointment Stats Error:", error);
 
     if (error instanceof ApiError) {
       throw error;

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from "date-fns";
 
 import { getSession } from "@/app/actions/session.actions";
@@ -948,6 +950,18 @@ export const adminServices = {
     },
   },
   patient_management: {
+    fetchHealthMetrics: async () => {
+      return makeApiRequest<{
+        status: true;
+        metric_types: {
+          id: number;
+          name: string;
+          code: string;
+          created_at: string;
+          updated_at: string;
+        }[];
+      }>(`${gramazeEndpoints.admin.healthReport.fetchHealthMetrics}`, "GET");
+    },
     getPatientStats: async () => {
       return makeApiRequest<{
         status: true;
@@ -979,16 +993,30 @@ export const adminServices = {
     },
     addHealthTracker: async (
       values: {
-        blood_glucose?: string;
-        blood_pressure?: string;
-        weight?: number;
-        pulse?: number;
+        [metricCode: string]: string | number; // Dynamic metric values
         user_id: number;
         caregiver_id: number;
       },
       pathname: string
     ) => {
-      console.log("NEW VALUES", values);
+      const { user_id, caregiver_id, ...metricValues } = values;
+      // Build metrics array without any formatting
+      const metrics = Object.entries(metricValues)
+        .filter(
+          ([code, value]) =>
+            value !== undefined && value !== null && value !== ""
+        )
+        .map(([code, value]) => ({
+          code,
+          value: String(value).trim(),
+        }));
+
+      const body = {
+        user_id,
+        caregiver_id,
+        metrics,
+      };
+
       return makeApiRequest<{
         status: true;
         message: string;
@@ -1005,25 +1033,38 @@ export const adminServices = {
         };
       }>(`${gramazeEndpoints.admin.healthTracker.add}`, "POST", {
         pathname,
-        body: {
-          ...values,
-          weight: Number(values.weight),
-          pulse: Number(values.pulse),
-        },
+        body,
       });
     },
     updateHealthTracker: async (
       values: {
-        blood_glucose?: string;
-        blood_pressure?: string;
-        weight?: string;
-        pulse?: string;
+        [metricCode: string]: string | number; // Dynamic metric values
+
         user_id: number;
         caregiver_id: number;
         id: number;
       },
       pathname: string
     ) => {
+      const { user_id, caregiver_id, id, ...metricValues } = values;
+      // Build metrics array without any formatting
+      const metrics = Object.entries(metricValues)
+        .filter(
+          ([code, value]) =>
+            value !== undefined && value !== null && value !== ""
+        )
+        .map(([code, value]) => ({
+          code,
+          value: String(value).trim(),
+        }));
+
+      const body = {
+        id,
+        user_id,
+        caregiver_id,
+        metrics,
+      };
+
       return makeApiRequest<{
         status: true;
         message: string;
@@ -1040,39 +1081,58 @@ export const adminServices = {
         };
       }>(`${gramazeEndpoints.admin.healthTracker.update}`, "POST", {
         pathname,
-        body: values,
+        body,
       });
     },
     fetchHealthTracker: async (values: { user_id: number }) => {
       try {
         const session = await getSession();
         const response = await backendAPiClient.request({
-          method: "POST",
+          method: "GET",
           maxBodyLength: Infinity,
           url: `${gramazeEndpoints.admin.healthTracker.fetch}`,
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${session.accessToken}`,
           },
-          data: {
+          params: {
             user_id: values.user_id,
           },
         });
+
         console.log("HEALTH_TRACKER_RESPONSE", response.data);
+
         return {
           status: response.data.status as boolean,
           message: response.data.message as string,
-          tracker: response.data.trackers as {
-            id: number;
-            blood_glucose: string;
-            blood_pressure: string;
-            weight: string;
-            pulse: string;
-            created_at: string;
-            updated_at: string;
-            user_id: string;
-            caregiver_id: string;
-          }[],
+          current_page: response.data.current_page as number,
+          per_page: response.data.per_page as number,
+          total: response.data.total as number,
+          last_page: response.data.last_page as number,
+          tracker: response.data.data.map((item: any) => ({
+            id: item.id,
+            user_id: item.user_id,
+            caregiver_id: item.caregiver_id,
+            status: item.status,
+            reason: item.reason,
+            created_at: item.created_at,
+            updated_at: item.updated_at,
+            metrics: item.metrics.map((metric: any) => ({
+              name: metric.name,
+              value: metric.value,
+            })),
+            // Extract individual metrics for backward compatibility
+            blood_pressure:
+              item.metrics.find((m: any) => m.name === "Blood Pressure")
+                ?.value || "",
+            weight:
+              item.metrics.find((m: any) => m.name === "Weight")?.value || "",
+            pulse:
+              item.metrics.find((m: any) => m.name === "Pulse")?.value || "",
+            blood_glucose:
+              item.metrics.find((m: any) => m.name === "Blood Glucose")
+                ?.value || "",
+          })),
         };
       } catch (error) {
         return handleApiBackendError(error);

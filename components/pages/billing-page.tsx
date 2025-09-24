@@ -5,10 +5,8 @@ import * as React from "react";
 import { useUserStore } from "@/store/user-store";
 
 import PaymentMethod from "../shared/widget/payment-methods";
-import { ChangeCarePlanSheet } from "../sheets/change-care-plan-sheet";
 import { BillingColumn, Payment } from "../table/columns/billing-history";
 import { DataTable } from "../table/data-table";
-import { Button } from "../ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
 export const paymentPlans = [
@@ -106,14 +104,14 @@ export const BillingPage = ({ payments }: BillingPageProps) => {
                   </p>
                 </div>
               </div>
-              <ChangeCarePlanSheet
+              {/* <ChangeCarePlanSheet
                 sheetTrigger={
                   <Button className="!h-[45px] rounded-[6px] border border-[#DCDCDC] bg-white p-3 text-base font-normal text-[#333] hover:bg-white">
                     Change Plan
                   </Button>
                 }
                 user_id={user?.id || 0}
-              />
+              /> */}
             </div>
             <DataTable
               columns={BillingColumn}

@@ -3,6 +3,7 @@ import React from "react";
 
 import { getAppointmentByUser } from "@/app/actions/appointment.actions";
 import { getPatientHistoryDetails } from "@/app/actions/services/caregiver.actions";
+import { getAllHealthMetrics } from "@/app/actions/services/health.tracker.actions";
 import { getSession } from "@/app/actions/session.actions";
 import SinglePatientDetailsPage from "@/components/pages/single-patient-details-page";
 
@@ -19,8 +20,6 @@ export default async function CaregiverPatientDash({
     user_id: id,
   });
 
-  console.log("patient-appointment", patientAppointments);
-
   if (!patient.data?.patient) {
     return notFound();
   }
@@ -29,9 +28,10 @@ export default async function CaregiverPatientDash({
   const caregiverAppointments = Array.isArray(patientAppointments.data)
     ? patientAppointments.data.filter(
         (appointment) =>
-          appointment.caregiver_id.toString() === session.user_id.toString()
+          appointment.caregiver_id?.toString() === session.user_id.toString()
       )
     : [];
+  const metrics = await getAllHealthMetrics();
 
   // Get upcoming appointments only and sort by date (ascending)
   const currentDate = new Date();
@@ -50,6 +50,7 @@ export default async function CaregiverPatientDash({
 
   return (
     <SinglePatientDetailsPage
+      metrics={metrics.metrics || []}
       patient={patient.data?.patient}
       appointments={upcomingAppointments}
     />
