@@ -96,7 +96,7 @@ export default function VirtualAssessmentForm(
             >
               {props.lgas
                 .filter(
-                  (lga) => lga.state_id === BiodataForm.getValues("state")
+                  (lga) => lga.state_id.toString() === BiodataForm.getValues("state")
                 )
                 .map((hospital) => (
                   <SelectItem
