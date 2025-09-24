@@ -102,10 +102,11 @@ export const AppointmentStep = () => {
   }, [physicalVisitType]);
 
   const handleBookAppointment = async () => {
-    const { hospitalName, time, email, physicalType, address, notes } =
+    const { hospitalName, time, email, physicalType, address, notes, hospitalId } =
       data.appointment;
 
     if (data.appointment.type === "virtual") {
+      console.log("VIRTUAL APPOINTMRNT")
       const JSONVALUES = {
         appointment_type: "virtual",
         date: format(parsedDate, "yyyy-MM-dd"),
@@ -124,6 +125,7 @@ export const AppointmentStep = () => {
       });
     } else {
       if (physicalType === "at-home-visit") {
+      console.log("AT GOME VISIT PHYSICAL APPPOINTMENT")
         const JSONVALUES = {
           appointment_type: "physical",
           date: format(parsedDate, "yyyy-MM-dd"),
@@ -132,6 +134,7 @@ export const AppointmentStep = () => {
           home_address: address || "",
           contact: email,
           additional_note: notes || "",
+          
         };
         HomePhysicalAppointment(JSONVALUES, {
           onSuccess: (data) => {
@@ -141,10 +144,10 @@ export const AppointmentStep = () => {
               data.message ||
                 "Physical home appointment scheduled successfully!"
             );
-            router.push("/booked");
-          },
+  router.push(`/booked?id=${data.appointment.id}`);          },
         });
       } else {
+        console.log("HOSPITAL VISIT PHYSICAL APPPOINTMENT")
         const JSONVALUES = {
           appointment_type: "physical",
           visit_type: "hospital",
@@ -154,6 +157,8 @@ export const AppointmentStep = () => {
           hospital_address: address || "",
           contact: email,
           additional_note: notes || "",
+          hospital_id: hospitalId,
+
         };
         HospitalPhysicalAppointment(JSONVALUES, {
           onSuccess: (data) => {
@@ -163,8 +168,7 @@ export const AppointmentStep = () => {
               data.message ||
                 "Physical home appointment scheduled successfully!"
             );
-            router.push("/booked");
-          },
+  router.push(`/booked?id=${data.appointment.id}`);          },
         });
       }
     }

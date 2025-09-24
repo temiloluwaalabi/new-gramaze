@@ -11,21 +11,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useOnboarding } from "@/context/onboarding-context";
 import CalendarBlankIcon from "@/icons/calendar-blank";
-import { Appointment } from "@/types";
+import { Appointment, hospital } from "@/types";
 
 import { Logo } from "../logo";
 
 type OnboardingSuccessProps = {
   appointment: Appointment;
+    hospitals: hospital[];
+  
 };
 
 export default function OnboardingSuccess({
   appointment,
+  hospitals
 }: OnboardingSuccessProps) {
   const { data, resetState } = useOnboarding();
   const router = useRouter();
   const [showCalendarOptions, setShowCalendarOptions] = useState(false);
 
+
+  const hospital = hospitals.find(h => h.id.toString() === appointment.hospital_name)
   // Use live appointment data instead of onboarding context
   const appointmentDate = appointment.date
     ? new Date(appointment.date)
@@ -331,17 +336,17 @@ export default function OnboardingSuccess({
                       <MapPin className="size-4 text-blue-600" />
                     </span>
                     <span className="text-sm font-medium text-gray-600 lg:text-base">
-                      {appointment.hospital_name ||
+                      {hospital?.name ||
                         "Lagos State State Hospital, Ikeja, Lagos"}
                     </span>
                   </div>
-                  {appointment.hospital_address && (
+                  {hospital?.address && (
                     <div className="flex items-center gap-2">
                       <span className="flex size-[32px] items-center justify-center rounded-full bg-gray-100">
                         <MapPin className="size-4 text-blue-600" />
                       </span>
                       <span className="text-sm font-medium text-gray-600 lg:text-base">
-                        {appointment.hospital_address}
+                        {hospital.address}
                       </span>
                     </div>
                   )}
@@ -350,7 +355,7 @@ export default function OnboardingSuccess({
                       <Phone className="size-4 text-blue-600" />
                     </span>
                     <span className="text-sm font-medium text-gray-600 lg:text-base">
-                      {appointment.contact || "08167879000"}
+                      {hospital?.contact_person || "08167879000"}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -361,7 +366,7 @@ export default function OnboardingSuccess({
                       href="mailto:enquiry@lasuth.org.ng"
                       className="text-sm font-medium text-gray-600 underline lg:text-base"
                     >
-                      enquiry@lasuth.org.ng
+                      {hospital?.contact_person}
                     </Link>
                   </div>
                 </div>

@@ -112,18 +112,31 @@ export interface Appointment {
   arrival_photo?: string | null;
   arrival_current_address?: string | null;
   additional_note_caregiver?: string | null;
-  status: "arrived" | "pending" | "completed" | "cancelled";
+  status: "pending" | "assigned" | "arrived" | "completed" | "cancelled";
   patient?: {
     id: number;
     first_name: string;
     last_name: string;
   };
   caregiver?: {
-    id: number;
+  id: number;
     first_name: string;
     last_name: string;
+    user_type: string;
   };
-  // Computed properties for component compatibility
+
+  hospital_info?:{
+id: number;
+name: string;
+address: string;
+phone: string;
+contact_person: string;
+state_id: number;
+lga_id: number;
+created_at: string;
+updated_at: string;
+
+  };
   name?: string; // Will be derived from patient or caregiver
   phone?: string; // Will be derived from contact
   avatar?: string; // Will need to be provided or use default
@@ -258,7 +271,7 @@ export type State = {
 export type lgas = {
   id: number;
   name: string;
-  state_id: string;
+  state_id: number;
   is_active: string;
   created_at: string;
   updated_at: string;

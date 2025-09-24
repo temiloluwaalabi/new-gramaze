@@ -1,10 +1,11 @@
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
-import { EllipsisVertical } from "lucide-react";
+import { Building2, Calendar, Clock, EllipsisVertical, Home, User, Video } from "lucide-react";
 
 import { ReschedileAppointmentSheet } from "@/components/sheets/reschedule-appointment-sheet";
 import { TableAppointmentSheet } from "@/components/sheets/table-appointment-sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -13,7 +14,36 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
+import { Appointment } from "@/types";
+
+
+const getStatusColor = (status: string) => {
+  switch (status.toLowerCase()) {
+    case "completed":
+      return "bg-green-100 text-green-700 border-green-200";
+    case "cancelled":
+      return "bg-red-100 text-red-700 border-red-200";
+    case "pending":
+      return "bg-yellow-100 text-yellow-700 border-yellow-200";
+    case "assigned":
+      return "bg-blue-100 text-blue-700 border-blue-200";
+    case "arrived":
+      return "bg-purple-100 text-purple-700 border-purple-200";
+    default:
+      return "bg-gray-100 text-gray-700 border-gray-200";
+  }
+};
+
+const getAppointmentTypeIcon = (type: string, visitType?: string | null) => {
+  if (type === "virtual") {
+    return <Video className="h-4 w-4 text-blue-600" />;
+  }
+  if (visitType === "home") {
+    return <Home className="h-4 w-4 text-green-600" />;
+  }
+  return <Building2 className="h-4 w-4 text-gray-600" />;
+};
 
 // Interface definitions
 export interface TableAppointment {
@@ -35,7 +65,7 @@ export enum AppointmentStatus {
   Pending = "Pending",
 }
 
-export const AppointmentColumn: ColumnDef<TableAppointment>[] = [
+export const AppointmentColumn: ColumnDef<Appointment>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -61,20 +91,37 @@ export const AppointmentColumn: ColumnDef<TableAppointment>[] = [
     ),
   },
   {
-    id: "clientName",
-    header: "Name",
+    id: "appointmentInfo",
+    header: "Appointment",
     cell: ({ row }) => {
       const appointment = row.original;
-
       return (
         <TableAppointmentSheet
           sheetTrigger={
-            <div className="flex cursor-pointer items-center space-x-2">
-              <Avatar className="size-6">
-                <AvatarFallback>CN</AvatarFallback>
-                <AvatarImage src={appointment.clientImage} />
-              </Avatar>
-              <h4 className="text-sm font-medium">{appointment.clientName}</h4>
+            <div className="flex cursor-pointer items-center space-x-3 hover:bg-gray-50 p-2 rounded-md transition-colors">
+              <div className="flex flex-col items-center space-y-1">
+                {getAppointmentTypeIcon(appointment.appointment_type, appointment.visit_type)}
+                <span className="text-xs text-gray-500 capitalize">
+                  {appointment.appointment_type}
+                </span>
+              </div>
+              <div className="flex flex-col space-y-1">
+                <div className="flex items-center space-x-2">
+                  <Calendar className="h-3 w-3 text-gray-400" />
+                  <span className="text-sm font-medium text-gray-900">
+                    {formatDate(appointment.date)}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Clock className="h-3 w-3 text-gray-400" />
+                  <span className="text-sm text-gray-600">
+                    {appointment.time}
+                  </span>
+                </div>
+                <Badge variant="outline" className="w-fit text-xs">
+                  ID: {appointment.id}
+                </Badge>
+              </div>
             </div>
           }
           appointment={appointment}
@@ -83,53 +130,85 @@ export const AppointmentColumn: ColumnDef<TableAppointment>[] = [
     },
   },
   {
-    accessorKey: "appointmentDate",
-    header: "Date",
+    id: "location",
+    header: "Location",
     cell: ({ row }) => {
       const appointment = row.original;
-      return (
-        <span className="text-sm font-normal text-[#262D31]">
-          {appointment.appointmentDate}
-        </span>
-      );
-    },
-  },
-  {
-    accessorKey: "appointmentTime",
-    header: "Date",
-    cell: ({ row }) => {
-      const appointment = row.original;
-      return (
-        <span className="text-sm font-normal text-[#262D31]">
-          {appointment.appointmentTime}
-        </span>
-      );
-    },
-  },
-  {
-    id: "caregiverName",
-    header: "caregiver",
-    cell: ({ row }) => {
-      const appointment = row.original;
-
-      return (
-        <>
-          {appointment.consultantName !== "undefined undefined" ? (
-            <div className="flex items-center space-x-2">
-              <Avatar className="size-6">
-                <AvatarFallback>CN</AvatarFallback>
-                <AvatarImage src={appointment.consultantImage} />
-              </Avatar>
-              <div>
-                <h4 className="text-sm font-medium">
-                  {appointment.consultantName}
-                </h4>
-              </div>
+      
+      if (appointment.appointment_type === "virtual") {
+        return (
+          <div className="flex items-center space-x-2">
+            <Video className="h-4 w-4 text-blue-600" />
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">Online</span>
+              <span className="text-xs text-gray-500">
+                {appointment.location || "Virtual Meeting"}
+              </span>
             </div>
-          ) : (
-            <span>No caregiver assigned</span>
-          )}
-        </>
+          </div>
+        );
+      }
+      
+      if (appointment.visit_type === "home") {
+        return (
+          <div className="flex items-center space-x-2">
+            <Home className="h-4 w-4 text-green-600" />
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">Home Visit</span>
+              <span className="text-xs text-gray-500 max-w-[200px] truncate">
+                {appointment.home_address || appointment.additional_address || "Home Address"}
+              </span>
+            </div>
+          </div>
+        );
+      }
+      
+      return (
+        <div className="flex items-center space-x-2">
+          <Building2 className="h-4 w-4 text-gray-600" />
+          <div className="flex flex-col">
+            <span className="text-sm font-medium">
+              {appointment.hospital_info?.name || appointment.hospital_name || "Hospital"}
+            </span>
+            <span className="text-xs text-gray-500 max-w-[200px] truncate">
+              {appointment.hospital_info?.address || appointment.hospital_address || "Hospital Address"}
+            </span>
+          </div>
+        </div>
+      );
+    },
+  },
+  {
+    id: "caregiver",
+    header: "Caregiver",
+    cell: ({ row }) => {
+      const appointment = row.original;
+      
+      if (!appointment.caregiver) {
+        return (
+          <div className="flex items-center space-x-2 text-gray-500">
+            <User className="h-4 w-4" />
+            <span className="text-sm">Not assigned</span>
+          </div>
+        );
+      }
+      
+      const fullName = `${appointment.caregiver.first_name} ${appointment.caregiver.last_name}`;
+      const initials = `${appointment.caregiver.first_name[0]}${appointment.caregiver.last_name[0]}`;
+      
+      return (
+        <div className="flex items-center space-x-2">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
+              {initials}
+            </AvatarFallback>
+            <AvatarImage src="" />
+          </Avatar>
+          <div className="flex flex-col">
+            <span className="text-sm font-medium">{fullName}</span>
+          
+          </div>
+        </div>
       );
     },
   },
@@ -137,52 +216,104 @@ export const AppointmentColumn: ColumnDef<TableAppointment>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.original;
-
+      const appointment = row.original;
+      
       return (
-        <span
+        <Badge 
+          variant="outline" 
           className={cn(
-            "h-[24px] rounded-[12px] px-[12px] py-[5px] text-xs font-normal",
-            status.status === "Completed" && "bg-green-100 text-green-600",
-            status.status === "Cancelled" && "bg-red-100 text-red-600",
-            status.status === "Pending" && "bg-yellow-100 text-yellow-600"
+            "capitalize font-medium border",
+            getStatusColor(appointment.status)
           )}
         >
-          {status.status}
-        </span>
+          {appointment.status}
+        </Badge>
+      );
+    },
+  },
+  {
+    id: "charges",
+    header: "Charges",
+    cell: ({ row }) => {
+      const appointment = row.original;
+      
+      if (!appointment.extra_charges) {
+        return <span className="text-sm text-gray-500">Standard</span>;
+      }
+      
+      return (
+        <div className="flex flex-col">
+          <span className="text-sm font-medium">
+            ₦{appointment.extra_charges.toLocaleString()}
+          </span>
+          <span className="text-xs text-gray-500">Extra charges</span>
+        </div>
       );
     },
   },
   {
     id: "actions",
-    header: "Action",
+    header: "Actions",
     cell: ({ row }) => {
       const appointment = row.original;
-
+      
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="cursor-pointer p-0">
-              <EllipsisVertical className="z-50 size-4 cursor-pointer text-sm text-gray-600" />
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <EllipsisVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              className="text-red-600"
-              onSelect={(e) => e.preventDefault()}
-            >
-              <ReschedileAppointmentSheet
-                appoinment={appointment.id}
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+              <TableAppointmentSheet
                 sheetTrigger={
-                  <Button
-                    className="h-fit cursor-pointer bg-transparent !p-0 underline"
-                    variant={"link"}
-                  >
-                    Reschedule Appointment
+                  <Button variant="ghost" className="h-auto p-0 justify-start font-normal">
+                    View Details
                   </Button>
                 }
+                appointment={appointment}
               />
             </DropdownMenuItem>
+            
+            {appointment.status !== "completed" && appointment.status !== "cancelled" && (
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <ReschedileAppointmentSheet
+                  appoinment={appointment.id.toString()}
+                  sheetTrigger={
+                    <Button variant="ghost" className="h-auto p-0 justify-start font-normal">
+                      Reschedule
+                    </Button>
+                  }
+                />
+              </DropdownMenuItem>
+            )}
+            
+            {appointment.appointment_type === "virtual" && appointment.meeting_link && (
+              <DropdownMenuItem>
+                <a 
+                  href={appointment.meeting_link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full text-left"
+                >
+                  Join Meeting
+                </a>
+              </DropdownMenuItem>
+            )}
+            
+            {appointment.status === "assigned" && (
+              <DropdownMenuItem className="text-green-600">
+                Mark as Arrived
+              </DropdownMenuItem>
+            )}
+            
+            {(appointment.status === "pending" || appointment.status === "assigned") && (
+              <DropdownMenuItem className="text-red-600">
+                Cancel Appointment
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );

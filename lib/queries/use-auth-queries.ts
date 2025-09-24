@@ -238,6 +238,7 @@ export const usePhysicalHospitalAppointment = () => {
       contact: string;
       additional_note: string;
     }) => {
+      console.log("VALUES IN HOOK", values);
       const data = await PhysicalHospitalAppointment(values);
       if (data.success) {
         return data;

@@ -40,6 +40,8 @@ export default function HospitalVisitForm(props: HospitalVisitFormProps) {
     },
   });
 
+  console.log("LGAS", props.lgas);
+  console.log("STATES", props.states);
   const handleSubmit = (values: z.infer<typeof VirtualAssessmentSchema>) => {
     updateData("appointment", {
       type: data.appointment.type,
@@ -52,6 +54,7 @@ export default function HospitalVisitForm(props: HospitalVisitFormProps) {
         props.hospitals.find(
           (hospital) => hospital.id.toString() === values.address
         )?.address || "",
+        hospitalId: Number(values.address) || undefined,
       hospitalName:
         props.hospitals.find(
           (hospital) => hospital.id.toString() === values.address
@@ -99,11 +102,15 @@ export default function HospitalVisitForm(props: HospitalVisitFormProps) {
               label="Select LGA"
               fieldType={FormFieldTypes.SELECT}
               // disabled={isPending}
+              disabled={!BiodataForm.watch("state") || props.lgas
+                .filter(
+                  (lga) => lga.state_id.toString() === BiodataForm.getValues("state")
+                ).length === 0}
               placeholder="Your LGA"
             >
               {props.lgas
                 .filter(
-                  (lga) => lga.state_id === BiodataForm.getValues("state")
+                  (lga) => lga.state_id.toString() === BiodataForm.getValues("state")
                 )
                 .map((hospital) => (
                   <SelectItem
@@ -128,6 +135,15 @@ export default function HospitalVisitForm(props: HospitalVisitFormProps) {
               label="Select Hospital"
               fieldType={FormFieldTypes.SELECT}
               // disabled={isPending}
+              disabled={
+                !BiodataForm.watch("state") ||
+                !BiodataForm.watch("lga") ||
+                props.hospitals.filter(
+                  (hospital) =>
+                    hospital.state_id.toString() ===  BiodataForm.watch("state") &&
+                    hospital.lga_id.toString() === BiodataForm.watch("lga")
+                ).length === 0
+              }
               placeholder="Your address"
             >
               {props.hospitals

@@ -80,9 +80,9 @@ export interface EnrichedAppointment extends Appointment {
 export default function DayjsCalendar() {
   // State for calendar
   const { user } = useUserStore();
-  const [tableAppointments, setTableAppointments] = useState<
-    TableAppointment[]
-  >([]);
+  // const [tableAppointments, setTableAppointments] = useState<
+  //   TableAppointment[]
+  // >([]);
   const [events, setCalendarEvents] = useState<CalendarEvent[]>([]);
   const [isEnriching, setIsEnriching] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -192,11 +192,11 @@ export default function DayjsCalendar() {
 
       setIsEnriching(true);
       try {
-        const { tableAppointments, calendarEvents } =
+        const {  calendarEvents } =
           await transformAppointmentsWithUserDetails(
             AppointmentsData.appointments.data
           );
-        setTableAppointments(tableAppointments);
+        // setTableAppointments(tableAppointments);
         setCalendarEvents(calendarEvents);
       } catch (error) {
         console.error("Error enriching appointments:", error);
@@ -836,7 +836,7 @@ export default function DayjsCalendar() {
           isLoading={isEnriching}
           columns={AppointmentColumn}
           tableClassname="bg-white border border-[#E7EBED] !rounded-lg"
-          data={tableAppointments}
+          data={AppointmentsData?.appointments?.data || []}
         />
       </div>
     </Card>

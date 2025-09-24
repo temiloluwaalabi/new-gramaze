@@ -23,6 +23,7 @@ type OnboardingData = {
     physicalType?: string;
     time: string;
     address?: string;
+    hospitalId?: number;
     hospitalName?: string;
     email: string;
     notes?: string;

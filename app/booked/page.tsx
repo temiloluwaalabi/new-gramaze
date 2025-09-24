@@ -4,6 +4,7 @@ import React, { Suspense } from "react";
 import OnboardingSuccess from "@/components/shared/onboarding/onboarding-successful-page";
 
 import { getAppointmentDetail } from "../actions/services/appointment.actions";
+import { getAllHospitals } from "../actions/services/hospital.actions";
 
 export default async function OnboardingBookedPage({
   searchParams,
@@ -20,9 +21,10 @@ export default async function OnboardingBookedPage({
 
   console.log("ID", id);
 
+  const allHospitals = await getAllHospitals()
   return (
     <Suspense>
-      <OnboardingSuccess appointment={appointment.appointment} />
+      <OnboardingSuccess appointment={appointment.appointment} hospitals={allHospitals.hospitals || []}/>
     </Suspense>
   );
 }
