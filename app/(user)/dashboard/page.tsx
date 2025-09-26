@@ -2,7 +2,10 @@ import React from "react";
 
 import { getUserAppointments } from "@/app/actions/services/appointment.actions";
 import { getCaregiverHistory } from "@/app/actions/services/caregiver.actions";
-import { fetchConversations, fetchMessages } from "@/app/actions/services/chats.actions";
+import {
+  fetchConversations,
+  fetchMessages,
+} from "@/app/actions/services/chats.actions";
 import { getLastTrackers } from "@/app/actions/services/health.tracker.actions";
 import { getSession } from "@/app/actions/session.actions";
 import { MainUserDashboard } from "@/components/pages/main-user-dashboard";
@@ -18,9 +21,9 @@ export default async function UserDashboard() {
   const userCaregivers = await getCaregiverHistory();
   const session = await getSession();
 
+  console.log("APPOINTMENTS", mainAppointments);
   const { conversations } = await fetchConversations();
-  console.log("Fetched Conversations:", conversations);
-  
+
   const getSenderName = (id: string) => {
     const match = conversations.find((c) => String(c.id) === id);
     if (!match) {
@@ -28,10 +31,9 @@ export default async function UserDashboard() {
     }
     return match?.name || `User ${id}`;
   };
-  
+
   const rawMessages = await fetchMessages(String(session.user_id));
-  console.log("Fetched Raw Messages:", rawMessages.messages);
-  
+
   const userMessages = rawMessages.messages
     .filter((msg) => {
       const isReceiver = String(msg.receiverId) === String(session.user_id);
@@ -51,9 +53,8 @@ export default async function UserDashboard() {
         unreadCount: msg.isRead ? 0 : 1,
       };
       console.log("Mapped Message:", formatted);
-      return formatted; 
+      return formatted;
     });
-  
 
   return (
     <MainUserDashboard

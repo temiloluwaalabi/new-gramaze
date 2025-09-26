@@ -1,6 +1,14 @@
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
-import { Building2, Calendar, Clock, EllipsisVertical, Home, User, Video } from "lucide-react";
+import {
+  Building2,
+  Calendar,
+  Clock,
+  EllipsisVertical,
+  Home,
+  User,
+  Video,
+} from "lucide-react";
 
 import { ReschedileAppointmentSheet } from "@/components/sheets/reschedule-appointment-sheet";
 import { TableAppointmentSheet } from "@/components/sheets/table-appointment-sheet";
@@ -16,7 +24,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn, formatDate } from "@/lib/utils";
 import { Appointment } from "@/types";
-
 
 const getStatusColor = (status: string) => {
   switch (status.toLowerCase()) {
@@ -98,9 +105,12 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
       return (
         <TableAppointmentSheet
           sheetTrigger={
-            <div className="flex cursor-pointer items-center space-x-3 hover:bg-gray-50 p-2 rounded-md transition-colors">
+            <div className="flex cursor-pointer items-center space-x-3 rounded-md p-2 transition-colors hover:bg-gray-50">
               <div className="flex flex-col items-center space-y-1">
-                {getAppointmentTypeIcon(appointment.appointment_type, appointment.visit_type)}
+                {getAppointmentTypeIcon(
+                  appointment.appointment_type,
+                  appointment.visit_type
+                )}
                 <span className="text-xs text-gray-500 capitalize">
                   {appointment.appointment_type}
                 </span>
@@ -134,7 +144,7 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
     header: "Location",
     cell: ({ row }) => {
       const appointment = row.original;
-      
+
       if (appointment.appointment_type === "virtual") {
         return (
           <div className="flex items-center space-x-2">
@@ -148,30 +158,37 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
           </div>
         );
       }
-      
+
       if (appointment.visit_type === "home") {
         return (
           <div className="flex items-center space-x-2">
             <Home className="h-4 w-4 text-green-600" />
             <div className="flex flex-col">
               <span className="text-sm font-medium">Home Visit</span>
-              <span className="text-xs text-gray-500 max-w-[200px] truncate">
-                {appointment.home_address || appointment.additional_address || "Home Address"}
+              <span className="max-w-[200px] truncate text-xs text-gray-500">
+                {appointment.home_address ||
+                  appointment.location ||
+                  appointment.additional_address ||
+                  "Home Address"}
               </span>
             </div>
           </div>
         );
       }
-      
+
       return (
         <div className="flex items-center space-x-2">
           <Building2 className="h-4 w-4 text-gray-600" />
           <div className="flex flex-col">
             <span className="text-sm font-medium">
-              {appointment.hospital_info?.name || appointment.hospital_name || "Hospital"}
+              {appointment.hospital_info?.name ||
+                appointment.hospital_name ||
+                "Hospital"}
             </span>
-            <span className="text-xs text-gray-500 max-w-[200px] truncate">
-              {appointment.hospital_info?.address || appointment.hospital_address || "Hospital Address"}
+            <span className="max-w-[200px] truncate text-xs text-gray-500">
+              {appointment.hospital_info?.address ||
+                appointment.hospital_address ||
+                "Hospital Address"}
             </span>
           </div>
         </div>
@@ -183,7 +200,7 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
     header: "Caregiver",
     cell: ({ row }) => {
       const appointment = row.original;
-      
+
       if (!appointment.caregiver) {
         return (
           <div className="flex items-center space-x-2 text-gray-500">
@@ -192,21 +209,20 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
           </div>
         );
       }
-      
+
       const fullName = `${appointment.caregiver.first_name} ${appointment.caregiver.last_name}`;
       const initials = `${appointment.caregiver.first_name[0]}${appointment.caregiver.last_name[0]}`;
-      
+
       return (
         <div className="flex items-center space-x-2">
           <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-blue-100 text-blue-700 text-xs">
+            <AvatarFallback className="bg-blue-100 text-xs text-blue-700">
               {initials}
             </AvatarFallback>
             <AvatarImage src="" />
           </Avatar>
           <div className="flex flex-col">
             <span className="text-sm font-medium">{fullName}</span>
-          
           </div>
         </div>
       );
@@ -217,12 +233,12 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
     header: "Status",
     cell: ({ row }) => {
       const appointment = row.original;
-      
+
       return (
-        <Badge 
-          variant="outline" 
+        <Badge
+          variant="outline"
           className={cn(
-            "capitalize font-medium border",
+            "border font-medium capitalize",
             getStatusColor(appointment.status)
           )}
         >
@@ -236,11 +252,11 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
     header: "Charges",
     cell: ({ row }) => {
       const appointment = row.original;
-      
+
       if (!appointment.extra_charges) {
         return <span className="text-sm text-gray-500">Standard</span>;
       }
-      
+
       return (
         <div className="flex flex-col">
           <span className="text-sm font-medium">
@@ -256,7 +272,7 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
     header: "Actions",
     cell: ({ row }) => {
       const appointment = row.original;
-      
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -269,47 +285,56 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
               <TableAppointmentSheet
                 sheetTrigger={
-                  <Button variant="ghost" className="h-auto p-0 justify-start font-normal">
+                  <Button
+                    variant="ghost"
+                    className="h-auto justify-start p-0 font-normal"
+                  >
                     View Details
                   </Button>
                 }
                 appointment={appointment}
               />
             </DropdownMenuItem>
-            
-            {appointment.status !== "completed" && appointment.status !== "cancelled" && (
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <ReschedileAppointmentSheet
-                  appoinment={appointment.id.toString()}
-                  sheetTrigger={
-                    <Button variant="ghost" className="h-auto p-0 justify-start font-normal">
-                      Reschedule
-                    </Button>
-                  }
-                />
-              </DropdownMenuItem>
-            )}
-            
-            {appointment.appointment_type === "virtual" && appointment.meeting_link && (
-              <DropdownMenuItem>
-                <a 
-                  href={appointment.meeting_link} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="w-full text-left"
-                >
-                  Join Meeting
-                </a>
-              </DropdownMenuItem>
-            )}
-            
+
+            {appointment.status !== "completed" &&
+              appointment.status !== "cancelled" && (
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <ReschedileAppointmentSheet
+                    appoinment={appointment.id.toString()}
+                    sheetTrigger={
+                      <Button
+                        variant="ghost"
+                        className="h-auto justify-start p-0 font-normal"
+                      >
+                        Reschedule
+                      </Button>
+                    }
+                  />
+                </DropdownMenuItem>
+              )}
+
+            {appointment.appointment_type === "virtual" &&
+              appointment.meeting_link && (
+                <DropdownMenuItem>
+                  <a
+                    href={appointment.meeting_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full text-left"
+                  >
+                    Join Meeting
+                  </a>
+                </DropdownMenuItem>
+              )}
+
             {appointment.status === "assigned" && (
               <DropdownMenuItem className="text-green-600">
                 Mark as Arrived
               </DropdownMenuItem>
             )}
-            
-            {(appointment.status === "pending" || appointment.status === "assigned") && (
+
+            {(appointment.status === "pending" ||
+              appointment.status === "assigned") && (
               <DropdownMenuItem className="text-red-600">
                 Cancel Appointment
               </DropdownMenuItem>

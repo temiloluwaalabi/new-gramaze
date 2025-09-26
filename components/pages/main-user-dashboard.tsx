@@ -297,9 +297,33 @@ export const MainUserDashboard = ({
                                 </h4>
 
                                 <p className="text-left font-normal">
-                                  {appointment.location ||
-                                    appointment.hospital_name ||
-                                    appointment.home_address}
+                                  {appointment.appointment_type ===
+                                  "physical" ? (
+                                    appointment.visit_type === "home" ? (
+                                      <span>
+                                        House Address: {appointment.location}
+                                        <br />
+                                        Hospital Address:{" "}
+                                        {appointment.hospital_info?.address}
+                                        <br />
+                                        Hospital Name:{" "}
+                                        {appointment.hospital_info?.name}
+                                      </span>
+                                    ) : (
+                                      <span>
+                                        Hospital Address:{" "}
+                                        {appointment.hospital_info?.address}
+                                        <br />
+                                        Hospital Name:{" "}
+                                        {appointment.hospital_info?.name}
+                                      </span>
+                                    )
+                                  ) : (
+                                    <span>
+                                      House Address: {appointment.location}
+                                      <br />
+                                    </span>
+                                  )}
                                 </p>
                               </div>
                             </div>
@@ -467,9 +491,34 @@ export const MainUserDashboard = ({
                                     </h4>
 
                                     <p className="text-left font-normal">
-                                      {appointment.location ||
-                                        appointment.hospital_name ||
-                                        appointment.home_address}
+                                      {appointment.appointment_type ===
+                                      "physical" ? (
+                                        appointment.visit_type === "home" ? (
+                                          <span>
+                                            House Address:{" "}
+                                            {appointment.location}
+                                            <br />
+                                            Hospital Address:{" "}
+                                            {appointment.hospital_info?.address}
+                                            <br />
+                                            Hospital Name:{" "}
+                                            {appointment.hospital_info?.name}
+                                          </span>
+                                        ) : (
+                                          <span>
+                                            Hospital Address:{" "}
+                                            {appointment.hospital_info?.address}
+                                            <br />
+                                            Hospital Name:{" "}
+                                            {appointment.hospital_info?.name}
+                                          </span>
+                                        )
+                                      ) : (
+                                        <span>
+                                          House Address: {appointment.location}
+                                          <br />
+                                        </span>
+                                      )}
                                     </p>
                                   </div>
                                 </div>
@@ -538,7 +587,6 @@ export const MainUserDashboard = ({
             </div>
           </div>
         </div>
-
       </section>
     </section>
   );

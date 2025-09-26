@@ -47,6 +47,7 @@ export default function VirtualAssessmentForm(
       email: values.email,
       time: values.time,
       notes: values.notes,
+
       address:
         props.hospitals
           .find((hospital) => hospital.id.toString() === values.address)
@@ -96,7 +97,8 @@ export default function VirtualAssessmentForm(
             >
               {props.lgas
                 .filter(
-                  (lga) => lga.state_id.toString() === BiodataForm.getValues("state")
+                  (lga) =>
+                    lga.state_id.toString() === BiodataForm.getValues("state")
                 )
                 .map((hospital) => (
                   <SelectItem
@@ -120,6 +122,7 @@ export default function VirtualAssessmentForm(
               name="address"
               label="Select Hospital"
               fieldType={FormFieldTypes.SELECT}
+              formDescription="A representative from this hospital will be in charge of the virtual appointment"
               // disabled={isPending}
               placeholder="Select Hospital for Virtual Appointment"
             >
