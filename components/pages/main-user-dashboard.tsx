@@ -1,9 +1,20 @@
 "use client";
-import { Calendar as CalendarIcon, List } from "lucide-react";
+import {
+  AlertCircle,
+  Calendar as CalendarIcon,
+  CheckCircle,
+  Clock,
+  CreditCard,
+  DollarSign,
+  List,
+  Loader2,
+} from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
+import { toast } from "sonner";
 
+import { InitiatePayment } from "@/app/actions/payment.actions";
 import { DEFAULT_IMAGE_URL } from "@/config/constants";
 import { allRoutes } from "@/config/routes";
 import { getGreeting } from "@/hooks/use-greeting";
@@ -37,6 +48,17 @@ export type MessagePreview = {
 };
 
 type MainUserDashboardProps = {
+  payment_notification: {
+    id: number;
+    pay_reference: string;
+    user_id: number;
+    plan_code: string;
+    amount: string;
+    status: string;
+    message: string;
+    created_at: string;
+    updated_at: string;
+  }[];
   appointments?: Appointment[];
   healthTrackers: {
     id: number;
@@ -70,9 +92,11 @@ export const MainUserDashboard = ({
   appointments,
   healthTrackers,
   messages,
+  payment_notification,
   caregivers,
 }: MainUserDashboardProps) => {
   const { user } = useUserStore();
+  const pathname = usePathname();
   const router = useRouter();
   const data = (() => {
     if (!healthTrackers?.length) return [];
@@ -112,6 +136,7 @@ export const MainUserDashboard = ({
     });
   })();
   const [appointmentView, setAppointmentView] = React.useState("list");
+  const [startBuying, setStartBuying] = React.useState(false);
 
   const isMobile = useIsMobile();
 
@@ -120,6 +145,40 @@ export const MainUserDashboard = ({
       setAppointmentView("list");
     }
   }, [isMobile]);
+  const getStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "pending":
+        return <Clock className="h-5 w-5 text-yellow-500" />;
+      case "failed":
+        return <AlertCircle className="h-5 w-5 text-red-500" />;
+      case "success":
+      case "completed":
+        return <CheckCircle className="h-5 w-5 text-green-500" />;
+      default:
+        return <DollarSign className="h-5 w-5 text-blue-500" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "pending":
+        return "bg-yellow-50 border-yellow-200";
+      case "failed":
+        return "bg-red-50 border-red-200";
+      case "success":
+      case "completed":
+        return "bg-green-50 border-green-200";
+      default:
+        return "bg-blue-50 border-blue-200";
+    }
+  };
+  const formatAmount = (amount: string) => {
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
+    }).format(parseFloat(amount));
+  };
+
   return (
     <section className="!h-full space-y-3 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <section>
@@ -130,6 +189,106 @@ export const MainUserDashboard = ({
           {formatDate(new Date())}
         </p>
       </section>
+      <div className="space-y-3">
+        {payment_notification.length > 0 &&
+          payment_notification
+            .filter((not) => not.status === "pending")
+            .map((notification) => (
+              <div
+                key={notification.id}
+                className={`rounded-lg border-2 p-4 ${getStatusColor(notification.status)} transition-all duration-200 hover:shadow-md`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-1 items-start gap-3">
+                    {getStatusIcon(notification.status)}
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex items-center gap-2">
+                        <h3 className="truncate font-medium text-gray-900">
+                          Plan: {notification.plan_code}
+                        </h3>
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
+                            notification.status.toLowerCase() === "pending"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : notification.status.toLowerCase() === "failed"
+                                ? "bg-red-100 text-red-800"
+                                : notification.status.toLowerCase() ===
+                                      "success" ||
+                                    notification.status.toLowerCase() ===
+                                      "completed"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {notification.status}
+                        </span>
+                      </div>
+
+                      <p className="mb-2 text-sm text-gray-600">
+                        {notification.message}
+                      </p>
+
+                      <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+                        <span>Amount: {formatAmount(notification.amount)}</span>
+                        <span>Ref: {notification.pay_reference}</span>
+                        <span>
+                          Created: {formatDate(notification.created_at)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {(notification.status.toLowerCase() === "pending" ||
+                      notification.status.toLowerCase() === "failed") && (
+                      <Button
+                        disabled={startBuying}
+                        onClick={async () => {
+                          try {
+                            setStartBuying(true);
+                            await InitiatePayment(
+                              {
+                                payment_notification_id: notification.id,
+                                callback_url:
+                                  process.env.NEXT_PUBLIC_CLIENT_URL || "",
+                              },
+                              pathname
+                            ).then((data) => {
+                              if (data?.success === false) {
+                                toast.error(data.message);
+                              }
+                              if (data?.success === true) {
+                                toast.success(data.message);
+                                // goToStep("bio-data");
+                                //  setOpenSheet(false);
+
+                                router.push(data?.authorization_url || "");
+                              }
+                            });
+                          } catch (error) {
+                            toast.error("An error occured");
+                            console.error(error);
+                          } finally {
+                            setStartBuying(false);
+                          }
+                        }}
+                        className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-3 py-2 text-sm leading-4 font-medium text-white transition-colors duration-200 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+                      >
+                        {startBuying ? (
+                          <Loader2 className="mr-1 size-4 animate-spin" />
+                        ) : (
+                          <CreditCard className="mr-1 h-4 w-4" />
+                        )}
+
+                        {startBuying ? "Paying..." : "Pay Now"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+      </div>
+
       <MobileQuickActions />
       <section className="grid grid-cols-12 gap-5">
         <aside className="col-span-12 h-fit rounded-[6px] bg-white p-5 lg:col-span-4">

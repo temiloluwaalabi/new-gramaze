@@ -59,7 +59,7 @@ export default function ChangeCarePlanForm({
           const user = await getUserInfo();
           if (user.success) {
             const buyPlan = {
-              plan_code: values.plan,
+              payment_notification_id: 1,
               callback_url: `${process.env.NEXT_PUBLIC_CLIENT_URL}`,
             };
             try {

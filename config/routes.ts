@@ -136,6 +136,8 @@ export const gramazeEndpoints = {
   notification: {
     getAll: "/notification/get/all",
     view: "/notification/view", // ?notification_id=9
+    paymentNotification: "/billing/user/payment/notification",
+    postPayment: "/billing/user/pay/payment/notification",
   },
 
   // Account settings endpoints

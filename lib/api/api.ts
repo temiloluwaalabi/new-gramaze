@@ -1233,6 +1233,40 @@ export const notificationServices = {
       unread: [];
     }>(`${gramazeEndpoints.notification.getAll}`, "GET");
   },
+  getUserPaymentNotifications: async () => {
+    return makeApiRequest<{
+      status: true;
+      message: string;
+      payment_notification: {
+        id: number;
+        pay_reference: string;
+        user_id: number;
+        plan_code: string;
+        amount: string;
+        status: string;
+        message: string;
+        created_at: string;
+        updated_at: string;
+      }[];
+    }>(`${gramazeEndpoints.notification.paymentNotification}`, "GET");
+  },
+  payFromPaymentNotification: async (values: {
+    payment_notification_id: number;
+    callback_url: string;
+  }) => {
+    return makeApiRequest<{
+      status: true;
+      message: string;
+      initiate_payment_data: {
+        authorization_url: string;
+        access_code: string;
+        reference: string;
+      };
+    }>(`${gramazeEndpoints.notification.postPayment}`, "POST", {
+      body: values,
+    });
+  },
+
   viewNotification: async (notification_id: number) => {
     return makeApiRequest<{
       status: true;

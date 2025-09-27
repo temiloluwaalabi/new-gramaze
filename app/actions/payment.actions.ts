@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { billingService } from "@/lib/api/api";
+import { billingService, notificationServices } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
 import { ApiResponse } from "@/types";
 
@@ -10,14 +10,14 @@ import { getSession } from "./session.actions";
 
 export const InitiatePayment = async (
   values: {
-    plan_code: string;
+    payment_notification_id: number;
     callback_url: string;
   },
   pathname: string
 ) => {
   console.log("VALUES", values);
   try {
-    if (!values.plan_code || !values.callback_url) {
+    if (!values.payment_notification_id || !values.callback_url) {
       return {
         success: false,
         message: "Invalid credentials",
@@ -33,7 +33,8 @@ export const InitiatePayment = async (
       });
     }
 
-    const response = await billingService.initiatePayment(values);
+    const response =
+      await notificationServices.payFromPaymentNotification(values);
 
     if (ApiError.isAPiError(response)) {
       throw response;
@@ -129,6 +130,66 @@ export const VerifyPayment = async (pathname: string, reference: string) => {
     if (error instanceof ApiError) {
       throw error;
     }
+    throw new ApiError({
+      statusCode: 500,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      errorType: "UnknownError",
+    });
+  }
+};
+export const getUserPaymentNotifications = async () => {
+  try {
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      throw new ApiError({
+        statusCode: 401,
+        message: "No active session found",
+        errorType: "SessionError",
+      });
+    }
+
+    const response = await notificationServices.getUserPaymentNotifications();
+
+    console.log("RESPONSE", response);
+    if (ApiError.isAPiError(response)) {
+      throw response;
+    }
+
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: {
+        status: true;
+        message: string;
+        payment_notification: {
+          id: number;
+          pay_reference: string;
+          user_id: number;
+          plan_code: string;
+          amount: string;
+          status: string;
+          message: string;
+          created_at: string;
+          updated_at: string;
+        }[];
+      };
+      rawResponse?: unknown;
+    };
+
+    return {
+      success: true,
+      message: successResponse.message,
+      payment_notifications: successResponse.data.payment_notification,
+    };
+  } catch (error) {
+    console.error("Get All PAYMENT NOTIFICATIONS Error:", error);
+
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
     throw new ApiError({
       statusCode: 500,
       message:

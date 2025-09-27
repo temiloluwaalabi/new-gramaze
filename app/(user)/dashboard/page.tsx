@@ -1,5 +1,6 @@
 import React from "react";
 
+import { getUserPaymentNotifications } from "@/app/actions/payment.actions";
 import { getUserAppointments } from "@/app/actions/services/appointment.actions";
 import { getCaregiverHistory } from "@/app/actions/services/caregiver.actions";
 import {
@@ -17,6 +18,7 @@ export default async function UserDashboard() {
   const appointments = await getUserAppointments();
   const mainAppointments = appointments.appointments.data;
 
+  const paymentNotifications = await getUserPaymentNotifications();
   const trackers = await getLastTrackers();
   const userCaregivers = await getCaregiverHistory();
   const session = await getSession();
@@ -58,6 +60,7 @@ export default async function UserDashboard() {
 
   return (
     <MainUserDashboard
+      payment_notification={paymentNotifications.payment_notifications || []}
       appointments={mainAppointments}
       healthTrackers={trackers.health_tracker}
       caregivers={userCaregivers.caregivers?.data || []}
