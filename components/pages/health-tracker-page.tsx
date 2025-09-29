@@ -46,14 +46,20 @@ type LatestVitals = {
 type HealthTrackerPageProps = {
   healthTrackers: {
     id: number;
+    user_id: string;
+    caregiver_id: string;
+    status: string;
+    reason: string | null;
+    created_at: string;
+    updated_at: string;
+    metrics: {
+      name: string;
+      value: string;
+    }[];
     blood_glucose: string;
     blood_pressure: string;
     weight: string;
     pulse: string;
-    created_at: string;
-    updated_at: string;
-    user_id: string;
-    caregiver_id: string;
   }[];
   reports: {
     id: number;
@@ -65,27 +71,68 @@ type HealthTrackerPageProps = {
     updated_at: string;
   }[];
 };
+
+type Metric = {
+  name: string;
+  value: string;
+};
 export const HealthTrackerPage = ({
   healthTrackers,
   reports,
 }: HealthTrackerPageProps) => {
-  const data = healthTrackers.map((tracker) => {
-    // blood_pressure is in "systolic/diastolic" format, e.g., "120/80"
-    const [systolicStr, diastolicStr] = (tracker.blood_pressure ?? "0/0").split(
-      "/"
+  // Helper function to extract metric value by name
+  const getMetricValue = (
+    metrics: Metric[],
+    metricName: string
+  ): string | null => {
+    const metric = metrics.find(
+      (m) => m.name?.toLowerCase() === metricName.toLowerCase()
     );
-    const systolic = Number(systolicStr);
-    const diastolic = Number(diastolicStr);
+    return metric?.value || null;
+  };
 
-    return {
-      name: new Date(tracker.created_at).toLocaleDateString(),
-      bodyWeight: Number(tracker.weight),
-      bloodPressure: {
-        systolic,
-        diastolic,
-      },
-    };
-  });
+  const data = (() => {
+    if (!healthTrackers?.length) return [];
+
+    // Sort by created_at ascending so carry-forward works correctly
+    const sorted = [...healthTrackers].sort(
+      (a, b) =>
+        new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+
+    let lastWeight = 0;
+    let lastSystolic = 0;
+    let lastDiastolic = 0;
+
+    return sorted.map((tracker) => {
+      // Weight carry-forward - try metrics first, then legacy field
+      const weightValue =
+        getMetricValue(tracker.metrics, "Weight") || tracker.weight;
+      if (weightValue) {
+        lastWeight = Number(weightValue.replace(/[^\d.]/g, "")) || lastWeight;
+      }
+
+      // Blood pressure carry-forward - try metrics first, then legacy field
+      const bpValue =
+        getMetricValue(tracker.metrics, "Blood Pressure") ||
+        tracker.blood_pressure;
+      if (bpValue) {
+        const cleanedBP = bpValue.replace(/[^\d/]/g, "");
+        const [systolicStr, diastolicStr] = cleanedBP.split("/");
+        if (systolicStr) lastSystolic = Number(systolicStr) || lastSystolic;
+        if (diastolicStr) lastDiastolic = Number(diastolicStr) || lastDiastolic;
+      }
+
+      return {
+        name: new Date(tracker.created_at).toLocaleDateString(),
+        bodyWeight: lastWeight,
+        bloodPressure: {
+          systolic: lastSystolic,
+          diastolic: lastDiastolic,
+        },
+      };
+    });
+  })();
   const [searchQuery, setSearchQuery] = React.useState("");
   const { isPending, data: HealthTracker } = useGetLastTracker();
 

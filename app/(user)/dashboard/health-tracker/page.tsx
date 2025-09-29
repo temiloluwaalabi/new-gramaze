@@ -14,7 +14,7 @@ export default async function HealthTrackerDashboard() {
   return (
     <HealthTrackerPage
       reports={reports.reports}
-      healthTrackers={trackers.health_tracker}
+      healthTrackers={trackers.tracker}
     />
   );
 }

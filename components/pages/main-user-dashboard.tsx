@@ -240,6 +240,7 @@ export const MainUserDashboard = ({
     if (reference) {
       console.log("Reference:", reference);
       await VerifyPayment(pathname, reference).then((data) => {
+        console.log("DATA", data);
         if (data?.success === false) {
           toast.error(data.message);
           window.location.href = allRoutes.user.dashboard.home.url;
