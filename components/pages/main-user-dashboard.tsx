@@ -273,7 +273,8 @@ export const MainUserDashboard = ({
                               {
                                 payment_notification_id: notification.id,
                                 callback_url:
-                                  process.env.NEXT_PUBLIC_CLIENT_URL || "",
+                                  `${process.env.NEXT_PUBLIC_CLIENT_URL}/dashboard` ||
+                                  "",
                               },
                               pathname
                             ).then((data) => {
