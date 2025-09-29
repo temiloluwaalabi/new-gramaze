@@ -62,7 +62,7 @@ export default async function UserDashboard() {
     <MainUserDashboard
       payment_notification={paymentNotifications.payment_notifications || []}
       appointments={mainAppointments}
-      healthTrackers={trackers.health_tracker}
+      healthTrackers={trackers.tracker}
       caregivers={userCaregivers.caregivers?.data || []}
       messages={userMessages}
     />

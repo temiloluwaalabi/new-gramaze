@@ -105,6 +105,7 @@ export const VerifyPayment = async (pathname: string, reference: string) => {
       throw response;
     }
 
+    console.log("RESPONSE", response);
     const successResponse = response as {
       success: true;
       status: number;

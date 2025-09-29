@@ -413,26 +413,62 @@ export const healthTrackerService = {
     start_date,
     end_date,
   }: { start_date?: string; end_date?: string } = {}) => {
-    return makeApiRequest<{
-      status: true;
-      message: string;
-      health_tracker: {
-        id: number;
-        blood_glucose: string;
-        blood_pressure: string;
-        weight: string;
-        pulse: string;
-        created_at: string;
-        updated_at: string;
-        user_id: string;
-        caregiver_id: string;
-      }[];
-    }>(`${gramazeEndpoints.health.user.trackers}`, "GET", {
-      params: {
-        ...(end_date && { end_date }),
-        ...(start_date && { start_date }),
-      },
-    });
+    try {
+      const session = await getSession();
+      const response = await backendAPiClient.request({
+        method: "GET",
+        url: `${gramazeEndpoints.health.user.trackers}`,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+        params: {
+          ...(end_date && { end_date }),
+          ...(start_date && { start_date }),
+        },
+      });
+
+      console.log("RESPONSE", response.data);
+      return {
+        status: response.data.status as boolean,
+        message: response.data.message as string,
+        tracker: response.data.health_tracker.map((item: any) => {
+          // Parse metrics if it's a string, otherwise use empty array
+          const parsedMetrics = item.metrics
+            ? typeof item.metrics === "string"
+              ? JSON.parse(item.metrics)
+              : item.metrics
+            : [];
+
+          return {
+            id: item.id,
+            user_id: item.user_id,
+            caregiver_id: item.caregiver_id,
+            status: item.status,
+            reason: item.reason,
+            created_at: item.created_at,
+            updated_at: item.updated_at,
+            metrics: parsedMetrics.map((metric: any) => ({
+              code: metric.code,
+              value: metric.value,
+            })),
+            // Extract individual metrics for backward compatibility
+            blood_pressure:
+              parsedMetrics.find((m: any) => m.code === "blood_pressure")
+                ?.value || "",
+            weight:
+              parsedMetrics.find((m: any) => m.code === "weight")?.value || "",
+            pulse:
+              parsedMetrics.find((m: any) => m.code === "pulse")?.value || "",
+            blood_glucose:
+              parsedMetrics.find((m: any) => m.code === "blood_glucose")
+                ?.value || "",
+          };
+        }),
+      };
+    } catch (error) {
+      return handleApiBackendError(error);
+    }
   },
   getLastThreeReports: async () => {
     return makeApiRequest<{

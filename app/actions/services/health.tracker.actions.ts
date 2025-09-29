@@ -106,46 +106,40 @@ export const getLastTrackers = async ({
     }
 
     const successResponse = response as {
-      success: true;
-      status: number;
+      status: true;
       message: string;
-      data: {
-        status: true;
-        message: string;
-        health_tracker: {
-          id: number;
-          blood_glucose: string;
-          blood_pressure: string;
-          weight: string;
-          pulse: string;
-          created_at: string;
-          updated_at: string;
-          user_id: string;
-          caregiver_id: string;
+      // current_page: number;
+      // per_page: number;
+      // total: number;
+      // last_page: number;
+      tracker: {
+        id: number;
+        user_id: string;
+        caregiver_id: string;
+        status: string;
+        reason: string | null;
+        created_at: string;
+        updated_at: string;
+        metrics: {
+          name: string;
+          value: string;
         }[];
-      };
-      rawResponse: ApiResponse<{
-        status: true;
-        message: string;
-        health_tracker: {
-          id: number;
-          blood_glucose: string;
-          blood_pressure: string;
-          weight: string;
-          pulse: string;
-          created_at: string;
-          updated_at: string;
-          user_id: string;
-          caregiver_id: string;
-        }[];
-      }>;
+        blood_glucose: string;
+        blood_pressure: string;
+        weight: string;
+        pulse: string;
+      }[];
     };
 
     console.log("SUCCESS RESPONSE", successResponse);
     return {
       success: true,
       message: successResponse.message,
-      health_tracker: successResponse.data.health_tracker,
+      // current_page: successResponse.current_page,
+      // per_page: successResponse.per_page,
+      // total: successResponse.total,
+      // last_page: successResponse.last_page,
+      tracker: successResponse.tracker,
     };
   } catch (error) {
     console.error("Get Last Trackers Error:", error);
