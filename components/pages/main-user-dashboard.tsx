@@ -14,7 +14,7 @@ import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
-import { InitiatePayment } from "@/app/actions/payment.actions";
+import { InitiatePayment, VerifyPayment } from "@/app/actions/payment.actions";
 import { DEFAULT_IMAGE_URL } from "@/config/constants";
 import { allRoutes } from "@/config/routes";
 import { getGreeting } from "@/hooks/use-greeting";
@@ -178,6 +178,29 @@ export const MainUserDashboard = ({
       currency: "NGN",
     }).format(parseFloat(amount));
   };
+  const veirfyPayment = React.useCallback(async () => {
+    const url = new URL(window.location.href);
+    const reference = url.searchParams.get("reference");
+
+    if (reference) {
+      console.log("Reference:", reference);
+      await VerifyPayment(pathname, reference).then((data) => {
+        if (data?.success === false) {
+          toast.error(data.message);
+        }
+        if (data?.success) {
+          toast(data.message);
+        }
+
+        // Remove the query parameters after success or error
+        const newUrl = window.location.pathname + window.location.hash;
+        window.history.pushState({}, "", newUrl);
+      });
+    }
+  }, [pathname]);
+  React.useEffect(() => {
+    veirfyPayment();
+  }, [veirfyPayment]);
 
   return (
     <section className="!h-full space-y-3 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
@@ -198,7 +221,7 @@ export const MainUserDashboard = ({
                 key={notification.id}
                 className={`rounded-lg border-2 p-4 ${getStatusColor(notification.status)} transition-all duration-200 hover:shadow-md`}
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col items-start justify-between gap-4 lg:flex-row">
                   <div className="flex flex-1 items-start gap-3">
                     {getStatusIcon(notification.status)}
                     <div className="min-w-0 flex-1">
