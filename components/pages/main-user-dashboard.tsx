@@ -251,8 +251,6 @@ export const MainUserDashboard = ({
         }
 
         // Remove the query parameters after success or error
-        const newUrl = window.location.pathname + window.location.hash;
-        window.history.pushState({}, "", newUrl);
       });
     }
   }, [pathname]);

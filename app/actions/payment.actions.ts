@@ -102,7 +102,10 @@ export const VerifyPayment = async (pathname: string, reference: string) => {
     const response = await billingService.verifyPayment(reference);
 
     if (ApiError.isAPiError(response)) {
-      throw response;
+      return {
+        success: false,
+        message: response.message,
+      };
     }
 
     console.log("RESPONSE", response);

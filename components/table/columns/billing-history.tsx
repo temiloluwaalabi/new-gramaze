@@ -8,7 +8,7 @@ export interface Payment {
   payment: string;
   amount: string;
   user_email: string;
-  status: "pending" | "completed" | "failed";
+  status: "pending" | "paid" | "failed";
   payment_description: string;
   payment_type: string;
   referenceId: string;
@@ -116,7 +116,7 @@ export const BillingColumn: ColumnDef<Payment>[] = [
         <span
           className={cn(
             "h-[24px] rounded-[12px] px-[12px] py-[5px] text-xs font-normal capitalize",
-            payment.status === "completed" && "bg-green-100 text-green-600",
+            payment.status === "paid" && "bg-green-100 text-green-600",
             payment.status === "pending" && "bg-yellow-100 text-yellow-600",
             payment.status === "failed" && "bg-red-100 text-red-600"
           )}
