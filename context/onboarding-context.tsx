@@ -25,6 +25,10 @@ type OnboardingData = {
     address?: string;
     hospitalId?: number;
     hospitalName?: string;
+    state?: string;
+    interestedPhysicalAppointment?: string;
+    proposedHospitalArea?: string;
+    lga?: string;
     email: string;
     notes?: string;
   };

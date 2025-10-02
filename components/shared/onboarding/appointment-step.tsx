@@ -54,9 +54,6 @@ export const AppointmentStep = () => {
   const { data: AllStates } = useGetAllStates();
   const { data: AllLGAs } = useGetAllLGAs();
 
-  console.log("STATES", AllStates);
-  console.log("LGAS", AllLGAs);
-
   const appointmentLoading =
     VirtualPending || HomePhysicalPending || HospitalPhysicalPending;
 
@@ -67,6 +64,10 @@ export const AppointmentStep = () => {
     });
     setinternalStep(2);
     setAssessmentType(value);
+  };
+  const handleSwitchToVirtual = () => {
+    // Switch to virtual appointment view
+    setAssessmentType("virtual");
   };
 
   const handleBack = () => {
@@ -110,6 +111,8 @@ export const AppointmentStep = () => {
       address,
       notes,
       hospitalId,
+      interestedPhysicalAppointment,
+      proposedHospitalArea,
     } = data.appointment;
 
     if (data.appointment.type === "virtual") {
@@ -121,8 +124,10 @@ export const AppointmentStep = () => {
         location: "Online via Zoom",
         meeting_link: "https://zoom.us/j/1234567890",
         additional_address: "N/A",
-        hospital_id: Number(address),
+        interested_physical_appointment: interestedPhysicalAppointment,
+        proposed_hospital_area: proposedHospitalArea,
       };
+
       BookVirtualAppointment(JSONVALUES, {
         onSuccess: (data) => {
           updateData("appointmentReadyForReview", false);
@@ -277,16 +282,13 @@ export const AppointmentStep = () => {
                   </RadioGroup>
                 </div>
                 {physicalVisitType === "at-home-visit" ? (
-                  <AtHomeVisitForm
-                    hospitals={AllHospitals?.hospitals || []}
-                    states={AllStates?.states || []}
-                    lgas={AllLGAs?.states || []}
-                  />
+                  <AtHomeVisitForm />
                 ) : (
                   <HospitalVisitForm
                     hospitals={AllHospitals?.hospitals || []}
                     states={AllStates?.states || []}
                     lgas={AllLGAs?.states || []}
+                    onSwitchToVirtual={handleSwitchToVirtual}
                   />
                 )}
               </div>
@@ -314,11 +316,7 @@ export const AppointmentStep = () => {
                     </span>
                   </div>
                 </div>
-                <VirtualAssessmentForm
-                  hospitals={AllHospitals?.hospitals || []}
-                  states={AllStates?.states || []}
-                  lgas={AllLGAs?.states || []}
-                />
+                <VirtualAssessmentForm />
               </div>
             )}
           </>
