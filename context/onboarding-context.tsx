@@ -18,7 +18,7 @@ type OnboardingData = {
     files: File[] | [];
   };
   appointment: {
-    type: "virtual" | "physical";
+    type: "virtual" | "physical" | "";
     date: Date;
     physicalType?: string;
     time: string;
@@ -50,7 +50,7 @@ export const getDefaultOnboardingData = (): OnboardingData => ({
     files: [],
   },
   appointment: {
-    type: "virtual",
+    type: "",
     date: new Date(),
     time: "",
     email: "",
@@ -87,7 +87,7 @@ export const defaultData: OnboardingData = {
     files: [],
   },
   appointment: {
-    type: "virtual",
+    type: "",
     date: new Date(),
     time: "",
     email: "",

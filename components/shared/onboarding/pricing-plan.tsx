@@ -48,7 +48,7 @@ export const PricingPlan = (props: Props) => {
 
   const getButtonIcon = () => {
     if (disabled) return <Loader2 className="me-2 size-4 animate-spin" />;
-    if (isChanging) return <RefreshCw className="me-2 size-4 animate-spin" />;
+    if (isChanging) return <RefreshCw className="me-2 size-4" />;
     if (isSelected || isSaved) return <CheckCircle className="me-2 size-4" />;
     return null;
   };

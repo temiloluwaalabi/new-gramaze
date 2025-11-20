@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { Check, Mail, MapPin, Phone, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 import { ReschedileAppointmentSheet } from "@/components/sheets/reschedule-appointment-sheet";
@@ -27,7 +26,6 @@ export default function OnboardingSuccess({
 }: OnboardingSuccessProps) {
   const { data, resetState } = useOnboarding();
   const { session, clientLogoutSession } = useSession();
-  const router = useRouter();
   const [showCalendarOptions, setShowCalendarOptions] = useState(false);
 
   const hospital = hospitals.find(
@@ -451,7 +449,7 @@ export default function OnboardingSuccess({
           <Button
             className="relative mb-6 w-full text-white"
             onClick={() => {
-              router.push("/dashboard");
+              window.location.href = `/dashboard`;
               resetState();
             }}
           >
@@ -463,7 +461,7 @@ export default function OnboardingSuccess({
             onClick={() => {
               resetState();
               clientLogoutSession();
-              router.push("/login");
+              window.location.href = `/sign-in`;
             }}
           >
             Kindly Login

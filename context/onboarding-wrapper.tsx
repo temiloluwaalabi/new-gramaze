@@ -6,6 +6,7 @@
 import { ReactNode, Suspense, useEffect, useState } from "react";
 
 import { OnboardingProvider } from "@/context/onboarding-context";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function OnboardingWrapper({
   children,
@@ -14,8 +15,9 @@ export default function OnboardingWrapper({
 }) {
   const [isMobile, setIsMobile] = useState(false);
 
+  useCurrentUser();
   useEffect(() => {
-    const checkScreenSize = () => { 
+    const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 1024);
     };
 

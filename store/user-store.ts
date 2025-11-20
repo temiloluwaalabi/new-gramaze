@@ -43,6 +43,7 @@ export const useUserStore = create<UserState>()(
         set(() => ({
           user: null,
           isAutheticated: false,
+          isOnboarded: false, // Also reset onboarding status on logout
         })),
     }),
     {
@@ -50,6 +51,7 @@ export const useUserStore = create<UserState>()(
       partialize: (state) => ({
         user: state.user,
         isOnboarded: state.isOnboarded,
+        isAutheticated: state.isAutheticated,
       }),
     }
   )

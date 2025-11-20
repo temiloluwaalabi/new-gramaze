@@ -131,9 +131,9 @@ export const AppointmentStep: React.FC<OnboardingStepsI> = () => {
 
       BookVirtualAppointment(JSONVALUES, {
         onSuccess: (data) => {
+          window.location.href = `/booked?id=${data.appointment.id}`;
           updateData("appointmentReadyForReview", false);
           safeSuccess("book-virtual-appointment", data.message);
-          router.push(`/booked?id=${data.appointment.id}`);
         },
       });
     } else {

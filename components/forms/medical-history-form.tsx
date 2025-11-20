@@ -28,7 +28,6 @@ export default function MedicalHistoryForm() {
     },
   });
 
-  console.log(MedicalForm.watch());
   const handleSubmit = (values: z.infer<typeof MedicalHistorySchema>) => {
     updateData("medicalHistory", {
       history: values.history,
@@ -41,11 +40,10 @@ export default function MedicalHistoryForm() {
         formData.append(`medical_file[${index}]`, file);
       });
     }
-    console.log("FORMDATA", formData);
     UpdateMedicalReport(formData, {
       onSuccess: () => {
-        markStepComplete(currentStep);
         goToNextStep();
+        markStepComplete(currentStep);
       },
     });
   };

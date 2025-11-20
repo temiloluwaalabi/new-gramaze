@@ -86,12 +86,13 @@ export default function BiodataForm() {
             disabled={true}
             placeholder="Last Mame"
           />
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col items-start gap-4 lg:flex-row lg:items-center">
             <CustomFormField
               control={BiodataForm.control}
               name="dob"
               label="Date of birth"
               fieldType={FormFieldTypes.DATE_PICKER}
+              className="w-full"
               disabled={isPending || hasFilledBiodate}
             />
             <CustomFormField
@@ -99,6 +100,7 @@ export default function BiodataForm() {
               name="gender"
               label="Gender"
               fieldType={FormFieldTypes.SELECT}
+              className="w-full"
               placeholder="Select Gender"
               disabled={isPending || hasFilledBiodate}
             >
