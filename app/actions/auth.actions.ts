@@ -595,7 +595,6 @@ export const UpdateMedicalReport = async (values: FormData) => {
     };
 
     console.log("SUCCESS RESPONSE", successResponse);
-    await OnboardSession();
 
     revalidatePath("/");
     return {
@@ -669,6 +668,10 @@ export const VirtualAppointment = async (values: {
 
     console.log("SUCCESS RESPONSE", successResponse);
     revalidatePath("/");
+
+    if (!sessionToken.isBoarded) {
+      await OnboardSession();
+    }
     return {
       success: true,
       message: successResponse.message,
@@ -738,6 +741,9 @@ export const PhysicalHomeAppointment = async (values: {
 
     console.log("SUCCESS RESPONSE", successResponse);
     revalidatePath("/");
+    if (!sessionToken.isBoarded) {
+      await OnboardSession();
+    }
     return {
       success: true,
       message: successResponse.message,
@@ -808,6 +814,9 @@ export const PhysicalHospitalAppointment = async (values: {
 
     console.log("SUCCESS RESPONSE", successResponse);
     revalidatePath("/");
+    if (!sessionToken.isBoarded) {
+      await OnboardSession();
+    }
     return {
       success: true,
       message: successResponse.message,

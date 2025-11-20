@@ -19,7 +19,7 @@ import {
   useInitiatePasswordReset,
   useUpdateNotificationSetting,
 } from "@/lib/queries/use-auth-queries";
-import { formatDate } from "@/lib/utils";
+import { formatDate, initialsFromName } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 
 import MedicalFilesDisplay from "./medical-files";
@@ -263,13 +263,25 @@ export const SettingsClientPage = () => {
             <div className="space-y-6">
               <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
                 <div className="flex items-center gap-3">
-                  <Image
-                    src="https://res.cloudinary.com/davidleo/image/upload/v1744896654/aa876a7a2f9aac97c39f34649357f02b_eqqhqh.jpg"
-                    width={96}
-                    height={96}
-                    className="size-[70px] rounded-full object-cover md:size-[96px]"
-                    alt="mainImage"
-                  />
+                  {user?.image ? (
+                    <Image
+                      src="https://res.cloudinary.com/davidleo/image/upload/v1744896654/aa876a7a2f9aac97c39f34649357f02b_eqqhqh.jpg"
+                      width={96}
+                      height={96}
+                      className="size-[70px] rounded-full object-cover md:size-[96px]"
+                      alt="mainImage"
+                    />
+                  ) : (
+                    <div className="flex size-[70px] items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-600 md:size-[96]">
+                      {initialsFromName(
+                        [user?.first_name, user?.last_name]
+                          .filter(Boolean)
+                          .join(" ")
+                          .trim()
+                      )}
+                    </div>
+                  )}
+
                   <div className="space-y-1">
                     <h4 className="text-base font-semibold text-[#303030]">
                       {user?.email}
@@ -392,34 +404,66 @@ export const SettingsClientPage = () => {
               <h4 className="text-lg font-semibold text-[#333]">
                 Health Records
               </h4>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <div className="flex items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4">
-                  <span className="flex size-[42px] items-center justify-center rounded-full bg-[#F5F5F5]">
-                    <SquarePen className="size-5" />
-                  </span>
-                  <div>
-                    <h6 className="text-sm font-medium text-[#333] md:text-base">
-                      Medical Record
-                    </h6>
-                    <p className="text-xs font-normal text-[#66666b] md:text-sm">
-                      Uplaoded 10 Dec, 2024
-                    </p>
+              {user?.dependents ? (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <div className="flex items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4">
+                    <span className="flex size-[42px] items-center justify-center rounded-full bg-[#F5F5F5]">
+                      <SquarePen className="size-5" />
+                    </span>
+                    <div>
+                      <h6 className="text-sm font-medium text-[#333] md:text-base">
+                        Medical Record
+                      </h6>
+                      <p className="text-xs font-normal text-[#66666b] md:text-sm">
+                        Uplaoded 10 Dec, 2024
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4">
+                    <span className="flex size-[42px] items-center justify-center rounded-full bg-[#F5F5F5]">
+                      <SquarePen className="size-5" />
+                    </span>
+                    <div>
+                      <h6 className="text-sm font-medium text-[#333] md:text-base">
+                        Medical Record
+                      </h6>
+                      <p className="text-xs font-normal text-[#66666b] md:text-sm">
+                        Uplaoded 15 Dec, 2024
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4">
-                  <span className="flex size-[42px] items-center justify-center rounded-full bg-[#F5F5F5]">
-                    <SquarePen className="size-5" />
-                  </span>
-                  <div>
-                    <h6 className="text-sm font-medium text-[#333] md:text-base">
-                      Medical Record
-                    </h6>
-                    <p className="text-xs font-normal text-[#66666b] md:text-sm">
-                      Uplaoded 15 Dec, 2024
-                    </p>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-4 rounded-[6px] border border-dashed border-[#E8E8E8] bg-[#FAFCFF] p-6 text-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                    <SquarePen className="h-6 w-6" />
                   </div>
+
+                  <h5 className="text-md font-semibold text-[#212121]">
+                    No health records yet
+                  </h5>
+                  <p className="max-w-xs text-sm text-[#66666B]">
+                    A central health record hasn&apos;t been created for you
+                    yet. Our care team or provider will create and manage this
+                    record on your behalf. Contact our provider or support if
+                    you need a record created or to share files.
+                  </p>
+                  {/* 
+                  <div className="flex items-center gap-2">
+                    <UpdateMedicalRecordSheet
+                      sheetTrigger={
+                        <Button className="flex !h-[38px] items-center gap-2 text-sm">
+                          <Plus className="h-4 w-4" />
+                          Upload medical record
+                        </Button>
+                      }
+                    />
+                    <Button variant="ghost" className="!h-[38px]">
+                      Learn how
+                    </Button>
+                  </div> */}
                 </div>
-              </div>
+              )}
             </div>
             <Separator className="bg-[#E8E8E8]" />
 
@@ -596,58 +640,92 @@ export const SettingsClientPage = () => {
               <h4 className="text-lg font-medium text-[#212121]">
                 Manage Profiles
               </h4>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <div className="flex flex-col gap-4 rounded-[6px] border border-[#E8E8E8] p-3">
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src="https://res.cloudinary.com/davidleo/image/upload/v1744896654/aa876a7a2f9aac97c39f34649357f02b_eqqhqh.jpg"
-                      width={42}
-                      height={42}
-                      className="size-[42px] rounded-full object-cover"
-                      alt="mainImage"
-                    />
-                    <div className="space-y-1">
-                      <h4 className="text-bassme font-medium text-[#333]">
-                        Temidayo Olanrewaju{" "}
-                      </h4>
-                      <p className="text-xs font-normal text-[#66666B]">
-                        Relationship: Mother
-                      </p>
+              {user?.dependents ? (
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <div className="flex flex-col gap-4 rounded-[6px] border border-[#E8E8E8] p-3">
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src="https://res.cloudinary.com/davidleo/image/upload/v1744896654/aa876a7a2f9aac97c39f34649357f02b_eqqhqh.jpg"
+                        width={42}
+                        height={42}
+                        className="size-[42px] rounded-full object-cover"
+                        alt="mainImage"
+                      />
+                      <div className="space-y-1">
+                        <h4 className="text-bassme font-medium text-[#333]">
+                          Temidayo Olanrewaju{" "}
+                        </h4>
+                        <p className="text-xs font-normal text-[#66666B]">
+                          Relationship: Mother
+                        </p>
+                      </div>
                     </div>
+                    <Button
+                      className="!h-[34px] rounded-[6px]"
+                      variant={"outline"}
+                    >
+                      View details
+                    </Button>
                   </div>
-                  <Button
-                    className="!h-[34px] rounded-[6px]"
-                    variant={"outline"}
-                  >
-                    View details
-                  </Button>
-                </div>
-                <div className="flex flex-col gap-4 rounded-[6px] border border-[#E8E8E8] p-3">
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src="https://res.cloudinary.com/davidleo/image/upload/v1744896654/aa876a7a2f9aac97c39f34649357f02b_eqqhqh.jpg"
-                      width={42}
-                      height={42}
-                      className="size-[42px] rounded-full object-cover"
-                      alt="mainImage"
-                    />
-                    <div className="space-y-1">
-                      <h4 className="text-bassme font-medium text-[#333]">
-                        Temidayo Olanrewaju{" "}
-                      </h4>
-                      <p className="text-xs font-normal text-[#66666B]">
-                        Relationship: Mother
-                      </p>
+                  <div className="flex flex-col gap-4 rounded-[6px] border border-[#E8E8E8] p-3">
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src="https://res.cloudinary.com/davidleo/image/upload/v1744896654/aa876a7a2f9aac97c39f34649357f02b_eqqhqh.jpg"
+                        width={42}
+                        height={42}
+                        className="size-[42px] rounded-full object-cover"
+                        alt="mainImage"
+                      />
+                      <div className="space-y-1">
+                        <h4 className="text-bassme font-medium text-[#333]">
+                          Temidayo Olanrewaju{" "}
+                        </h4>
+                        <p className="text-xs font-normal text-[#66666B]">
+                          Relationship: Mother
+                        </p>
+                      </div>
                     </div>
+                    <Button
+                      className="!h-[34px] rounded-[6px]"
+                      variant={"outline"}
+                    >
+                      View details
+                    </Button>
                   </div>
-                  <Button
-                    className="!h-[34px] rounded-[6px]"
-                    variant={"outline"}
-                  >
-                    View details
-                  </Button>
                 </div>
-              </div>
+              ) : (
+                <div
+                  role="status"
+                  className="flex flex-col items-center justify-center gap-4 rounded-[6px] border border-dashed border-[#E8E8E8] bg-[#FAFCFF] p-6 text-center"
+                >
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                    <Plus className="h-6 w-6" />
+                  </div>
+
+                  <h5 className="text-md font-semibold text-[#212121]">
+                    No dependents yet
+                  </h5>
+                  <p className="max-w-xs text-sm text-[#66666B]">
+                    Add family members or dependents to manage their profiles,
+                    medical records, and appointments.
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <Button
+                      className="flex !h-[38px] items-center gap-2 text-sm"
+                      onClick={() => {
+                        // TODO: open "Add Dependent" sheet/modal
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add dependent
+                    </Button>
+                    <Button variant="ghost" className="!h-[38px]">
+                      Learn more
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
         </Tabs>

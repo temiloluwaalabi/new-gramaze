@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 // @flow
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Info } from "lucide-react";
 import Image from "next/image";
 import * as React from "react";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import {
 } from "@/lib/queries/use-auth-queries";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
+import { OnboardingStepsI } from "@/types";
 
 import { PricingPlan } from "./pricing-plan";
 import { StepFooter } from "./step-footer";
@@ -59,7 +60,7 @@ export const paymentPlans = [
     ],
   },
 ];
-export const PlanSelectionStep = () => {
+export const PlanSelectionStep: React.FC<OnboardingStepsI> = () => {
   const { user, setUser } = useUserStore();
   const {
     updateData,
@@ -75,16 +76,18 @@ export const PlanSelectionStep = () => {
     useSetUserPlanMutation();
   const forWhom = data.forWhom;
   const [internalStep, setInternalStep] = React.useState<1 | 2>(1);
-
-  console.log("USDFPLANPENDING", userPlanPending);
+  const [selectedPlan, setSelectedPlan] = React.useState<string>(
+    data.plan || ""
+  );
+  const [isChangingPlan, setIsChangingPlan] = React.useState(false);
 
   // Check if steps are already completed in database
   const hasSetUserType = user?.has_set_user_type === "yes";
   const hasSetPlan = user?.has_set_plan === "yes";
-
   // Get saved values from user
   const savedUserType = user?.user_type;
   const savedPlan = user?.plan;
+
   // Initialize internal step and data based on completion status
   React.useEffect(() => {
     if (hasSetUserType && hasSetPlan) {
@@ -92,6 +95,7 @@ export const PlanSelectionStep = () => {
       setInternalStep(2);
       updateData("forWhom", savedUserType || "");
       updateData("plan", savedPlan || "");
+      setSelectedPlan(savedPlan || "");
     } else if (hasSetUserType && !hasSetPlan) {
       // Only user type is completed, show plan selection
       setInternalStep(2);
@@ -100,6 +104,7 @@ export const PlanSelectionStep = () => {
       // Only plan is completed (edge case), show user type selection
       setInternalStep(1);
       updateData("plan", savedPlan || "");
+      setSelectedPlan(savedPlan || "");
     } else {
       // Nothing is completed, start from beginning
       setInternalStep(1);
@@ -124,47 +129,72 @@ export const PlanSelectionStep = () => {
       },
     });
   };
+  const handleSelectPlan = (planId: string) => {
+    // Update local state immediately for better UX
+    setSelectedPlan(planId);
+    updateData("plan", planId);
 
-  const handleSelectPlan = (plan: string) => {
-    // Prevent selection if already saved
-    if (hasSetPlan) {
-      toast.info("Plan has already been set and cannot be changed.");
-      return;
+    // If changing an existing plan, show confirmation
+    if (hasSetPlan && savedPlan !== planId) {
+      setIsChangingPlan(true);
     }
+  };
 
-    updateData("plan", plan);
-
-    SetUserPlan(plan, {
-      onSuccess: async (data) => {
+  const confirmPlanSelection = () => {
+    SetUserPlan(selectedPlan, {
+      onSuccess: async () => {
         const user = await getUserInfo();
         if (user.success) {
           setUser(user.user);
-          toast.success(data.message || "User plan set successfully!");
+          toast.success(
+            hasSetPlan
+              ? "Plan updated successfully!"
+              : "Plan selected successfully!"
+          );
           markStepComplete(currentStep);
+          setIsChangingPlan(false);
           goToStep("bio-data");
         }
       },
       onError: (error) => {
         toast.error(error.message || "Failed to set plan. Please try again.");
+        setIsChangingPlan(false);
       },
     });
   };
 
-  const handleSkip = () => {
+  const handleNext = () => {
     if (internalStep === 1) {
+      if (!forWhom) {
+        toast.error("Please select who you're signing for");
+        return;
+      }
       setInternalStep(2);
     } else {
-      markStepComplete("plan");
-      goToStep("bio-data");
+      if (!selectedPlan) {
+        toast.error("Please select a plan");
+        return;
+      }
+      confirmPlanSelection();
     }
   };
 
-  console.log(internalStep);
-  console.log("CURRENT STEP", currentStep);
+  // const handleSkip = () => {
+  //   if (internalStep === 1) {
+  //     setInternalStep(2);
+  //   } else {
+  //     markStepComplete("plan");
+  //     goToStep("bio-data");
+  //   }
+  // };
 
   const handleBack = () => {
     if (internalStep === 2) {
-      setInternalStep(1);
+      if (!hasSetUserType) {
+        setInternalStep(1);
+      } else {
+        goToPrevStep();
+      }
     } else {
       goToPrevStep();
     }
@@ -173,10 +203,10 @@ export const PlanSelectionStep = () => {
     return userType === "myself" ? "Myself" : "Someone else";
   };
 
-  // const getPlanDisplayName = (planId: string) => {
-  //   const plan = paymentPlans.find((p) => p.id === planId);
-  //   return plan?.planTitle || planId;
-  // };
+  const getPlanDisplayName = (planId: string) => {
+    const plan = paymentPlans.find((p) => p.id === planId);
+    return plan?.planTitle || planId;
+  };
 
   return (
     <div>
@@ -187,16 +217,16 @@ export const PlanSelectionStep = () => {
             description="Choose an option below to manage services tailored for you or your dependents"
           />
           {hasSetUserType && (
-            <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-4">
+            <div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                <p className="font-medium text-green-800">
-                  You have selected:{" "}
+                <Info className="h-5 w-5 text-blue-600" />
+                <p className="font-medium text-blue-800">
+                  Previously selected:{" "}
                   {getUserTypeDisplayName(savedUserType || "")}
                 </p>
               </div>
-              <p className="mt-1 text-sm text-green-600">
-                This selection has been saved and cannot be changed.
+              <p className="mt-1 text-sm text-blue-600">
+                This selection cannot be changed once set.
               </p>
             </div>
           )}
@@ -204,22 +234,18 @@ export const PlanSelectionStep = () => {
             <div
               className={cn(
                 "flex h-[98px] items-center gap-2 rounded-[6px] border border-gray-300 bg-white p-5 transition-all",
-                // Show as selected if this matches saved user type
                 savedUserType === "myself" &&
                   hasSetUserType &&
                   "border-green-500 bg-green-50",
-                // Show hover effects only if not saved
                 !hasSetUserType &&
                   "cursor-pointer hover:border-blue-700 hover:bg-blue-50",
-                // Show current selection if not saved yet
                 !hasSetUserType &&
                   forWhom === "myself" &&
                   "border-blue-700 bg-blue-50",
-                // Disable other options if saved
                 hasSetUserType && savedUserType !== "myself" && "opacity-50",
                 userTypePending && "pointer-events-none opacity-60"
               )}
-              onClick={() => handleSelectForWhom("myself")}
+              onClick={() => !hasSetUserType && handleSelectForWhom("myself")}
             >
               <Image
                 src="/asset/images/myself.png"
@@ -250,24 +276,22 @@ export const PlanSelectionStep = () => {
             <div
               className={cn(
                 "flex h-[98px] items-center gap-2 rounded-[6px] border border-gray-300 bg-white p-5 transition-all",
-                // Show as selected if this matches saved user type
                 savedUserType === "someone-else" &&
                   hasSetUserType &&
                   "border-green-500 bg-green-50",
-                // Show hover effects only if not saved
                 !hasSetUserType &&
                   "cursor-pointer hover:border-blue-700 hover:bg-blue-50",
-                // Show current selection if not saved yet
                 !hasSetUserType &&
                   forWhom === "someone-else" &&
                   "border-blue-700 bg-blue-50",
-                // Disable other options if saved
                 hasSetUserType &&
                   savedUserType !== "someone-else" &&
                   "opacity-50",
                 userTypePending && "pointer-events-none opacity-60"
               )}
-              onClick={() => handleSelectForWhom("someone-else")}
+              onClick={() =>
+                !hasSetUserType && handleSelectForWhom("someone-else")
+              }
             >
               <Image
                 src="/asset/images/someone.png"
@@ -301,19 +325,36 @@ export const PlanSelectionStep = () => {
             title="Choose your plan"
             description="Find the right plan for your needs"
           />
-          {hasSetPlan && (
-            <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4">
+          {hasSetPlan && savedPlan && (
+            <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                <p className="font-medium text-green-800">
-                  You have selected:{" "}
-                  {paymentPlans.find((p) => p.id === savedPlan)?.planTitle ||
-                    savedPlan}
-                </p>
+                <Info className="h-5 w-5 text-blue-600" />
+                <div className="flex-1">
+                  <p className="font-medium text-blue-800">
+                    Current plan: {getPlanDisplayName(savedPlan)}
+                  </p>
+                  <p className="mt-1 text-sm text-blue-600">
+                    You can change your plan by selecting a different option
+                    below.
+                  </p>
+                </div>
               </div>
-              <p className="mt-1 text-sm text-green-600">
-                This plan has been saved and cannot be changed.
-              </p>
+            </div>
+          )}
+          {isChangingPlan && selectedPlan !== savedPlan && (
+            <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+              <div className="flex items-center gap-2">
+                <Info className="h-5 w-5 text-yellow-600" />
+                <div className="flex-1">
+                  <p className="font-medium text-yellow-800">
+                    Changing plan from {getPlanDisplayName(savedPlan || "")} to{" "}
+                    {getPlanDisplayName(selectedPlan)}
+                  </p>
+                  <p className="mt-1 text-sm text-yellow-600">
+                    Click &quot;Continue&quot; to confirm this change.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
           <div className="grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -321,12 +362,18 @@ export const PlanSelectionStep = () => {
               <PricingPlan
                 key={payment.id}
                 disabled={userPlanPending}
-                selected={hasSetPlan && savedPlan === payment.id}
+                isSelected={selectedPlan === payment.id}
+                isSaved={hasSetPlan && savedPlan === payment.id}
                 id={payment.id}
                 planOffers={payment.planOffers}
                 planTitle={payment.planTitle}
-                savedPlan={savedPlan || ""}
+                amount={payment.amount}
                 handlePlan={handleSelectPlan}
+                isChanging={
+                  isChangingPlan &&
+                  selectedPlan === payment.id &&
+                  savedPlan !== payment.id
+                }
               />
             ))}
           </div>
@@ -334,10 +381,10 @@ export const PlanSelectionStep = () => {
       )}
       <StepFooter
         disabled={userPlanPending || userTypePending}
-        hideBackButton={internalStep === 1}
+        hideBackButton={internalStep === 1 && !hasSetUserType}
         onBack={handleBack}
-        skipText="Next"
-        onSkip={handleSkip}
+        skipText={internalStep === 2 ? "Continue" : "Next"}
+        onSkip={handleNext}
       />
     </div>
   );

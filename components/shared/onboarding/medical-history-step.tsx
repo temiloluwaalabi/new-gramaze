@@ -3,10 +3,11 @@ import * as React from "react";
 
 import MedicalHistoryForm from "@/components/forms/medical-history-form";
 import { useUserStore } from "@/store/user-store";
+import { OnboardingStepsI } from "@/types";
 
 import { StepFooter } from "./step-footer";
 import { StepHeader } from "./step-header";
-export const MedicalHistoryStep = () => {
+export const MedicalHistoryStep: React.FC<OnboardingStepsI> = () => {
   const { user } = useUserStore();
 
   const has_set_medical_history = user?.has_set_medical_history;

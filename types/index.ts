@@ -1,7 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Common types
 type Status = "Completed" | "Cancelled" | "Pending";
 // type ActionOptions = 'view' | 'edit' | 'delete';
 
+export interface OnboardingStepsI {
+  onNext: (data: any) => void;
+  onPrevious: () => void;
+  data?: any;
+  allData?: any;
+}
 // 1. Patient Data (Image 1)
 export interface Patient {
   id: string;
@@ -88,6 +95,7 @@ export interface User {
   emergency_contact_name: string | null;
   emergency_contact_phone: string | null;
   connected_device: string | null;
+  image: string | null;
 }
 export interface Appointment {
   id: number;
@@ -119,23 +127,22 @@ export interface Appointment {
     last_name: string;
   };
   caregiver?: {
-  id: number;
+    id: number;
     first_name: string;
     last_name: string;
     user_type: string;
   };
 
-  hospital_info?:{
-id: number;
-name: string;
-address: string;
-phone: string;
-contact_person: string;
-state_id: number;
-lga_id: number;
-created_at: string;
-updated_at: string;
-
+  hospital_info?: {
+    id: number;
+    name: string;
+    address: string;
+    phone: string;
+    contact_person: string;
+    state_id: number;
+    lga_id: number;
+    created_at: string;
+    updated_at: string;
   };
   name?: string; // Will be derived from patient or caregiver
   phone?: string; // Will be derived from contact

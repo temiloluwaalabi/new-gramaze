@@ -15,7 +15,6 @@ import {
   Thermometer,
   Wind,
 } from "lucide-react";
-import Image from "next/image";
 import React from "react";
 
 import BloodPressureIcon from "@/icons/blood-pressure";
@@ -27,6 +26,7 @@ import {
   formatDate,
   getAppointmentLocation,
   getAppointmentTitle,
+  initialsFromName,
 } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import { Appointment, User } from "@/types";
@@ -329,13 +329,21 @@ export default function SinglePatientDetailsPage({
             Basic Information
           </h6>
           <div className="flex items-center gap-3">
-            <Image
+            <div className="flex size-[90px] items-center justify-center rounded-[8px] bg-blue-100 text-sm font-medium text-blue-600">
+              {initialsFromName(
+                [patient?.first_name, patient?.last_name]
+                  .filter(Boolean)
+                  .join(" ")
+                  .trim()
+              )}
+            </div>
+            {/* <Image
               src="https://res.cloudinary.com/davidleo/image/upload/v1744896654/aa876a7a2f9aac97c39f34649357f02b_eqqhqh.jpg"
               width={90}
               height={90}
               className="size-[90px] rounded-[8px] object-cover"
               alt="mainImage"
-            />
+            /> */}
             <div className="space-y-1">
               <h4 className="text-base font-semibold text-[#303030]">
                 {patient.first_name} {patient.last_name}

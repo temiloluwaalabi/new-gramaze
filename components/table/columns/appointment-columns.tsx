@@ -248,26 +248,6 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
     },
   },
   {
-    id: "charges",
-    header: "Charges",
-    cell: ({ row }) => {
-      const appointment = row.original;
-
-      if (!appointment.extra_charges) {
-        return <span className="text-sm text-gray-500">Standard</span>;
-      }
-
-      return (
-        <div className="flex flex-col">
-          <span className="text-sm font-medium">
-            ₦{appointment.extra_charges.toLocaleString()}
-          </span>
-          <span className="text-xs text-gray-500">Extra charges</span>
-        </div>
-      );
-    },
-  },
-  {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {

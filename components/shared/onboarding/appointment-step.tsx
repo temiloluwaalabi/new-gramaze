@@ -24,10 +24,11 @@ import {
   useVirtualAppointment,
 } from "@/lib/queries/use-auth-queries";
 import { cn } from "@/lib/utils";
+import { OnboardingStepsI } from "@/types";
 
 import { StepFooter } from "./step-footer";
 import { StepHeader } from "./step-header";
-export const AppointmentStep = () => {
+export const AppointmentStep: React.FC<OnboardingStepsI> = () => {
   const router = useRouter();
   const [internalStep, setinternalStep] = React.useState<1 | 2>(1);
   const { data, updateData, goToPrevStep } = useOnboarding();
@@ -60,7 +61,7 @@ export const AppointmentStep = () => {
   const handleSelectAssessmentType = (value: string) => {
     updateData("appointment", {
       ...data.appointment,
-      type: value,
+      type: value as "physical" | "virtual",
     });
     setinternalStep(2);
     setAssessmentType(value);
@@ -220,11 +221,12 @@ export const AppointmentStep = () => {
                   </p>
                 </div>
               </div>
-              <div
+              {/* <div
                 className={cn(
-                  "flex h-[98px] cursor-pointer items-center gap-2 rounded-[6px] border border-gray-300 bg-white p-5 transition-all hover:border-blue-700 hover:bg-blue-50",
+                  "relative flex h-[98px] cursor-pointer items-center gap-2 rounded-[6px] border border-gray-300 bg-white p-5 transition-all hover:border-blue-700 hover:bg-blue-50",
                   appointment === "physical" && "border-blue-700 bg-blue-50"
                 )}
+                role="button"
                 onClick={() => handleSelectAssessmentType("physical")}
               >
                 <Image
@@ -242,7 +244,7 @@ export const AppointmentStep = () => {
                     Connect with our team in person at your convenience{" "}
                   </p>
                 </div>
-              </div>
+              </div> */}
             </div>
           </>
         ) : (

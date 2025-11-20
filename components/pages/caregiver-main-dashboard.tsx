@@ -6,13 +6,16 @@ import {
   Users,
   MessageSquare,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 
 import { allRoutes } from "@/config/routes";
-import { formatDate, transformAppointmentData } from "@/lib/utils";
+import {
+  formatDate,
+  initialsFromName,
+  transformAppointmentData,
+} from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import { Appointment, User } from "@/types";
 
@@ -55,13 +58,23 @@ export default function CaregiverMainDashboardClient({
               Basic Information
             </h4>
             <div className="flex items-center gap-3">
-              <Image
+              {/* <Image
                 src="https://res.cloudinary.com/davidleo/image/upload/v1744896654/aa876a7a2f9aac97c39f34649357f02b_eqqhqh.jpg"
                 width={90}
                 height={90}
                 className="size-[90px] rounded-[8px] object-cover"
                 alt="mainImage"
-              />
+              /> */}
+
+              <div className="flex size-[90px] items-center justify-center rounded-[8px] bg-blue-100 text-sm font-medium text-blue-600">
+                {initialsFromName(
+                  [user?.first_name, user?.last_name]
+                    .filter(Boolean)
+                    .join(" ")
+                    .trim()
+                )}
+              </div>
+
               <div className="space-y-1">
                 <h4 className="text-base font-semibold text-[#303030]">
                   {user?.first_name} {user?.last_name}

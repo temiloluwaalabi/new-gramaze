@@ -42,7 +42,7 @@ export async function RegisterSession(accessToken: string) {
   // Set some initial session data, e.g., user ID or token
   Object.assign(session, {
     accessToken,
-    isLoggedIn: false,
+    isLoggedIn: true,
     isBoarded: false,
   });
   await session.save();

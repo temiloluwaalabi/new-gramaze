@@ -1,96 +1,150 @@
-// @flow
-import { Check, CheckCircle, Loader2 } from "lucide-react";
+import { Check, CheckCircle, Loader2, RefreshCw } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
-import { useOnboarding } from "@/context/onboarding-context";
 import { cn } from "@/lib/utils";
+
 type Props = {
   id: string;
   planTitle: string;
   planOffers: string[];
+  amount: number;
   handlePlan: (value: string) => void;
   disabled: boolean;
-  selected?: boolean;
-  savedPlan?: string;
+  isSelected: boolean;
+  isSaved: boolean;
+  isChanging?: boolean;
 };
-export const PricingPlan = (props: Props) => {
-  console.log("SAVED PLAN", props.savedPlan);
-  const { data } = useOnboarding();
-  const isCurrentSelection = data.plan === props.id;
-  const isSavedSelection = props.selected;
 
-  const isDisabled = (id: string) => {
-    return !!(props.savedPlan && props.savedPlan !== id);
+export const PricingPlan = (props: Props) => {
+  const {
+    id,
+    planTitle,
+    planOffers,
+    amount,
+    handlePlan,
+    disabled,
+    isSelected,
+    isSaved,
+    isChanging,
+  } = props;
+
+  const formatAmount = (amount: number) => {
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
+      minimumFractionDigits: 0,
+    }).format(amount);
   };
+
+  const getButtonText = () => {
+    if (disabled) return "Loading...";
+    if (isChanging) return "Changing to this plan...";
+    if (isSelected && isSaved) return "Current Plan";
+    if (isSelected && !isSaved) return "Selected";
+    if (isSaved) return "Current Plan";
+    return "Select Plan";
+  };
+
+  const getButtonIcon = () => {
+    if (disabled) return <Loader2 className="me-2 size-4 animate-spin" />;
+    if (isChanging) return <RefreshCw className="me-2 size-4 animate-spin" />;
+    if (isSelected || isSaved) return <CheckCircle className="me-2 size-4" />;
+    return null;
+  };
+
   return (
     <div
       className={cn(
-        "group flex h-full w-full cursor-pointer flex-col gap-[42px] rounded-[6px] border border-gray-300 bg-gray-50 p-4",
-        // Show green styling if this plan is saved
-        isSavedSelection && "border-green-500 bg-green-50",
-        // Show blue styling for current selection (if not saved yet)
-        !isSavedSelection && isCurrentSelection && "border-blue-700 bg-blue-50",
-        // Show hover effects only if not disabled and not saved
-        !props.disabled &&
-          !isSavedSelection &&
-          "hover:border-blue-700 hover:bg-blue-50",
-        props.disabled && "pointer-events-none opacity-60"
+        "group flex h-full w-full cursor-pointer flex-col gap-6 rounded-[6px] border-2 bg-white p-6 transition-all",
+        // Current saved plan
+        isSaved && !isSelected && "border-gray-300 bg-gray-50",
+        // Selected (whether saved or new selection)
+        isSelected && "border-blue-600 bg-blue-50 shadow-lg",
+        // Changing from saved to new
+        isChanging && "border-yellow-500 bg-yellow-50",
+        // Hover effects
+        !disabled && !isSelected && "hover:border-blue-400 hover:shadow-md",
+        disabled && "pointer-events-none opacity-60"
       )}
-      aria-disabled={props.disabled || undefined}
+      onClick={() => !disabled && handlePlan(id)}
+      aria-disabled={disabled || undefined}
     >
-      <div className="flex items-start justify-between">
-        <h4 className="text-2xl font-semibold text-gray-700">
-          {props.planTitle}
-        </h4>
-        {isSavedSelection && (
-          <div className="flex items-center gap-1">
-            <CheckCircle className="h-6 w-6 text-green-600" />
-            <span className="text-sm font-medium text-green-600">Selected</span>
-          </div>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-6">
-        <Button
-          className={cn(
-            "h-[45px] w-full rounded-[6px] border border-gray-300 bg-white p-3 text-base font-medium text-[#030712]",
-            // Saved selection styling
-            isSavedSelection && "border-green-600 bg-green-500 text-white",
-            // Current selection styling (if not saved)
-            !isSavedSelection &&
-              isCurrentSelection &&
-              "border-blue-700 bg-blue-500 text-white",
-            // Hover effects only if not disabled and not saved
-            !props.disabled &&
-              !isSavedSelection &&
-              "group-hover:bg-blue-500 group-hover:text-white"
-          )}
-          disabled={props.disabled || isDisabled(props.id)}
-          type="button"
-          onClick={() => props.handlePlan(props.id)}
-        >
-          {props.disabled && <Loader2 className="me-2 size-4 animate-spin" />}
-          {isSavedSelection && <CheckCircle className="me-2 size-4" />}
-
-          {props.disabled
-            ? "Loading..."
-            : isSavedSelection
-              ? "Selected Plan"
-              : "Select Plan"}
-        </Button>
-
-        <div className="flex flex-col gap-[10px]">
-          {props.planOffers.map((offer) => (
-            <span key={offer} className="flex items-center gap-2 space-x-3">
-              <Check className="size-5 text-blue-600" />
-              <span className="text-base font-normal text-gray-500">
-                {offer}
-              </span>
+      {/* Header with price */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-start justify-between">
+          <h4 className="text-xl font-bold text-gray-800">{planTitle}</h4>
+          {isSaved && !isChanging && (
+            <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
+              Current
             </span>
-          ))}
+          )}
+          {isChanging && (
+            <span className="rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-700">
+              Changing
+            </span>
+          )}
+        </div>
+        <div className="flex items-baseline gap-1">
+          <span className="text-3xl font-bold text-gray-900">
+            {formatAmount(amount)}
+          </span>
+          <span className="text-sm text-gray-500">/month</span>
         </div>
       </div>
+
+      {/* Features list */}
+      <div className="flex flex-1 flex-col gap-3">
+        {planOffers.map((offer, index) => (
+          <div key={`${id}-${index}`} className="flex items-start gap-3">
+            <Check
+              className={cn(
+                "mt-0.5 size-5 flex-shrink-0",
+                isSelected ? "text-blue-600" : "text-green-600"
+              )}
+            />
+            <span className="text-sm leading-relaxed text-gray-600">
+              {offer}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Action button */}
+      <Button
+        className={cn(
+          "h-12 w-full rounded-[6px] font-semibold transition-all",
+          // Default state
+          "border-2 border-gray-300 bg-white text-gray-700",
+          // Selected state
+          isSelected &&
+            "border-blue-600 bg-blue-600 text-white hover:bg-blue-700",
+          // Saved but not selected (can change)
+          isSaved &&
+            !isSelected &&
+            "border-green-600 bg-white text-green-700 hover:bg-green-50",
+          // Changing state
+          isChanging && "border-yellow-500 bg-yellow-500 text-white",
+          // Hover effects
+          !disabled &&
+            !isSelected &&
+            !isSaved &&
+            "hover:border-blue-600 hover:bg-blue-600 hover:text-white"
+        )}
+        disabled={disabled}
+        type="button"
+        // onClick={(e) => {
+        //   e.stopPropagation();
+        //   !disabled && handlePlan(id);
+        // }}
+        onClick={(e) => {
+          e.stopPropagation();
+          handlePlan(props.id);
+        }}
+      >
+        {getButtonIcon()}
+        {getButtonText()}
+      </Button>
     </div>
   );
 };

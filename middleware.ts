@@ -7,8 +7,9 @@ import {
   guestRoutes,
   DEFAULT_ONBOARDING_REDIRECT,
   DEFAULT_LOGIN_REDIRECT,
-  LOGIN_LINK,
+  // LOGIN_LINK,
   DEFAULT_CAREGIVER_REDIRECT,
+  REGISTER_LINK,
 } from "./route";
 
 // Helper function to validate and sanitize callback URLs
@@ -114,9 +115,9 @@ export default async function middleware(req: NextRequest) {
       origin
     );
     const callbackUrl = sanitizeCallback || DEFAULT_LOGIN_REDIRECT;
-    const loginUrl = new URL(LOGIN_LINK, origin);
-    loginUrl.searchParams.set("callbackUrl", callbackUrl);
-    return NextResponse.redirect(loginUrl);
+    const registerUrl = new URL(REGISTER_LINK, origin);
+    registerUrl.searchParams.set("callbackUrl", callbackUrl);
+    return NextResponse.redirect(registerUrl);
   }
 
   if (pathname === "/") {
@@ -133,7 +134,7 @@ export default async function middleware(req: NextRequest) {
         new URL(DEFAULT_ONBOARDING_REDIRECT, origin)
       );
     } else {
-      return NextResponse.redirect(new URL(LOGIN_LINK, origin));
+      return NextResponse.redirect(new URL(REGISTER_LINK, origin));
     }
   }
 

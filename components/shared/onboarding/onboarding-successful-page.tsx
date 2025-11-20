@@ -10,6 +10,7 @@ import { ReschedileAppointmentSheet } from "@/components/sheets/reschedule-appoi
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useOnboarding } from "@/context/onboarding-context";
+import useSession from "@/hooks/use-session";
 import CalendarBlankIcon from "@/icons/calendar-blank";
 import { Appointment, hospital } from "@/types";
 
@@ -17,20 +18,21 @@ import { Logo } from "../logo";
 
 type OnboardingSuccessProps = {
   appointment: Appointment;
-    hospitals: hospital[];
-  
+  hospitals: hospital[];
 };
 
 export default function OnboardingSuccess({
   appointment,
-  hospitals
+  hospitals,
 }: OnboardingSuccessProps) {
   const { data, resetState } = useOnboarding();
+  const { session, clientLogoutSession } = useSession();
   const router = useRouter();
   const [showCalendarOptions, setShowCalendarOptions] = useState(false);
 
-
-  const hospital = hospitals.find(h => h.id.toString() === appointment.hospital_name)
+  const hospital = hospitals.find(
+    (h) => h.id.toString() === appointment.hospital_name
+  );
   // Use live appointment data instead of onboarding context
   const appointmentDate = appointment.date
     ? new Date(appointment.date)
@@ -445,16 +447,28 @@ export default function OnboardingSuccess({
           </Card>
         )}
 
-        {/* Dashboard Button */}
-        <Button
-          className="relative mb-6 w-full text-white"
-          onClick={() => {
-            router.push("/dashboard");
-            resetState();
-          }}
-        >
-          Go to Dashboard
-        </Button>
+        {session?.user_id ? (
+          <Button
+            className="relative mb-6 w-full text-white"
+            onClick={() => {
+              router.push("/dashboard");
+              resetState();
+            }}
+          >
+            Go to Dashboard
+          </Button>
+        ) : (
+          <Button
+            className="relative mb-6 w-full text-white"
+            onClick={() => {
+              resetState();
+              clientLogoutSession();
+              router.push("/login");
+            }}
+          >
+            Kindly Login
+          </Button>
+        )}
 
         {/* Help Section */}
         <Card className="border-gray-300 bg-transparent p-0 shadow-none outline-none">

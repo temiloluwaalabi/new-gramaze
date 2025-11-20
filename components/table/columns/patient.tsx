@@ -2,9 +2,9 @@ import { ColumnDef } from "@tanstack/react-table";
 import { EllipsisVertical } from "lucide-react";
 import Link from "next/link";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DEFAULT_IMAGE_URL } from "@/config/constants";
+// import { DEFAULT_IMAGE_URL } from "@/config/constants";
 import { User } from "@/types";
 
 // Helper function to calculate age from date of birth
@@ -85,7 +85,7 @@ export const PatientsColumn: ColumnDef<{
             <AvatarFallback className="bg-blue-100 text-xs font-medium text-blue-600">
               {initials}
             </AvatarFallback>
-            <AvatarImage src={DEFAULT_IMAGE_URL} />
+            {/* <AvatarImage src={DEFAULT_IMAGE_URL} /> */}
           </Avatar>
           <Link
             href={`/caregiver/patients/${patient.id}`}

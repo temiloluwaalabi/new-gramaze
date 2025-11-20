@@ -7,7 +7,6 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { FormFieldTypes } from "@/config/enum";
-import { allRoutes } from "@/config/routes";
 import { useOnboarding } from "@/context/onboarding-context";
 import { useUpdateMedicalReport } from "@/lib/queries/use-auth-queries";
 import { MedicalHistorySchema } from "@/lib/schemas/user.schema";
@@ -18,7 +17,7 @@ import { Button } from "../ui/button";
 import { Form } from "../ui/form";
 
 export default function MedicalHistoryForm() {
-  const { updateData, resetState, currentStep, markStepComplete, data } =
+  const { updateData, goToNextStep, currentStep, markStepComplete, data } =
     useOnboarding();
   const { isPending, mutate: UpdateMedicalReport } = useUpdateMedicalReport();
   const MedicalForm = useForm<z.infer<typeof MedicalHistorySchema>>({
@@ -46,8 +45,7 @@ export default function MedicalHistoryForm() {
     UpdateMedicalReport(formData, {
       onSuccess: () => {
         markStepComplete(currentStep);
-        window.location.href = allRoutes.user.dashboard.home.url;
-        resetState();
+        goToNextStep();
       },
     });
   };

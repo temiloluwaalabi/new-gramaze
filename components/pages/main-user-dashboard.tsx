@@ -9,13 +9,11 @@ import {
   List,
   Loader2,
 } from "lucide-react";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
 
 import { InitiatePayment, VerifyPayment } from "@/app/actions/payment.actions";
-import { DEFAULT_IMAGE_URL } from "@/config/constants";
 import { allRoutes } from "@/config/routes";
 import { getGreeting } from "@/hooks/use-greeting";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -24,6 +22,7 @@ import {
   createAppointmentEndTime,
   determineAppointmentStatus,
   formatDate,
+  initialsFromName,
 } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import { Appointment } from "@/types";
@@ -33,7 +32,7 @@ import { Message } from "../shared/message-widget";
 import MobileQuickActions from "../shared/MobileQuickActions";
 import { DbAppointmentSheet } from "../sheets/db-appointment-sheet";
 import { AppointmentStatus } from "../table/columns/appointment-columns";
-import { Avatar, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Calendar, CalendarDayButton } from "../ui/calendar";
 import { Separator } from "../ui/separator";
@@ -377,13 +376,21 @@ export const MainUserDashboard = ({
               Basic Information
             </h4>
             <div className="flex items-center gap-3">
-              <Image
+              <div className="flex size-[90px] items-center justify-center rounded-[8px] bg-blue-100 text-sm font-medium text-blue-600">
+                {initialsFromName(
+                  [user?.first_name, user?.last_name]
+                    .filter(Boolean)
+                    .join(" ")
+                    .trim()
+                )}
+              </div>
+              {/* <Image
                 src="https://res.cloudinary.com/davidleo/image/upload/v1744896654/aa876a7a2f9aac97c39f34649357f02b_eqqhqh.jpg"
                 width={90}
                 height={90}
                 className="size-[90px] rounded-[8px] object-cover"
                 alt="mainImage"
-              />
+              /> */}
               <div className="space-y-1">
                 <h4 className="text-base font-semibold text-[#303030]">
                   {user?.first_name} {user?.last_name}
@@ -442,7 +449,7 @@ export const MainUserDashboard = ({
               Current Caregivers
             </span>
             {caregivers && caregivers.length > 0 ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <div className="flex items-center">
                   {caregivers.slice(0, 3).map((caregiver, idx) => (
                     <Avatar
@@ -452,7 +459,18 @@ export const MainUserDashboard = ({
                         idx > 0 && "-ml-4"
                       )}
                     >
-                      <AvatarImage src={DEFAULT_IMAGE_URL} />
+                      <AvatarFallback className="bg-blue-200 text-xs text-blue-600">
+                        {initialsFromName(
+                          [
+                            caregivers[0]?.caregiver.first_name,
+                            caregivers[0]?.caregiver.last_name,
+                          ]
+                            .filter(Boolean)
+                            .join(" ")
+                            .trim()
+                        )}
+                      </AvatarFallback>
+                      {/* <AvatarImage src={DEFAULT_IMAGE_URL} /> */}
                     </Avatar>
                   ))}
                 </div>

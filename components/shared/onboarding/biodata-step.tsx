@@ -3,10 +3,11 @@ import * as React from "react";
 
 import BiodataForm from "@/components/forms/bio-data-form";
 import { useUserStore } from "@/store/user-store";
+import { OnboardingStepsI } from "@/types";
 
 import { StepFooter } from "./step-footer";
 import { StepHeader } from "./step-header";
-export const BiodataStep = () => {
+export const BiodataStep: React.FC<OnboardingStepsI> = () => {
   const { user } = useUserStore();
 
   const hasFilledBiodata = user?.has_set_bio_data;
