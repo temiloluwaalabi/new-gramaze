@@ -34,7 +34,7 @@ export const AuthWrapper = (props: Props) => {
           />
         </div>
         <div className="col-span-12 flex w-full flex-col items-end justify-start space-y-8 py-10 md:col-span-5">
-          <div className="flex w-full items-center justify-end pr-16">
+          <div className="flex w-full items-center justify-end pr-8">
             <Button
               variant={"outline"}
               className="relative mr-auto flex !h-fit items-center gap-1 border-none !p-0 text-[14px] shadow-none md:hidden"
@@ -51,7 +51,7 @@ export const AuthWrapper = (props: Props) => {
               className="flex h-[70px] w-[240px] items-end justify-end md:h-[75px] md:w-[249px]"
             />
           </div>
-          <div className="custom-scrollbar h-full w-full space-y-2 overflow-y-auto px-0 pt-24 md:px-16">
+          <div className="custom-scrollbar h-full w-full space-y-2 overflow-y-auto px-0 md:px-8">
             <div className="space-y-1">
               <h2 className="text-[25px] font-bold text-gray-800 md:text-[30px]">
                 {props.authTitle}

@@ -45,6 +45,15 @@ export const authService = {
       status: true;
       message: string;
       token: string;
+      user_data:{
+        first_name: string;
+        last_name: string;
+        email: string;
+        agree_to_terms: boolean;
+        updated_at: string;
+        created_at: string;
+        id: number
+      }
     }>(`${gramazeEndpoints.auth.register}`, "POST", {
       pathname,
       body: values,

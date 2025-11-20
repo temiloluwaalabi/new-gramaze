@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { authService } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
 import { User } from "@/types";
@@ -50,7 +51,8 @@ export function useCurrentUser() {
            relationship_to_emergency_contact: null,
            emergency_contact_name: null,
            emergency_contact_phone: null,
-           connected_device: null
+           connected_device: null,
+           image: null
         };
 
         setUser(userData);

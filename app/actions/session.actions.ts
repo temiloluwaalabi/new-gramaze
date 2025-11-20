@@ -37,11 +37,21 @@ export async function LoginSession(user: User, accessToken: string) {
   await session.save();
 }
 
-export async function RegisterSession(accessToken: string) {
+export async function RegisterSession(accessToken: string,  user_data:{
+        first_name: string;
+        last_name: string;
+        email: string;
+        agree_to_terms: boolean;
+        updated_at: string;
+        created_at: string;
+        id: number
+      }) {
   const session = await getSession();
-  // Set some initial session data, e.g., user ID or token
   Object.assign(session, {
+    user_id: user_data.id,
     accessToken,
+    email: user_data.email,
+    firstName: user_data.first_name,
     isLoggedIn: true,
     isBoarded: false,
   });

@@ -58,16 +58,33 @@ export const RegisterStepOne = async (values: RegisterSchemaType) => {
       success: true;
       status: number;
       message: string;
-      data: { status: true; message: string; token: string };
+      data: { status: true; message: string; token: string; user_data:{
+        first_name: string;
+        last_name: string;
+        email: string;
+        agree_to_terms: boolean;
+        updated_at: string;
+        created_at: string;
+        id: number
+      } };
       rawResponse: ApiResponse<{
         status: true;
         message: string;
         token: string;
+         user_data:{
+        first_name: string;
+        last_name: string;
+        email: string;
+        agree_to_terms: boolean;
+        updated_at: string;
+        created_at: string;
+        id: number
+      }
       }>;
     };
 
     console.log("SUCCESS RESPONSE", successResponse);
-    await RegisterSession(successResponse.data.token);
+    await RegisterSession(successResponse.data.token, successResponse.data.user_data);
     return {
       success: true,
       message: successResponse.message,
