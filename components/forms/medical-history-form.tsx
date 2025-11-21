@@ -10,6 +10,7 @@ import { FormFieldTypes } from "@/config/enum";
 import { useOnboarding } from "@/context/onboarding-context";
 import { useUpdateMedicalReport } from "@/lib/queries/use-auth-queries";
 import { MedicalHistorySchema } from "@/lib/schemas/user.schema";
+import { useUserStore } from "@/store/user-store";
 
 import { CustomFormField } from "../shared/custom-form-field";
 import { ImageUpload } from "../shared/image-upload";
@@ -17,8 +18,16 @@ import { Button } from "../ui/button";
 import { Form } from "../ui/form";
 
 export default function MedicalHistoryForm() {
-  const { updateData, goToNextStep, currentStep, markStepComplete, data } =
-    useOnboarding();
+  const { user, setUser } = useUserStore();
+
+  const {
+    updateData,
+    goToNextStep,
+    goToStep,
+    currentStep,
+    markStepComplete,
+    data,
+  } = useOnboarding();
   const { isPending, mutate: UpdateMedicalReport } = useUpdateMedicalReport();
   const MedicalForm = useForm<z.infer<typeof MedicalHistorySchema>>({
     resolver: zodResolver(MedicalHistorySchema),
@@ -27,6 +36,7 @@ export default function MedicalHistoryForm() {
       files: [],
     },
   });
+  const has_set_medical_history = user?.has_set_medical_history === "yes";
 
   const handleSubmit = (values: z.infer<typeof MedicalHistorySchema>) => {
     updateData("medicalHistory", {
@@ -41,7 +51,9 @@ export default function MedicalHistoryForm() {
       });
     }
     UpdateMedicalReport(formData, {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        setUser(data.user);
+        goToStep("appointment");
         goToNextStep();
         markStepComplete(currentStep);
       },
@@ -85,11 +97,11 @@ export default function MedicalHistoryForm() {
         <div className="space-y-4">
           <Button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || has_set_medical_history}
             className="flex w-full items-center"
           >
             {isPending && <Loader2 className="me-2 size-4 animate-spin" />}
-            Update Medical Report{" "}
+            Upload Medical Report{" "}
           </Button>
         </div>
       </form>

@@ -32,20 +32,24 @@ export async function LoginSession(user: User, accessToken: string) {
     isLoggedIn: true,
     userType: user.user_role,
     isBoarded: user.has_set_medical_history === "yes", // Default to false if not provided
+    isVerified: user.user_status === "active",
   });
 
   await session.save();
 }
 
-export async function RegisterSession(accessToken: string,  user_data:{
-        first_name: string;
-        last_name: string;
-        email: string;
-        agree_to_terms: boolean;
-        updated_at: string;
-        created_at: string;
-        id: number
-      }) {
+export async function RegisterSession(
+  accessToken: string,
+  user_data: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    agree_to_terms: boolean;
+    updated_at: string;
+    created_at: string;
+    id: number;
+  }
+) {
   const session = await getSession();
   Object.assign(session, {
     user_id: user_data.id,
@@ -53,6 +57,7 @@ export async function RegisterSession(accessToken: string,  user_data:{
     email: user_data.email,
     firstName: user_data.first_name,
     isLoggedIn: true,
+    isVerified: false,
     isBoarded: false,
   });
   await session.save();

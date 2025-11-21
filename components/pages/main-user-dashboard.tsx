@@ -28,6 +28,7 @@ import { useUserStore } from "@/store/user-store";
 import { Appointment } from "@/types";
 
 import { HealthVitalsChart } from "../charts/health-vitals-chart";
+import { VerificationGuard } from "../guards/verification-guard";
 import { Message } from "../shared/message-widget";
 import MobileQuickActions from "../shared/MobileQuickActions";
 import { DbAppointmentSheet } from "../sheets/db-appointment-sheet";
@@ -398,14 +399,27 @@ export const MainUserDashboard = ({
                 <p className="text-sm font-normal text-[#66666B]">
                   {user?.email}
                 </p>
-                <Button
-                  onClick={() =>
-                    router.push(allRoutes.user.dashboard.settings.url)
+                <VerificationGuard
+                  route={allRoutes.user.dashboard.settings.url}
+                  fallback={
+                    <Button
+                      disabled
+                      className="!h-fit !py-2 text-xs"
+                      size={"sm"}
+                    >
+                      Verify Account
+                    </Button>
                   }
-                  className="!h-[24px] rounded-[4px] px-[7px] !py-[4px] text-sm font-medium text-white"
                 >
-                  Manage profile
-                </Button>
+                  <Button
+                    onClick={() =>
+                      router.push(allRoutes.user.dashboard.settings.url)
+                    }
+                    className="!h-[24px] rounded-[4px] px-[7px] !py-[4px] text-sm font-medium text-white"
+                  >
+                    Manage profile
+                  </Button>
+                </VerificationGuard>
               </div>
             </div>
           </div>
@@ -435,14 +449,16 @@ export const MainUserDashboard = ({
                 {user?.address || null}
               </span>
             </span>
-            <span className="flex flex-col gap-[4px]">
-              <span className="text-xs font-normal text-[#66666B]">
-                Emergency Contact
+            {user?.emergency_contact_phone && (
+              <span className="flex flex-col gap-[4px]">
+                <span className="text-xs font-normal text-[#66666B]">
+                  Emergency Contact
+                </span>
+                <span className="text-xs font-semibold text-blue-600">
+                  {user?.emergency_contact_phone || null}
+                </span>
               </span>
-              <span className="text-xs font-semibold text-blue-600">
-                {user?.emergency_contact_phone || null}
-              </span>
-            </span>
+            )}
           </div>
           <div className="mt-3 hidden flex-col md:flex">
             <span className="text-xs font-normal text-[#66666B]">
@@ -549,8 +565,8 @@ export const MainUserDashboard = ({
                                     appointment.date,
                                     appointment.time
                                   )
-                                    ? ` - ${createAppointmentEndTime(appointment.date, appointment.time)?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
-                                    : null}{" "}
+                                    ? ` -  ${formatDate(appointment.date)}`
+                                    : null}
                                 </h4>
 
                                 <p className="text-left font-normal">
@@ -743,7 +759,7 @@ export const MainUserDashboard = ({
                                         appointment.date,
                                         appointment.time
                                       )
-                                        ? ` - ${createAppointmentEndTime(appointment.date, appointment.time)?.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                                        ? ` -  ${formatDate(appointment.date)}`
                                         : null}{" "}
                                     </h4>
 

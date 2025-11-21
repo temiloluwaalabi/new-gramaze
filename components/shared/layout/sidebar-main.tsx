@@ -5,13 +5,14 @@ import React from "react";
 import {
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel, 
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { SidebarItem } from "@/config";
 import { cn } from "@/lib/utils";
+import { useVerification } from "@/providers/verification-provider";
 
 type SidebarProps = {
   sidebarItems: SidebarItem[];
@@ -19,10 +20,13 @@ type SidebarProps = {
 
 export default function SidebarMain({ sidebarItems }: SidebarProps) {
   const pathname = usePathname();
+  const { isRouteAccessible } = useVerification();
 
   return (
     <div>
       {sidebarItems.map((item, index) => {
+        const isAccessible = item.href ? isRouteAccessible(item.href) : true;
+
         const isActive = () => {
           // Exact match for the root dashboard
           if (item.href === "/dashboard") {
@@ -59,35 +63,56 @@ export default function SidebarMain({ sidebarItems }: SidebarProps) {
                   ) : (
                     <SidebarMenuItem>
                       <SidebarMenuButton
-                        asChild
-                        tooltip={item.name}
+                        asChild={isAccessible}
+                        tooltip={
+                          !isAccessible
+                            ? "Please verify your account to access this feature"
+                            : item.name
+                        }
+                        disabled={!isAccessible}
                         // isActive={isActive}
                         className={cn(
-                          'group "group-data-[collapsible=icon]:!p-0 " flex h-[40px] items-center !py-3 hover:bg-blue-50',
-                          isActive() && "bg-blue-600 hover:bg-blue-600"
+                          "group flex h-[40px] items-center !py-3",
+                          isAccessible && "hover:bg-blue-50",
+                          isActive() &&
+                            isAccessible &&
+                            "bg-blue-600 hover:bg-blue-600",
+                          !isAccessible && "cursor-not-allowed opacity-50"
                         )}
                       >
-                        <a
-                          href={item.href}
-                          className={cn("", isActive() && "text-blue-600")}
-                        >
-                          {item.icon && (
-                            <item.icon
-                              className={cn(
-                                "-ml-[2px] !size-5 !text-[#66666B]",
-                                isActive() && "!text-white"
-                              )}
-                            />
-                          )}
-                          <span
-                            className={cn(
-                              "truncate text-sm font-normal text-[#66666B]",
-                              isActive() && "text-white"
-                            )}
+                        {isAccessible ? (
+                          <a
+                            href={item.href}
+                            className={cn("", isActive() && "text-blue-600")}
                           >
-                            {item.name}
-                          </span>
-                        </a>
+                            {item.icon && (
+                              <item.icon
+                                className={cn(
+                                  "-ml-[2px] !size-5 !text-[#66666B]",
+                                  isActive() && "!text-white"
+                                )}
+                              />
+                            )}
+                            <span
+                              className={cn(
+                                "truncate text-sm font-normal text-[#66666B]",
+                                isActive() && "text-white"
+                              )}
+                            >
+                              {item.name}
+                            </span>
+                          </a>
+                        ) : (
+                          // Disabled state - just show the content without link
+                          <div className="flex w-full items-center">
+                            {item.icon && (
+                              <item.icon className="-ml-[2px] !size-5 !text-[#66666B]" />
+                            )}
+                            <span className="truncate text-sm font-normal text-[#66666B]">
+                              {item.name}
+                            </span>
+                          </div>
+                        )}
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   )}

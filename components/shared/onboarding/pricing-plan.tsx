@@ -56,7 +56,7 @@ export const PricingPlan = (props: Props) => {
   return (
     <div
       className={cn(
-        "group flex h-full w-full cursor-pointer flex-col gap-6 rounded-[6px] border-2 bg-white p-6 transition-all",
+        "group flex h-full w-full cursor-pointer flex-col gap-[42px] rounded-[6px] border border-gray-300 bg-gray-50 p-4 hover:border-blue-700 hover:bg-blue-50",
         // Current saved plan
         isSaved && !isSelected && "border-gray-300 bg-gray-50",
         // Selected (whether saved or new selection)
@@ -92,30 +92,10 @@ export const PricingPlan = (props: Props) => {
           <span className="text-sm text-gray-500">/month</span>
         </div>
       </div>
-
-      {/* Features list */}
-      <div className="flex flex-1 flex-col gap-3">
-        {planOffers.map((offer, index) => (
-          <div key={`${id}-${index}`} className="flex items-start gap-3">
-            <Check
-              className={cn(
-                "mt-0.5 size-5 flex-shrink-0",
-                isSelected ? "text-blue-600" : "text-green-600"
-              )}
-            />
-            <span className="text-sm leading-relaxed text-gray-600">
-              {offer}
-            </span>
-          </div>
-        ))}
-      </div>
-
       {/* Action button */}
       <Button
         className={cn(
-          "h-12 w-full rounded-[6px] font-semibold transition-all",
-          // Default state
-          "border-2 border-gray-300 bg-white text-gray-700",
+          "h-[45px] w-full rounded-[6px] border border-gray-300 bg-white p-3 text-base font-medium text-[#030712] group-hover:bg-blue-500 group-hover:text-white",
           // Selected state
           isSelected &&
             "border-blue-600 bg-blue-600 text-white hover:bg-blue-700",
@@ -145,6 +125,23 @@ export const PricingPlan = (props: Props) => {
         {getButtonIcon()}
         {getButtonText()}
       </Button>
+
+      {/* Features list */}
+      <div className="flex flex-1 flex-col gap-3">
+        {planOffers.map((offer, index) => (
+          <div key={`${id}-${index}`} className="flex items-start gap-3">
+            <Check
+              className={cn(
+                "mt-0.5 size-5 flex-shrink-0",
+                isSelected ? "text-blue-600" : "text-green-600"
+              )}
+            />
+            <span className="text-sm leading-relaxed text-gray-600">
+              {offer}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

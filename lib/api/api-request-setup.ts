@@ -1,26 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import axios, { AxiosError, AxiosResponse } from "axios";
 
-import { ApiResponse, MakeApiSuccess } from "@/types";
- 
+import { ApiResponse } from "@/types";
+
 import { ApiError, backendAPiClient } from "./api-client";
-import logger from "../logger"; 
+import logger from "../logger";
 
 export interface ErrorResponse {
   data?: {
     message?: string;
     error?: Record<string, string[]> | string;
   };
+  status?: boolean;
+  success?: boolean;
   message?: string | string[];
-  error?: string;
-  statusCode?: number;
-  status?: number;
+  error?: Record<string, string[]> | string;
+  errors?: Record<string, string[]>; // Added to handle your API's format  statusCode?: number;
   details?: Record<string, string[] | string>;
 }
 
 export const handleApiBackendError = (error: unknown): ApiError => {
+  console.log("BACKEND ERROR", error);
   if (ApiError.isAPiError(error)) {
     return error as ApiError;
   }
@@ -30,23 +31,39 @@ export const handleApiBackendError = (error: unknown): ApiError => {
     const status = axiosError.response?.status ?? 500;
     const responseData = axiosError.response?.data;
 
-    // Handle validation errors in data.error
-    if (responseData?.data?.error) {
-      const invalidFields = responseData.data.error;
+    if (responseData?.errors && typeof responseData.errors === "object") {
       const invalidMessages: string[] = [];
-      let rawErrors: Record<string, unknown> = {};
-
-      if (typeof invalidFields === "object" && invalidFields !== null) {
-        rawErrors = invalidFields;
-        for (const [field, messages] of Object.entries(invalidFields)) {
-          if (Array.isArray(messages)) {
-            messages.forEach((msg) => invalidMessages.push(msg));
-          } else if (typeof messages === "string") {
-            invalidMessages.push(messages);
-          }
+      const rawErrors: Record<string, unknown> = {};
+      Object.entries(responseData.errors).forEach(([field, messages]) => {
+        if (Array.isArray(messages)) {
+          rawErrors[field] = messages;
+          messages.forEach((msg) => invalidMessages.push(msg));
+        } else if (typeof messages === "string") {
+          rawErrors[field] = [messages];
+          invalidMessages.push(`${field}: ${messages}`);
         }
-      } else if (typeof invalidFields === "string") {
-        invalidMessages.push(invalidFields);
+      });
+
+      return new ApiError({
+        statusCode: status,
+        message:
+          invalidMessages.length > 0 ? invalidMessages : ["Validation Failed"],
+        errorType: "VALIDATION_ERROR",
+        rawErrors,
+      });
+    }
+
+    // Handle validation errors in data.error
+    if (responseData?.error && typeof responseData.error === "object") {
+      const invalidMessages: string[] = [];
+      const rawErrors: Record<string, unknown> = responseData.error;
+
+      for (const [field, messages] of Object.entries(responseData.error)) {
+        if (Array.isArray(messages)) {
+          messages.forEach((msg) => invalidMessages.push(`${field}: ${msg}`));
+        } else if (typeof messages === "string") {
+          invalidMessages.push(`${field}: ${messages}`);
+        }
       }
 
       return new ApiError({
@@ -63,9 +80,9 @@ export const handleApiBackendError = (error: unknown): ApiError => {
       const invalidMessages: string[] = [];
       Object.entries(responseData.details).forEach(([field, messages]) => {
         if (Array.isArray(messages)) {
-          messages.forEach((msg) => invalidMessages.push(msg));
+          messages.forEach((msg) => invalidMessages.push(`${field}: ${msg}`));
         } else if (typeof messages === "string") {
-          invalidMessages.push(messages);
+          invalidMessages.push(`${field}: ${messages}`);
         }
       });
 
@@ -88,7 +105,7 @@ export const handleApiBackendError = (error: unknown): ApiError => {
 
     // Error type by status
     let errorType = "API_ERROR";
-    if (status === 400) errorType = "VALIDATION_ERROR";
+    if (status === 400 || status === 422) errorType = "VALIDATION_ERROR";
     else if (status === 401) errorType = "AUTH_ERROR";
     else if (status === 403) errorType = "FORBIDDEN_ERROR";
     else if (status === 404) errorType = "NOT_FOUND_ERROR";
@@ -96,7 +113,7 @@ export const handleApiBackendError = (error: unknown): ApiError => {
     else if (status >= 500) errorType = "SERVER_ERROR";
 
     return new ApiError({
-      statusCode: responseData?.statusCode ?? status,
+      statusCode: status,
       message: errorMessage,
       errorType,
       rawErrors: responseData as Record<string, unknown>,
@@ -122,43 +139,19 @@ export const handleApiBackendError = (error: unknown): ApiError => {
 
     // Error type by status
     let errorType = "API_ERROR";
-    if (statusCode === 400) errorType = "VALIDATION_ERROR";
+    if (statusCode === 400 || statusCode === 422)
+      errorType = "VALIDATION_ERROR";
     else if (statusCode === 401) errorType = "AUTH_ERROR";
     else if (statusCode === 403) errorType = "FORBIDDEN_ERROR";
     else if (statusCode === 404) errorType = "NOT_FOUND_ERROR";
     else if (statusCode === 429) errorType = "RATE_LIMIT_ERROR";
     else if (statusCode >= 500) errorType = "SERVER_ERROR";
 
-    // Validation errors in details
-    if (errorObj.details && typeof errorObj.details === "object") {
-      const invalidMessages: string[] = [];
-      Object.entries(errorObj.details).forEach(([field, fieldMessages]) => {
-        if (Array.isArray(fieldMessages)) {
-          fieldMessages.forEach((msg) => invalidMessages.push(msg));
-        } else if (typeof fieldMessages === "string") {
-          invalidMessages.push(fieldMessages);
-        }
-      });
-      if (invalidMessages.length > 0) {
-        return new ApiError({
-          statusCode,
-          message: invalidMessages,
-          errorType: "VALIDATION_ERROR",
-          rawErrors: errorObj.details,
-        });
-      }
-    }
-
-    // Compose rawErrors
-    const rawErrors: Record<string, unknown> = {};
-    if (errorObj.details) rawErrors.details = errorObj.details;
-    if (errorObj.rawErrors) Object.assign(rawErrors, errorObj.rawErrors);
-
     return new ApiError({
       statusCode,
       message: messages,
       errorType,
-      rawErrors: Object.keys(rawErrors).length > 0 ? rawErrors : undefined,
+      rawErrors: errorObj,
     });
   }
 
@@ -185,30 +178,31 @@ interface MakeApiRequestOptions {
   params: Record<string, string | number | boolean>;
   pathname: string;
   body: ApiRequestBody;
-  dataKey?: string | string[];
+  dataKey: string | string[];
 }
 
-const extractNestedData = <T = unknown>(
-  obj: any,
-  path?: string | string[]
-): T | undefined => {
-  if (!path) return undefined;
-
+const extractNestedData = (obj: any, path: string | string[]): any => {
   if (typeof path === "string") {
-    return obj?.[path] as T;
+    return obj?.[path];
   }
 
-  return path.reduce((current, key) => current?.[key], obj) as T;
+  return path.reduce((current, key) => current?.[key], obj);
 };
-
-
-
 
 export const makeApiRequest = async <T>(
   endpoint: string,
-  method: "POST" | "GET",
+  method: "POST" | "GET" | "PUT" | "PATCH" | "DELETE",
   options: Partial<MakeApiRequestOptions> = {}
-): Promise<MakeApiSuccess<T> | ApiError> => {
+): Promise<
+  | {
+      success: true;
+      status: number;
+      message: string;
+      data: T;
+      // rawResponse: ApiResponse<T>;
+    }
+  | ApiError
+> => {
   const { body, params, dataKey = "data" } = options;
 
   try {
@@ -223,6 +217,8 @@ export const makeApiRequest = async <T>(
 
     if (method === "GET") {
       response = await backendAPiClient.get(endpoint, { params });
+    } else if (method === "DELETE") {
+      response = await backendAPiClient.delete(endpoint, { params });
     } else {
       const isFormData = body instanceof FormData;
 
@@ -249,30 +245,28 @@ export const makeApiRequest = async <T>(
             formDataObj
           );
 
-          response = await backendAPiClient.post<ApiResponse<T>>(
-            endpoint,
-            formDataObj,
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-              params,
-            }
-          );
+          response = await backendAPiClient[
+            method.toLowerCase() as "post" | "put" | "patch"
+          ]<ApiResponse<T>>(endpoint, formDataObj, {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            params,
+          });
         } else {
-          response = await backendAPiClient.post<ApiResponse<T>>(
-            endpoint,
-            body,
-            {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-              params,
-            }
-          );
+          response = await backendAPiClient[
+            method.toLowerCase() as "post" | "put" | "patch"
+          ]<ApiResponse<T>>(endpoint, body, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            params,
+          });
         }
       } else {
-        response = await backendAPiClient.post<ApiResponse<T>>(endpoint, body, {
+        response = await backendAPiClient[
+          method.toLowerCase() as "post" | "put" | "patch"
+        ]<ApiResponse<T>>(endpoint, body, {
           params,
         });
       }
@@ -280,26 +274,61 @@ export const makeApiRequest = async <T>(
 
     const data = response.data;
 
+    console.log("RESPONSE DATA", data);
+
     if (data.success === false || data.status === false) {
+      if (data.errors && typeof data.errors === "object") {
+        const errorMessages: string[] = [];
+        const rawErrors: Record<string, string[]> = {};
+
+        Object.entries(data.errors).forEach(([field, messages]) => {
+          if (Array.isArray(messages)) {
+            rawErrors[field] = messages;
+            messages.forEach((msg: string) =>
+              errorMessages.push(`${field}: ${msg}`)
+            );
+          } else if (typeof messages === "string") {
+            rawErrors[field] = [messages as string];
+            errorMessages.push(`${field}: ${messages}`);
+          }
+        });
+
+        return new ApiError({
+          statusCode: response.status || 400,
+          message:
+            errorMessages.length > 0
+              ? errorMessages
+              : [data.message || "Validation failed"],
+          errorType: "VALIDATION_ERROR",
+          rawErrors,
+        });
+      }
       return new ApiError({
-        statusCode: response.status || 500,
+        statusCode: response.status || 400,
         message: Array.isArray(data.message)
           ? data.message
-          : [data.message || "Unknown error occured"],
-        rawErrors: data as unknown as Record<string, unknown>,
+          : [data.message || "Request failed"],
+        errorType: "API_ERROR",
+        rawErrors: data,
       });
     }
 
-    const extractedData = extractNestedData<T>(data, dataKey ?? "data") ?? (data as T);
+    const extractedData = dataKey ? extractNestedData(data, dataKey) : data;
+
+    // // Log extraction for debugging
+    // logger.info("Data extraction:", {
+    //     dataKey,
+    //     extractedData,
+    //     fullResponse: data,
+    // });
 
     return {
       success: true,
       status: response.status || 200,
       message: data.message || "Request Completed Successfully",
-      data: extractedData,
-      rawResponse: data,
+      data: extractedData || data,
+      // rawResponse: data,
     };
-    
   } catch (error) {
     logger.error(`Error in ${endpoint}:`, error);
     return handleApiBackendError(error);

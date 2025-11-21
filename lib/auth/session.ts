@@ -9,6 +9,7 @@ export interface SessionData {
   isLoggedIn: boolean;
   userType: string;
   isBoarded: boolean;
+  isVerified: boolean;
 }
 
 export const defaultSessionData: SessionData = {
@@ -20,6 +21,7 @@ export const defaultSessionData: SessionData = {
   userType: "",
   isLoggedIn: false,
   isBoarded: false,
+  isVerified: false,
 };
 
 export const sessionOptions: SessionOptions = {

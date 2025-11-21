@@ -131,8 +131,8 @@ export const AppointmentStep: React.FC<OnboardingStepsI> = () => {
 
       BookVirtualAppointment(JSONVALUES, {
         onSuccess: (data) => {
-          window.location.href = `/booked?id=${data.appointment.id}`;
-          updateData("appointmentReadyForReview", false);
+          router.push(`/booked?id=${data.appointment.id}`);
+          // updateData("appointmentReadyForReview", true);
           safeSuccess("book-virtual-appointment", data.message);
         },
       });
@@ -384,6 +384,8 @@ export const AppointmentStep: React.FC<OnboardingStepsI> = () => {
       <StepFooter
         disabled={appointmentLoading}
         showSkip={internalStep === 1}
+        onSkip={() => setinternalStep(2)}
+        skipText="Continue"
         onBack={handleBack}
       />
     </div>

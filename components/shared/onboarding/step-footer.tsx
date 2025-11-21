@@ -37,7 +37,7 @@ export const StepFooter = ({
           variant="ghost"
           type="button"
           className="flex cursor-pointer items-center gap-1 p-0"
-          disabled={!onBack || disabled}
+          // disabled={!onBack || disabled}
           onClick={onBack || goToPrevStep}
           aria-disabled={!onBack || disabled ? true : undefined}
         >

@@ -5,7 +5,9 @@ import React from "react";
 import { Toaster } from "@/components/ui/sonner";
 import OnboardingWrapper from "@/context/onboarding-wrapper";
 import Providers from "@/providers/tansack-provider";
+import { VerificationProvider } from "@/providers/verification-provider";
 
+import { getSession } from "./actions/session.actions";
 import { dmSans } from "./fonts";
 // import { OnboardingProvider } from '@/context/onboarding-context';
 
@@ -54,21 +56,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getSession();
   return (
     <html lang="en">
       <body className={`h-full ${dmSans.variable} antialiased`}>
-        <Providers>
-          <OnboardingWrapper>
-            <main className="h-full">{children}</main>
-            <Toaster richColors expand={true} />
-          </OnboardingWrapper>
-        </Providers>
-      </body> 
+        <VerificationProvider isVerified={session.isVerified || false}>
+          <Providers>
+            <OnboardingWrapper>
+              <main className="h-full">{children}</main>
+              <Toaster richColors expand={true} />
+            </OnboardingWrapper>
+          </Providers>
+        </VerificationProvider>
+      </body>
     </html>
   );
 }

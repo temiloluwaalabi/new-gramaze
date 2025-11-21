@@ -10,6 +10,7 @@ import {
   Video,
 } from "lucide-react";
 
+import { VerificationGuard } from "@/components/guards/verification-guard";
 import { ReschedileAppointmentSheet } from "@/components/sheets/reschedule-appointment-sheet";
 import { TableAppointmentSheet } from "@/components/sheets/table-appointment-sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -256,10 +257,19 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <EllipsisVertical className="h-4 w-4" />
-            </Button>
+            <VerificationGuard
+              route="/billing"
+              fallback={
+                <Button disabled className="!h-fit !py-2 text-xs" size={"sm"}>
+                  Verify Account
+                </Button>
+              }
+            >
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <EllipsisVertical className="h-4 w-4" />
+              </Button>
+            </VerificationGuard>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem onSelect={(e) => e.preventDefault()}>

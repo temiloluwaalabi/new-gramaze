@@ -21,6 +21,7 @@ import { useUserStore } from "@/store/user-store";
 import { Appointment } from "@/types";
 
 import RescheduleAppointmentForm from "../forms/reschedule-appointment-form";
+import { VerificationGuard } from "../guards/verification-guard";
 import { AvatarNameEmail } from "../shared/avatar-name-email";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -109,7 +110,7 @@ export const TableAppointmentSheet = (props: Props) => {
         <div className="custom-scrollbar flex h-full flex-col overflow-y-scroll rounded-lg border border-gray-200 bg-white p-6 shadow-lg">
           <SheetHeader className="mb-6 p-0">
             <div className="flex items-center justify-between">
-              <SheetTitle className="flex items-center space-x-3 text-xl font-semibold text-gray-900">
+              <SheetTitle className="flex items-center space-x-3 text-base font-semibold text-gray-900">
                 {getAppointmentTypeIcon(
                   appointment.appointment_type,
                   appointment.visit_type
@@ -138,7 +139,7 @@ export const TableAppointmentSheet = (props: Props) => {
                   <Calendar className="h-5 w-5 text-gray-500" />
                   <div>
                     <p className="text-sm text-gray-500">Date</p>
-                    <p className="font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-gray-900">
                       {formatAppointmentDate(appointment.date)}
                     </p>
                   </div>
@@ -147,7 +148,7 @@ export const TableAppointmentSheet = (props: Props) => {
                   <Clock className="h-5 w-5 text-gray-500" />
                   <div>
                     <p className="text-sm text-gray-500">Time</p>
-                    <p className="font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-gray-900">
                       {appointment.time}
                     </p>
                   </div>
@@ -156,7 +157,7 @@ export const TableAppointmentSheet = (props: Props) => {
                   <MapPin className="h-5 w-5 text-gray-500" />
                   <div>
                     <p className="text-sm text-gray-500">Type</p>
-                    <p className="font-semibold text-gray-900 capitalize">
+                    <p className="text-sm font-semibold text-gray-900 capitalize">
                       {appointment.appointment_type}
                       {appointment.visit_type && ` - ${appointment.visit_type}`}
                     </p>
@@ -178,7 +179,7 @@ export const TableAppointmentSheet = (props: Props) => {
 
             {/* Location Details */}
             <div className="space-y-4">
-              <h3 className="flex items-center space-x-2 text-lg font-semibold text-gray-900">
+              <h3 className="flex items-center space-x-2 text-base font-semibold text-gray-900">
                 <MapPin className="h-5 w-5" />
                 <span>Location Details</span>
               </h3>
@@ -263,7 +264,7 @@ export const TableAppointmentSheet = (props: Props) => {
 
             {/* Caregiver Details */}
             <div className="space-y-4">
-              <h3 className="flex items-center space-x-2 text-lg font-semibold text-gray-900">
+              <h3 className="flex items-center space-x-2 text-base font-semibold text-gray-900">
                 <User className="h-5 w-5" />
                 <span>Caregiver Information</span>
               </h3>
@@ -300,7 +301,7 @@ export const TableAppointmentSheet = (props: Props) => {
 
             {/* Patient Details */}
             <div className="space-y-4">
-              <h3 className="flex items-center space-x-2 text-lg font-semibold text-gray-900">
+              <h3 className="flex items-center space-x-2 text-base font-semibold text-gray-900">
                 <User className="h-5 w-5" />
                 <span>Patient Information</span>
               </h3>
@@ -369,7 +370,7 @@ export const TableAppointmentSheet = (props: Props) => {
             <Separator />
 
             {/* Action Buttons */}
-            <div className="flex flex-col gap-3 pt-4 sm:flex-row">
+            <div className="flex flex-col flex-wrap gap-3 pt-4 sm:flex-row">
               <Button variant="outline" className="flex items-center space-x-2">
                 <GoogleIcon />
                 <span>Add to Calendar</span>
@@ -389,16 +390,25 @@ export const TableAppointmentSheet = (props: Props) => {
               )}
 
               {canReschedule && (
-                <Button
-                  onClick={() => {
-                    setOpenSheet(false);
-                    setShowReschedule(true);
-                  }}
-                  className="flex items-center space-x-2"
+                <VerificationGuard
+                  route="/billing"
+                  fallback={
+                    <Button disabled className="!py-2 text-xs" size={"sm"}>
+                      Verify Account
+                    </Button>
+                  }
                 >
-                  <Calendar className="h-4 w-4" />
-                  <span>Reschedule Appointment</span>
-                </Button>
+                  <Button
+                    onClick={() => {
+                      setOpenSheet(false);
+                      setShowReschedule(true);
+                    }}
+                    className="flex items-center space-x-2"
+                  >
+                    <Calendar className="h-4 w-4" />
+                    <span>Reschedule Appointment</span>
+                  </Button>
+                </VerificationGuard>
               )}
 
               {appointment.status === "assigned" && (

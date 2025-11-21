@@ -3,13 +3,13 @@ import { format } from "date-fns";
 import { Check, Mail, MapPin, Phone, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 import { ReschedileAppointmentSheet } from "@/components/sheets/reschedule-appointment-sheet";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useOnboarding } from "@/context/onboarding-context";
-import useSession from "@/hooks/use-session";
 import CalendarBlankIcon from "@/icons/calendar-blank";
 import { Appointment, hospital } from "@/types";
 
@@ -25,7 +25,7 @@ export default function OnboardingSuccess({
   hospitals,
 }: OnboardingSuccessProps) {
   const { data, resetState } = useOnboarding();
-  const { session, clientLogoutSession } = useSession();
+  const router = useRouter();
   const [showCalendarOptions, setShowCalendarOptions] = useState(false);
 
   const hospital = hospitals.find(
@@ -445,28 +445,15 @@ export default function OnboardingSuccess({
           </Card>
         )}
 
-        {session?.user_id ? (
-          <Button
-            className="relative mb-6 w-full text-white"
-            onClick={() => {
-              window.location.href = `/dashboard`;
-              resetState();
-            }}
-          >
-            Go to Dashboard
-          </Button>
-        ) : (
-          <Button
-            className="relative mb-6 w-full text-white"
-            onClick={() => {
-              resetState();
-              clientLogoutSession();
-              window.location.href = `/sign-in`;
-            }}
-          >
-            Kindly Login
-          </Button>
-        )}
+        <Button
+          className="relative mb-6 w-full text-white"
+          onClick={() => {
+            router.push("/dashboard");
+            resetState();
+          }}
+        >
+          Go to Dashboard
+        </Button>
 
         {/* Help Section */}
         <Card className="border-gray-300 bg-transparent p-0 shadow-none outline-none">

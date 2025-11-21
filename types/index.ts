@@ -2,7 +2,15 @@
 // Common types
 type Status = "Completed" | "Cancelled" | "Pending";
 // type ActionOptions = 'view' | 'edit' | 'delete';
-
+// Alternative approach using a more standardized response format
+export interface ServerActionResponse<T = any> {
+  success: boolean;
+  message?: string | string[];
+  data?: T;
+  errors?: Record<string, string[]>;
+  statusCode?: number;
+  errorType?: string;
+}
 export interface OnboardingStepsI {
   onNext: (data: any) => void;
   onPrevious: () => void;

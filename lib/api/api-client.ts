@@ -1,7 +1,7 @@
 /* eslint-disable promise/param-names */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
- 
+
 import { getSession } from "@/app/actions/session.actions";
 
 export class ApiError extends Error {
@@ -61,7 +61,7 @@ export class ApiError extends Error {
     console.error(`[${this.statusCode}] ${this.errorType}: ${this.message}`);
   }
 
-  static isAPiError(obj: unknown): obj is ApiError {
+  static isAPiError(obj: unknown): boolean {
     return (
       obj instanceof ApiError ||
       (typeof obj === "object" &&
@@ -70,7 +70,6 @@ export class ApiError extends Error {
         (obj as any).isError === true)
     );
   }
-  
 
   static markAsApiError(error: unknown): Record<string, unknown> {
     console.log("ERROR MARKED AS ERROR", error);
@@ -110,8 +109,11 @@ export class ApiError extends Error {
 
 // Type to represent API response data structure
 interface ApiErrorResponse {
+  status?: boolean;
+  success?: boolean;
   message?: string | string[];
-  error?: string | string[];
+  error?: string | string[] | Record<string, string[]>;
+  errors?: Record<string, string[]>; // YOUR API'S FORMAT
   errorType?: string;
   rawErrors?: Record<string, unknown>;
   [key: string]: unknown; // Allow other properties
@@ -145,44 +147,6 @@ const RETRY_CONFIG = {
   retryStatusCodes: [408, 429, 500, 502, 503, 504], // Status codes to retry
   timeoutErrorCodes: ["ECONNABORTED", "ETIMEDOUT"], // Axios error codes for timeouts
 };
-
-// /**
-//  * Adds retry functionality to an Axios instance.
-//  * Retries on network errors and 5xx responses up to `maxRetries` times.
-//  */
-// function addRetryInterceptor(client: AxiosInstance, maxRetries = 3, retryDelay = 500) {
-//     client.interceptors.response.use(
-//         response => response,
-//         async (error: AxiosError) => {
-//             const config = error.config as any;
-//             if (!config || config.__isRetryRequest) {
-//                 return Promise.reject(error);
-//             }
-
-//             // Only retry for network errors or 5xx server errors
-//             const shouldRetry =
-//                 (!error.response && error.code !== 'ECONNABORTED') ||
-//                 (error.response && error.response.status >= 500 && error.response.status < 600);
-
-//             if (shouldRetry) {
-//                 config.__retryCount = config.__retryCount || 0;
-//                 if (config.__retryCount < maxRetries) {
-//                     config.__retryCount += 1;
-//                     config.__isRetryRequest = true;
-//                     await new Promise(res => setTimeout(res, retryDelay));
-//                     return client(config);
-//                 }
-//             }
-
-//             return Promise.reject(error);
-//         }
-//     );
-// }
-
-// // Attach retry logic to both clients
-// addRetryInterceptor(userApiClient);
-// addRetryInterceptor(backendAPiClient);
-
 // Token management
 export const setAuthToken = (token: string | null): void => {
   const bearerToken = token ? `Bearer ${token}` : null;
@@ -228,25 +192,87 @@ const handleApiError = (error: AxiosError<unknown>) => {
   });
 
   let errorMessages: string[] = [];
+  let rawErrors: Record<string, unknown> = {};
 
-  if (data?.message) {
+  if (data?.errors && typeof data.errors === "object") {
+    console.log("FOUND ERRORS FIELD:", data.errors);
+
+    rawErrors = { errors: data.errors };
+    Object.entries(data.errors).forEach(([field, messages]) => {
+      if (Array.isArray(messages)) {
+        messages.forEach((msg: string) => {
+          errorMessages.push(`${field}: ${msg}`);
+        });
+      } else if (typeof messages === "string") {
+        errorMessages.push(messages);
+      }
+    });
+
+    if (errorMessages.length === 0 && data.message) {
+      errorMessages = Array.isArray(data.message)
+        ? data.message.filter((msg: unknown) => typeof msg === "string")
+        : [
+            typeof data.message === "string"
+              ? data.message
+              : "An error occured",
+          ];
+    }
+  }
+  // SECOND: Check for 'error' field (alternative format)
+  else if (data?.error) {
+    if (typeof data.error === "object" && !Array.isArray(data.error)) {
+      rawErrors = { error: data.error };
+      Object.entries(data.error as Record<string, string[]>).forEach(
+        ([field, messages]) => {
+          if (Array.isArray(messages)) {
+            messages.forEach((msg: string) => {
+              errorMessages.push(`${field}: ${msg}`);
+            });
+          } else if (typeof messages === "string") {
+            errorMessages.push(messages);
+          }
+        }
+      );
+    } else {
+      errorMessages = Array.isArray(data.error)
+        ? data.error.filter((err: unknown) => typeof err === "string")
+        : [typeof data.error === "string" ? data.error : "An error occurred"];
+    }
+  } else if (data?.message) {
     errorMessages = Array.isArray(data.message)
       ? data.message.filter((msg: unknown) => typeof msg === "string")
       : [typeof data.message === "string" ? data.message : "An error occured"];
-  } else if (data?.error) {
-    errorMessages = Array.isArray(data.error)
-      ? data.error.filter((err: unknown) => typeof err === "string")
-      : [typeof data.error === "string" ? data.error : "An error occurred"];
   } else {
     errorMessages = ["An unexpected error occured"];
   }
-
+  // Ensure we always have at least one error message
+  if (errorMessages.length === 0) {
+    errorMessages = Array.isArray(data?.message)
+      ? data?.message.filter((msg: unknown) => typeof msg === "string")
+      : [
+          typeof data?.message === "string"
+            ? data?.message
+            : "An error occurred",
+        ];
+  }
+  // Determine error type based on status code
+  let errorType = "API_ERROR";
+  if (status === 400 || status === 422) errorType = "VALIDATION_ERROR";
+  else if (status === 401) errorType = "AUTH_ERROR";
+  else if (status === 403) errorType = "FORBIDDEN_ERROR";
+  else if (status === 404) errorType = "NOT_FOUND_ERROR";
+  else if (status === 429) errorType = "RATE_LIMIT_ERROR";
+  else if (status >= 500) errorType = "SERVER_ERROR";
+  // If rawErrors is still empty but we have data, include the entire data object
+  if (Object.keys(rawErrors).length === 0 && data) {
+    rawErrors = data as Record<string, unknown>;
+  }
   return Promise.reject(
     new ApiError({
       statusCode: status,
       message: errorMessages,
-      errorType: data?.errorType || "API_ERROR",
-      rawErrors: data?.rawErrors || undefined,
+      errorType,
+      rawErrors,
     })
   );
 };

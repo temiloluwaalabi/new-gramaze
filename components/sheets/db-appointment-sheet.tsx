@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import { Appointment } from "@/types";
 
+import { VerificationGuard } from "../guards/verification-guard";
 import { AvatarNameEmail } from "../shared/avatar-name-email";
 import { Button } from "../ui/button";
 import {
@@ -156,9 +157,22 @@ export const DbAppointmentSheet = (props: Props) => {
               <GoogleIcon />
               Add to Calendar
             </Button>
-            <Button className="!h-[49px] text-sm">
-              Reschedule appointment
-            </Button>
+            <VerificationGuard
+              route="/billing"
+              fallback={
+                <Button
+                  disabled
+                  className="!h-[49px] !py-2 text-xs"
+                  size={"sm"}
+                >
+                  Verify Account
+                </Button>
+              }
+            >
+              <Button className="!h-[49px] text-sm">
+                Reschedule appointment
+              </Button>
+            </VerificationGuard>
           </div>
         </div>
       </SheetContent>

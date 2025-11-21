@@ -27,17 +27,25 @@ export default async function middleware(req: NextRequest) {
   const { nextUrl } = req;
   const { pathname, origin, search } = nextUrl;
 
+  // Define accessible routes for unverified users
+  const unverifiedAccessibleRoutes = ["/dashboard", "/dashboard/appointment"];
   console.log("PATHNAME", pathname);
   const session = await getSession();
   const hasAccessToken = !!session?.accessToken;
   const isLoggedIn = session?.isLoggedIn || false;
   const isOnboarded = session?.isBoarded || false;
+  const isVerified = session?.isVerified || false;
 
   console.log("SESSION", session);
 
   const isApiAuthRoute = pathname.startsWith(apiAuthPrefix);
   const isAuthRoute = authRoutes.includes(pathname);
   const isGuestRoute = guestRoutes.some((route) => pathname.endsWith(route));
+  const isUnverifiedRoute = unverifiedAccessibleRoutes.some((route) =>
+    pathname.endsWith(route)
+  );
+
+  console.log("isUneve", isUnverifiedRoute);
 
   const userType = session.userType;
   const isOnboardingRoute = pathname === DEFAULT_ONBOARDING_REDIRECT;
@@ -98,7 +106,20 @@ export default async function middleware(req: NextRequest) {
   if (isLoggedIn && !isOnboarded && !isOnboardingRoute) {
     return NextResponse.redirect(new URL(DEFAULT_ONBOARDING_REDIRECT, origin));
   }
-
+  // After onboarding check, before role-based checks:
+  if (isLoggedIn && isOnboarded && !isVerified) {
+    if (!isUnverifiedRoute) {
+      //      const sanitizeCallback = sanitizeCallbackUrl(
+      //   `${pathname}${search}`,
+      //   origin
+      // );
+      // const callbackUrl = sanitizeCallback || DEFAULT_LOGIN_REDIRECT;
+      // Redirect to dashboard with a message
+      const uri = new URL(DEFAULT_LOGIN_REDIRECT, origin);
+      uri.searchParams.set("verify", "required");
+      return NextResponse.redirect(uri);
+    }
+  }
   // If user is on auth routes and already logged in, redirect to appropriate dashboard
   if (isAuthRoute && isLoggedIn) {
     if (userType === "caregiver") {

@@ -9,7 +9,7 @@ import { StepFooter } from "./step-footer";
 import { StepHeader } from "./step-header";
 export const MedicalHistoryStep: React.FC<OnboardingStepsI> = () => {
   const { user } = useUserStore();
-
+  console.log("USER", user);
   const has_set_medical_history = user?.has_set_medical_history;
   return (
     <div className="w-full">

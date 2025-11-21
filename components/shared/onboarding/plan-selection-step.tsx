@@ -75,7 +75,7 @@ export const PlanSelectionStep: React.FC<OnboardingStepsI> = () => {
   const { isPending: userPlanPending, mutate: SetUserPlan } =
     useSetUserPlanMutation();
   const forWhom = data.forWhom;
-  console.log("FORMWHOL", forWhom)
+  console.log("FORMWHOL", forWhom);
   const [internalStep, setInternalStep] = React.useState<1 | 2>(1);
   const [selectedPlan, setSelectedPlan] = React.useState<string>(
     data.plan || ""
@@ -142,6 +142,10 @@ export const PlanSelectionStep: React.FC<OnboardingStepsI> = () => {
   };
 
   const confirmPlanSelection = () => {
+    if (hasSetPlan && !isChangingPlan) {
+      goToStep("bio-data");
+      return;
+    }
     SetUserPlan(selectedPlan, {
       onSuccess: async () => {
         const user = await getUserInfo();
@@ -181,11 +185,7 @@ export const PlanSelectionStep: React.FC<OnboardingStepsI> = () => {
   };
   const handleBack = () => {
     if (internalStep === 2) {
-      if (!hasSetUserType) {
-        setInternalStep(1);
-      } else {
-        goToPrevStep();
-      }
+      setInternalStep(1);
     } else {
       goToPrevStep();
     }
@@ -370,14 +370,14 @@ export const PlanSelectionStep: React.FC<OnboardingStepsI> = () => {
           </div>
         </>
       )}
-      {
-        
-      }
+      {}
       <StepFooter
         disabled={userPlanPending || userTypePending}
         hideBackButton={internalStep === 1 && !hasSetUserType}
         onBack={handleBack}
-        skipText={internalStep === 2 ? "Continue" : "Next"}
+        skipText={
+          internalStep === 2 ? (hasSetPlan ? "Continue" : "Save Plan") : "Next"
+        }
         onSkip={handleNext}
       />
     </div>
