@@ -1,3 +1,4 @@
+import { HealthRecord } from "@/lib/health-record-types";
 import { CaregiverSchedule, MedicalDocument, Patient, Payment } from "@/types";
 export const DEFAULT_IMAGE_URL =
   "https://res.cloudinary.com/davidleo/image/upload/v1744904805/a7a43fbe914a6e94b710e593d67989bf_ciwm02.png";
@@ -636,5 +637,264 @@ export const chatMessagesData = [
     message: "Even factoring differences in body weight between chil...",
     timestamp: "04:03 AM",
     unread: false,
+  },
+];
+
+export const healthRecords: HealthRecord[] = [
+  {
+    id: 101,
+    patient_id: 1,
+    appointment_id: 201,
+    title: "Admission for acute chest pain",
+    record_type: "diagnosis",
+    description:
+      "Patient admitted with acute chest pain and shortness of breath. Initial workup ordered.",
+    status: "pending",
+    created_by_role: "caregiver",
+    created_by_id: 301,
+    created_by_name: "Nurse Joy",
+
+    reports: [
+      {
+        id: 1001,
+        health_record_id: 101,
+        report_type: "lab_report",
+        title: "CBC & Metabolic Panel",
+        content: JSON.stringify({
+          tests: ["CBC", "BMP"],
+          summary: { wbc: "8.2", hemoglobin: "13.1", sodium: "138" },
+        }),
+        findings: "No leukocytosis. Electrolytes within normal limits.",
+        recommendations: "Repeat BMP in 24 hours. Monitor electrolytes.",
+        attachments: [
+          {
+            id: 9001,
+            report_id: 1001,
+            file_name: "cbc_bmp_2025-02-20.pdf",
+            file_url: "https://example.com/files/cbc_bmp_2025-02-20.pdf",
+            file_type: "pdf",
+            file_size: 142_560,
+            uploaded_at: "2025-02-20T09:15:00Z",
+          },
+        ],
+        created_by_id: 301,
+        created_by_name: "Nurse Joy",
+        created_by_role: "caregiver",
+        created_at: "2025-02-20T09:10:00Z",
+        updated_at: "2025-02-20T09:15:00Z",
+      },
+      {
+        id: 1002,
+        health_record_id: 101,
+        report_type: "imaging_report",
+        title: "Portable Chest X-Ray",
+        content:
+          "Cardiomediastinal silhouette unchanged. No focal consolidation or effusion.",
+        findings:
+          "No acute cardiopulmonary disease identified on portable film.",
+        recommendations:
+          "Correlate with clinical exam. Consider CT angiography if PE suspected.",
+        attachments: [
+          {
+            id: 9002,
+            report_id: 1002,
+            file_name: "cxr_2025-02-20.jpg",
+            file_url: "https://example.com/images/cxr_2025-02-20.jpg",
+            file_type: "jpg",
+            file_size: 512_000,
+            uploaded_at: "2025-02-20T09:30:00Z",
+          },
+        ],
+        created_by_id: 401,
+        created_by_name: "Dr. Sam Okoro",
+        created_by_role: "admin",
+        created_at: "2025-02-20T09:28:00Z",
+        updated_at: "2025-02-20T09:30:00Z",
+      },
+    ],
+
+    notes: [
+      {
+        id: 5001,
+        health_record_id: 101,
+        note_type: "caregiver_note",
+        content:
+          "Patient reports pain level 6/10. Oxygen sat 95% on room air. Monitoring closely.",
+        created_by_id: 301,
+        created_by_name: "Nurse Joy",
+        created_by_role: "caregiver",
+        created_at: "2025-02-20T09:05:00Z",
+        updated_at: "2025-02-20T09:05:00Z",
+      },
+    ],
+
+    health_tracker_ids: [10, 11],
+    created_at: "2025-02-20T09:02:00Z",
+    updated_at: "2025-02-20T09:30:00Z",
+  },
+
+  {
+    id: 102,
+    patient_id: 2,
+    appointment_id: 202,
+    title: "Post-operative discharge summary — laparoscopic cholecystectomy",
+    record_type: "discharge_summary",
+    description:
+      "Routine laparoscopic cholecystectomy. Uneventful intra-op. Discharged with analgesia and follow-up plan.",
+    status: "approved",
+    created_by_role: "admin",
+    created_by_id: 2,
+    created_by_name: "Admin User",
+
+    reports: [
+      {
+        id: 1003,
+        health_record_id: 102,
+        report_type: "procedure_report",
+        title: "Laparoscopic Cholecystectomy Operative Note",
+        content:
+          "Procedure performed under general anesthesia. No intraoperative complications. Estimated blood loss minimal.",
+        findings: "Acute cholecystitis confirmed on inspection.",
+        recommendations: "Standard post-op care. Follow-up in 2 weeks.",
+        attachments: [
+          {
+            id: 9003,
+            report_id: 1003,
+            file_name: "op_note_2025-01-15.pdf",
+            file_url: "https://example.com/files/op_note_2025-01-15.pdf",
+            file_type: "pdf",
+            file_size: 235_000,
+            uploaded_at: "2025-01-15T14:00:00Z",
+          },
+        ],
+        created_by_id: 402,
+        created_by_name: "Dr. Ada Eze",
+        created_by_role: "admin",
+        created_at: "2025-01-15T13:50:00Z",
+        updated_at: "2025-01-15T14:00:00Z",
+      },
+      {
+        id: 1004,
+        health_record_id: 102,
+        report_type: "prescription",
+        title: "Discharge Medications",
+        content: JSON.stringify({
+          medications: [
+            {
+              name: "Amoxicillin-clavulanate",
+              dose: "625mg",
+              freq: "TID",
+              duration: "5 days",
+            },
+            {
+              name: "Paracetamol",
+              dose: "500mg",
+              freq: "Q6H PRN",
+              duration: "7 days",
+            },
+          ],
+        }),
+        findings: "",
+        recommendations:
+          "Adhere to medication schedule. Return for fever/persistent pain.",
+        attachments: [],
+        created_by_id: 402,
+        created_by_name: "Dr. Ada Eze",
+        created_by_role: "admin",
+        created_at: "2025-01-15T14:05:00Z",
+        updated_at: "2025-01-15T14:05:00Z",
+      },
+    ],
+
+    notes: [
+      {
+        id: 5002,
+        health_record_id: 102,
+        note_type: "admin_note",
+        content:
+          "Patient educated on wound care and activity restrictions. Contact number provided for concerns.",
+        created_by_id: 2,
+        created_by_name: "Admin User",
+        created_by_role: "admin",
+        created_at: "2025-01-15T14:10:00Z",
+        updated_at: "2025-01-15T14:10:00Z",
+      },
+    ],
+
+    health_tracker_ids: [20],
+    approved_at: "2025-01-15T15:00:00Z",
+    approved_by_id: 402,
+    approved_by_name: "Dr. Ada Eze",
+    created_at: "2025-01-15T13:45:00Z",
+    updated_at: "2025-01-15T15:00:00Z",
+  },
+
+  {
+    id: 103,
+    patient_id: 3,
+    appointment_id: 203,
+    title: "Medication review — antihypertensive regimen",
+    record_type: "prescription",
+    description:
+      "Review of current antihypertensive medications. Dose clarification required.",
+    status: "rejected",
+    created_by_role: "caregiver",
+    created_by_id: 303,
+    created_by_name: "Caregiver Tom",
+
+    reports: [
+      {
+        id: 1005,
+        health_record_id: 103,
+        report_type: "prescription",
+        title: "Proposed Medication Changes",
+        content: JSON.stringify({
+          proposed: [
+            { drug: "Amlodipine", old_dose: "5mg", new_dose: "10mg" },
+            { drug: "Lisinopril", old_dose: "10mg", new_dose: "10mg" },
+          ],
+        }),
+        findings: "Home BP readings average 150/95 mmHg.",
+        recommendations:
+          "Increase amlodipine to 10mg and re-evaluate in 2 weeks.",
+        attachments: [
+          {
+            id: 9004,
+            report_id: 1005,
+            file_name: "bp_log_jan2025.csv",
+            file_url: "https://example.com/files/bp_log_jan2025.csv",
+            file_type: "csv",
+            file_size: 12_480,
+            uploaded_at: "2025-02-01T08:00:00Z",
+          },
+        ],
+        created_by_id: 303,
+        created_by_name: "Caregiver Tom",
+        created_by_role: "caregiver",
+        created_at: "2025-02-01T08:05:00Z",
+        updated_at: "2025-02-01T08:05:00Z",
+      },
+    ],
+
+    notes: [
+      {
+        id: 5003,
+        health_record_id: 103,
+        note_type: "caregiver_note",
+        content:
+          "Patient reports dizziness when standing after last dose. Suggested dose clarification before change.",
+        created_by_id: 303,
+        created_by_name: "Caregiver Tom",
+        created_by_role: "caregiver",
+        created_at: "2025-02-01T08:02:00Z",
+        updated_at: "2025-02-01T08:02:00Z",
+      },
+    ],
+
+    health_tracker_ids: [30, 31],
+    rejection_reason:
+      "Incomplete dosage instructions and no clinician sign-off.",
+    created_at: "2025-02-01T08:00:00Z",
+    updated_at: "2025-02-01T08:10:00Z",
   },
 ];

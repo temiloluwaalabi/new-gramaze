@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import {
   Activity,
@@ -17,10 +18,15 @@ import {
 } from "lucide-react";
 import React from "react";
 
+import { healthRecords } from "@/config/constants";
 import BloodPressureIcon from "@/icons/blood-pressure";
 import CalendarBlankIcon from "@/icons/calendar-blank";
 import DropIcon from "@/icons/drop";
 import HeartbeatIcon from "@/icons/heartbeat";
+import {
+  CreateHealthRecordPayload,
+  HealthRecord,
+} from "@/lib/health-record-types";
 import { useGetHealthTracker } from "@/lib/queries/use-caregiver-query";
 import {
   formatDate,
@@ -32,6 +38,9 @@ import { useUserStore } from "@/store/user-store";
 import { Appointment, User } from "@/types";
 
 import AddHealthVitals from "../dialogs/add-health-vitals";
+import { CreateHealthRecordDialog } from "../dialogs/health-record-dialog";
+import { ViewHealthRecordDialog } from "../dialogs/view-health-record-dialog";
+import { HealthRecordsList } from "../shared/health-record/health-record-list";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -86,78 +95,11 @@ export default function SinglePatientDetailsPage({
   metrics,
 }: SinglePatientDetailsPageProps) {
   const { user } = useUserStore();
-
-  console.log("PATIENT", patient);
   const { isPending, data: HealthTracker } = useGetHealthTracker(patient.id);
-
-  console.log("HELATH TRACKER", HealthTracker);
-  // // Helper function to extract metric value by name
-  // const getMetricValue = (
-  //   metrics: Metric[],
-  //   metricName: string
-  // ): string | null => {
-  //   const metric = metrics.find(
-  //     (m) => m.name.toLowerCase() === metricName.toLowerCase()
-  //   );
-  //   return metric?.value || null;
-  // };
-
-  // const getLatestVitals = (trackers?: Tracker[]): LatestVitals | null => {
-  //   if (!trackers?.length) return null;
-
-  //   // Sort trackers by creation date (newest first)
-  //   const sorted = [...trackers].sort(
-  //     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  //   );
-
-  //   const latest: LatestVitals = {};
-
-  //   // Get all possible metric names from all trackers
-  //   const allMetricNames = new Set<string>();
-
-  //   sorted.forEach((tracker) => {
-  //     // From metrics array (using 'name' not 'code')
-  //     tracker.metrics?.forEach((metric) => {
-  //       if (metric.name) {
-  //         allMetricNames.add(metric.name);
-  //       }
-  //     });
-  //   });
-
-  //   // Initialize all metric names as null
-  //   allMetricNames.forEach((name) => {
-  //     latest[name] = null;
-  //   });
-
-  //   // Find the latest value for each metric type
-  //   for (const tracker of sorted) {
-  //     for (const metricName of allMetricNames) {
-  //       // Skip if we already found a value for this metric (since we're going from newest to oldest)
-  //       if (latest[metricName]) continue;
-
-  //       let value: string | null = null;
-
-  //       // Find from metrics array using 'name'
-  //       if (tracker.metrics?.length) {
-  //         const metric = tracker.metrics.find((m) => m.name === metricName);
-  //         if (metric?.value) {
-  //           value = metric.value;
-  //         }
-  //       }
-
-  //       if (value) {
-  //         latest[metricName] = {
-  //           value,
-  //           name: metricName,
-  //           updated_at: tracker.updated_at,
-  //           id: tracker.id,
-  //         };
-  //       }
-  //     }
-  //   }
-
-  //   return latest;
-  // };
+  // In your component
+  const [selectedRecord, setSelectedRecord] =
+    React.useState<HealthRecord | null>(null);
+  const [viewRecordOpen, setViewRecordOpen] = React.useState(false);
 
   // Alternative version that only returns metrics that have values
   const getLatestVitalsWithValues = (
@@ -205,14 +147,6 @@ export default function SinglePatientDetailsPage({
     return metric?.code;
   };
 
-  // // Alternative: Simplified version if you want consistent styling
-  // const getSimplifiedMetricConfig = (metricName: string) => {
-  //   return {
-  //     displayName: metricName,
-  //     icon: Activity, // Use a consistent icon for all metrics
-  //     iconColor: 'text-[#6B7280]' // Consistent color
-  //   };
-  // };
   type MetricConfig = {
     displayName: string;
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
@@ -320,6 +254,79 @@ export default function SinglePatientDetailsPage({
     };
 
     return config[metricName] || config.default;
+  };
+  // Get health trackers from today
+  const healthTrackersToday = React.useMemo(() => {
+    if (!HealthTracker?.tracker) return [];
+
+    const today = new Date().toDateString();
+    return HealthTracker.tracker.filter((t: any) => {
+      const trackerDate = new Date(t.created_at).toDateString();
+      return trackerDate === today;
+    });
+  }, [HealthTracker]);
+
+  // Handle creating a health record
+  const handleCreateHealthRecord = async (data: CreateHealthRecordPayload) => {
+    try {
+      const response = await fetch("/api/health-records", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error("Failed to create record");
+
+      // Refresh records list
+      // You might want to use a mutation hook here
+      window.location.reload();
+    } catch (error) {
+      console.error("Error creating health record:", error);
+      throw error;
+    }
+  };
+
+  // Handle viewing a record
+  const handleViewRecord = (recordId: number) => {
+    // Fetch the full record details
+    const record = healthRecords.find((r) => r.id === recordId);
+    setSelectedRecord(record || null);
+    setViewRecordOpen(true);
+  };
+
+  // Handle approval (admin only)
+  const handleApprove = async (recordId: number) => {
+    try {
+      await fetch(`/api/health-records/${recordId}/approve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ approved_by_id: user?.id }),
+      });
+
+      // Refresh
+      window.location.reload();
+    } catch (error) {
+      console.error("Error approving record:", error);
+    }
+  };
+
+  // Handle rejection (admin only)
+  const handleReject = async (recordId: number, reason: string) => {
+    try {
+      await fetch(`/api/health-records/${recordId}/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rejected_by_id: user?.id,
+          rejection_reason: reason,
+        }),
+      });
+
+      // Refresh
+      window.location.reload();
+    } catch (error) {
+      console.error("Error rejecting record:", error);
+    }
   };
   return (
     <section className="h-full gap-6 space-y-3 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
@@ -636,7 +643,7 @@ export default function SinglePatientDetailsPage({
               />
             </div>
           </div>
-          <div className="h-fit rounded-[6px] border border-[#E8E8E8] bg-white p-4">
+          <div className="h-fit space-y-4 rounded-[6px] border border-[#E8E8E8] bg-white p-4">
             <div className="flex items-center justify-between">
               <h6 className="text-sm font-medium text-[#787878]">
                 Health summary
@@ -645,6 +652,28 @@ export default function SinglePatientDetailsPage({
                 See all <ChevronRight className="size-5 text-gray-500" />
               </span>
             </div>
+            <HealthRecordsList
+              records={healthRecords}
+              onViewRecord={handleViewRecord}
+            />
+
+            {/* Create new health record button */}
+            <CreateHealthRecordDialog
+              patientId={patient.id || 0}
+              patientName={`${patient.first_name} ${patient.last_name}`}
+              appointmentId={appointments[0]?.id} // Link to current appointment if exists
+              healthTrackersToday={healthTrackersToday}
+              currentUserRole={
+                user?.user_role === "admin" ? "admin" : "caregiver"
+              }
+              currentUserId={user?.id || 0}
+              onSubmit={handleCreateHealthRecord}
+              trigger={
+                <Button className="mt-4 flex !h-[45px] w-full text-sm font-normal">
+                  <Plus className="mr-2 size-4" /> Create Health Record
+                </Button>
+              }
+            />
             <div className="mt-4 flex flex-col gap-4">
               <div className="flex items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4">
                 <span className="flex size-[42px] items-center justify-center rounded-full bg-[#F5F5F5]">
@@ -677,6 +706,17 @@ export default function SinglePatientDetailsPage({
               </Button>
             </div>
           </div>
+          {/* View Record Dialog */}
+          <ViewHealthRecordDialog
+            record={selectedRecord}
+            open={viewRecordOpen}
+            onOpenChange={setViewRecordOpen}
+            onApprove={handleApprove}
+            onReject={handleReject}
+            currentUserRole={
+              user?.user_role === "admin" ? "admin" : "caregiver"
+            }
+          />
           <div className="h-fit rounded-[6px] border border-[#E8E8E8] bg-white p-4">
             <div className="flex items-center justify-between">
               <h6 className="text-sm font-medium text-[#787878]">

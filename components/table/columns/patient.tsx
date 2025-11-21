@@ -88,7 +88,7 @@ export const PatientsColumn: ColumnDef<{
             {/* <AvatarImage src={DEFAULT_IMAGE_URL} /> */}
           </Avatar>
           <Link
-            href={`/caregiver/patients/${patient.id}`}
+            href={`/caregiver/patients/${patient.user_id}`}
             className="text-sm font-medium transition-colors hover:text-blue-600"
           >
             {patient.patient.first_name} {patient.patient.last_name}

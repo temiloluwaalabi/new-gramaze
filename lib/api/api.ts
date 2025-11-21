@@ -45,15 +45,15 @@ export const authService = {
       status: true;
       message: string;
       token: string;
-      user_data:{
+      user_data: {
         first_name: string;
         last_name: string;
         email: string;
         agree_to_terms: boolean;
         updated_at: string;
         created_at: string;
-        id: number
-      }
+        id: number;
+      };
     }>(`${gramazeEndpoints.auth.register}`, "POST", {
       pathname,
       body: values,
@@ -649,26 +649,22 @@ export const caregiverServices = {
       per_page?: number;
     } = {}) => {
       return makeApiRequest<{
-        status: true;
-        message: string;
-        histories: {
-          current_page: number;
-          data: {
-            id: number;
-            user_id: string;
-            caregiver_id: string;
-            start_date: string;
-            end_date: string;
-            created_at: string;
-            updated_at: string;
-            patient: Partial<User>;
-          }[];
-          from: number;
-          last_page: number;
-          per_page: number;
-          to: number;
-          total: number;
-        };
+        current_page: number;
+        data: {
+          id: number;
+          user_id: string;
+          caregiver_id: string;
+          start_date: string;
+          end_date: string;
+          created_at: string;
+          updated_at: string;
+          patient: Partial<User>;
+        }[];
+        from: number;
+        last_page: number;
+        per_page: number;
+        to: number;
+        total: number;
       }>(`${gramazeEndpoints.caregiver.patient.history}`, "GET", {
         params: {
           ...(per_page && { per_page }),
@@ -676,6 +672,7 @@ export const caregiverServices = {
           ...(typeof end_date !== "undefined" && { end_date }),
           ...(caregiver && { caregiver }),
         },
+        dataKey: "histories",
       });
     },
     getPatientHistoryDetails: async (patient_id: string) => {
