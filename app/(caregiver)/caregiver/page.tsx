@@ -61,8 +61,8 @@ export default async function CaregiverMainDashboard() {
           : appointments?.appointments?.data || []
       }
       allPatients={
-        patients?.success && Array.isArray(patients.patients)
-          ? patients.patients
+        patients?.success && Array.isArray(patients.data?.data)
+          ? patients.data.data
           : []
       }
     />
