@@ -38,6 +38,7 @@ import { HealthOverviewWidget } from "../shared/widget/health-overview-widget";
 import { HealthTrackerColumn } from "../table/columns/health-tracker-reports";
 import { DataTable } from "../table/data-table";
 import { Button } from "../ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { Input } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
@@ -198,9 +199,16 @@ export const HealthTrackerPageTwo = ({
                   );
                 })
               ) : (
-                <div className="col-span-4 flex h-24 items-center justify-center text-sm text-[#7f7f7f]">
-                  No health tracker data available.
-                </div>
+                <Card className="col-span-4 border border-[#F0F2F5] bg-white shadow-none">
+                  <CardHeader>
+                    <CardTitle className="text-xs font-medium text-[#71717A] md:text-sm">
+                      Health Trackers
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-muted-foreground flex h-40 items-center justify-center">
+                    No health tracker data available.
+                  </CardContent>
+                </Card>
               )}
             </section>
 
