@@ -31,15 +31,14 @@ export const useRegisterStepOne = () => {
     mutationKey: ["auth", "registerStepOne"],
     mutationFn: async (values: RegisterSchemaType) => {
       const data = await RegisterStepOne(values);
+      console.log("DATA", data);
       if (!data.success) {
-        return data;
+        throw data;
       }
-      // Optionally, throw an error or return a value for unsuccessful cases
       return data;
     },
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);
-      // Show a success toast message
       toast.success(
         "Registration successful! Please check your email for verification."
       );
@@ -56,7 +55,7 @@ export const useLoginMutation = () => {
     mutationFn: async (values: LoginSchemaType) => {
       const data = await LoginAction(values);
       if (!data.success) {
-        return data;
+        throw data;
       }
       // Optionally, throw an error or return a value for unsuccessful cases
       return data;
