@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import {
   Activity,
@@ -8,6 +7,7 @@ import {
   Clock,
   Dumbbell,
   Ellipsis,
+  FileText,
   Mail,
   MapPin,
   Pencil,
@@ -23,10 +23,7 @@ import BloodPressureIcon from "@/icons/blood-pressure";
 import CalendarBlankIcon from "@/icons/calendar-blank";
 import DropIcon from "@/icons/drop";
 import HeartbeatIcon from "@/icons/heartbeat";
-import {
-  CreateHealthRecordPayload,
-  HealthRecord,
-} from "@/lib/health-record-types";
+import { HealthRecord, REPORT_TYPE_CONFIGS } from "@/lib/health-record-types";
 import { useGetHealthTracker } from "@/lib/queries/use-caregiver-query";
 import {
   formatDate,
@@ -38,10 +35,10 @@ import { useUserStore } from "@/store/user-store";
 import { Appointment, User } from "@/types";
 
 import AddHealthVitals from "../dialogs/add-health-vitals";
-import { CreateHealthRecordDialog } from "../dialogs/health-record-dialog";
 import { ViewHealthRecordDialog } from "../dialogs/view-health-record-dialog";
-import { HealthRecordsList } from "../shared/health-record/health-record-list";
+import { getStatusBadge } from "../shared/health-record/health-record-list";
 import { Avatar, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 type Metric = {
@@ -255,36 +252,36 @@ export default function SinglePatientDetailsPage({
 
     return config[metricName] || config.default;
   };
-  // Get health trackers from today
-  const healthTrackersToday = React.useMemo(() => {
-    if (!HealthTracker?.tracker) return [];
+  // // Get health trackers from today
+  // const healthTrackersToday = React.useMemo(() => {
+  //   if (!HealthTracker?.tracker) return [];
 
-    const today = new Date().toDateString();
-    return HealthTracker.tracker.filter((t: any) => {
-      const trackerDate = new Date(t.created_at).toDateString();
-      return trackerDate === today;
-    });
-  }, [HealthTracker]);
+  //   const today = new Date().toDateString();
+  //   return HealthTracker.tracker.filter((t: any) => {
+  //     const trackerDate = new Date(t.created_at).toDateString();
+  //     return trackerDate === today;
+  //   });
+  // }, [HealthTracker]);
 
-  // Handle creating a health record
-  const handleCreateHealthRecord = async (data: CreateHealthRecordPayload) => {
-    try {
-      const response = await fetch("/api/health-records", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+  // // Handle creating a health record
+  // const handleCreateHealthRecord = async (data: CreateHealthRecordPayload) => {
+  //   try {
+  //     const response = await fetch("/api/health-records", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(data),
+  //     });
 
-      if (!response.ok) throw new Error("Failed to create record");
+  //     if (!response.ok) throw new Error("Failed to create record");
 
-      // Refresh records list
-      // You might want to use a mutation hook here
-      window.location.reload();
-    } catch (error) {
-      console.error("Error creating health record:", error);
-      throw error;
-    }
-  };
+  //     // Refresh records list
+  //     // You might want to use a mutation hook here
+  //     window.location.reload();
+  //   } catch (error) {
+  //     console.error("Error creating health record:", error);
+  //     throw error;
+  //   }
+  // };
 
   // Handle viewing a record
   const handleViewRecord = (recordId: number) => {
@@ -652,13 +649,8 @@ export default function SinglePatientDetailsPage({
                 See all <ChevronRight className="size-5 text-gray-500" />
               </span>
             </div>
-            <HealthRecordsList
-              records={healthRecords}
-              onViewRecord={handleViewRecord}
-            />
-
             {/* Create new health record button */}
-            <CreateHealthRecordDialog
+            {/* <CreateHealthRecordDialog
               patientId={patient.id || 0}
               patientName={`${patient.first_name} ${patient.last_name}`}
               appointmentId={appointments[0]?.id} // Link to current appointment if exists
@@ -673,34 +665,83 @@ export default function SinglePatientDetailsPage({
                   <Plus className="mr-2 size-4" /> Create Health Record
                 </Button>
               }
-            />
+            /> */}
             <div className="mt-4 flex flex-col gap-4">
-              <div className="flex items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4">
-                <span className="flex size-[42px] items-center justify-center rounded-full bg-[#F5F5F5]">
-                  <SquarePen className="size-5" />
-                </span>
-                <div>
-                  <h6 className="text-sm font-medium text-[#333] md:text-base">
-                    Medical Record
-                  </h6>
-                  <p className="text-xs font-normal text-[#66666b] md:text-sm">
-                    Uplaoded 10 Dec, 2024
+              {healthRecords.length > 0 ? (
+                healthRecords.map((record) => {
+                  const config = REPORT_TYPE_CONFIGS[record.record_type];
+                  return (
+                    <div
+                      key={record.id}
+                      onClick={() => handleViewRecord(record.id)}
+                      className="group flex cursor-pointer items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4 transition-all hover:border-blue-500 hover:bg-blue-50"
+                    >
+                      <span className="hidden size-[42px] items-center justify-center rounded-full bg-[#F5F5F5] group-hover:bg-blue-500 group-hover:text-white md:flex">
+                        <SquarePen className="size-5" />
+                      </span>
+                      <div className="grid w-full grid-cols-12 gap-4">
+                        <div className="col-span-12 w-full md:col-span-7">
+                          <h6 className="text-sm font-medium text-[#333]">
+                            {record.title}
+                          </h6>
+                          <div className="flex items-center space-x-2 text-xs text-gray-500">
+                            <p className="text-xs font-normal text-[#66666b] md:text-sm">
+                              Uploaded{" "}
+                              <span>{formatDate(record.created_at)}</span>
+                            </p>
+                            <div className="flex items-center gap-1">
+                              <span>
+                                By {record.created_by_name || "Unknown"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="col-span-12 flex w-full flex-col justify-center gap-2 md:col-span-5 md:items-end">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="secondary" className="text-xs">
+                              {config.label}
+                            </Badge>
+                            {getStatusBadge(record.status)}
+                          </div>
+                          <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+                            <div className="flex items-center gap-1">
+                              <FileText className="size-3" />
+                              <span>{record.reports.length} report(s)</span>
+                            </div>
+
+                            {record.notes.length > 0 && (
+                              <div className="flex items-center gap-1">
+                                <FileText className="size-3" />
+                                <span>{record.notes.length} note(s)</span>
+                              </div>
+                            )}
+
+                            {record.health_tracker_ids.length > 0 && (
+                              <div className="flex items-center gap-1">
+                                <FileText className="size-3" />
+                                <span>
+                                  {record.health_tracker_ids.length} vital(s)
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed py-12">
+                  <FileText className="mb-3 size-12 text-gray-400" />
+                  <p className="text-base font-medium text-gray-600">
+                    No health records found
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Create a new health record to get started
                   </p>
                 </div>
-              </div>
-              <div className="flex items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4">
-                <span className="flex size-[42px] items-center justify-center rounded-full bg-[#F5F5F5]">
-                  <SquarePen className="size-5" />
-                </span>
-                <div>
-                  <h6 className="text-sm font-medium text-[#333] md:text-base">
-                    Medical Record
-                  </h6>
-                  <p className="text-xs font-normal text-[#66666b] md:text-sm">
-                    Uplaoded 15 Dec, 2024
-                  </p>
-                </div>
-              </div>
+              )}
+
               <Button className="ml-auto flex !h-[45px] w-fit text-sm font-normal">
                 Request health summary
               </Button>

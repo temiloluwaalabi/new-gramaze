@@ -75,7 +75,7 @@ export default async function middleware(req: NextRequest) {
     }
 
     // Normal user trying to access caregiver routes - redirect to dashboard
-    if (userType === "patient" && isCaregiverRoute) {
+    if (userType !== "caregiver" && isCaregiverRoute) {
       return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, origin));
     }
   }

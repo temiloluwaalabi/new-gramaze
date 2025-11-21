@@ -72,11 +72,9 @@ export interface Note {
   health_record_id: number;
   note_type: NoteType;
   content: string;
-
   created_by_id: number;
   created_by_name?: string;
   created_by_role: CreatorRole;
-
   created_at: string;
   updated_at: string;
 }

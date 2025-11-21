@@ -32,45 +32,45 @@ interface HealthRecordsListProps {
   onViewRecord: (recordId: number) => void;
 }
 
+export const getStatusBadge = (status: RecordStatus) => {
+  switch (status) {
+    case "approved":
+      return (
+        <Badge
+          variant="outline"
+          className="border-green-600 bg-green-50 text-green-700"
+        >
+          <CheckCircle className="mr-1 size-3" />
+          Approved
+        </Badge>
+      );
+    case "pending":
+      return (
+        <Badge
+          variant="outline"
+          className="border-yellow-600 bg-yellow-50 text-yellow-700"
+        >
+          <AlertCircle className="mr-1 size-3" />
+          Pending Review
+        </Badge>
+      );
+    case "rejected":
+      return (
+        <Badge
+          variant="outline"
+          className="border-red-600 bg-red-50 text-red-700"
+        >
+          <XCircle className="mr-1 size-3" />
+          Rejected
+        </Badge>
+      );
+  }
+};
+
 export function HealthRecordsList({
   records,
   onViewRecord,
 }: HealthRecordsListProps) {
-  const getStatusBadge = (status: RecordStatus) => {
-    switch (status) {
-      case "approved":
-        return (
-          <Badge
-            variant="outline"
-            className="border-green-600 bg-green-50 text-green-700"
-          >
-            <CheckCircle className="mr-1 size-3" />
-            Approved
-          </Badge>
-        );
-      case "pending":
-        return (
-          <Badge
-            variant="outline"
-            className="border-yellow-600 bg-yellow-50 text-yellow-700"
-          >
-            <AlertCircle className="mr-1 size-3" />
-            Pending Review
-          </Badge>
-        );
-      case "rejected":
-        return (
-          <Badge
-            variant="outline"
-            className="border-red-600 bg-red-50 text-red-700"
-          >
-            <XCircle className="mr-1 size-3" />
-            Rejected
-          </Badge>
-        );
-    }
-  };
-
   if (records.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed py-12">
