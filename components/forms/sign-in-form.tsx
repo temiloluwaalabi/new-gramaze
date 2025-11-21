@@ -36,9 +36,12 @@ export default function SignInForm() {
   const handleSubmit = (values: z.infer<typeof LoginSchema>) => {
     LoginUser(values, {
       onSuccess: (data) => {
-        if (data?.status) {
-          login(data.user);
-          safeSuccess("login-success", data.message || "Login successful!");
+        if (data.data?.status) {
+          login(data.data.user);
+          safeSuccess(
+            "login-success",
+            data.data.message || "Login successful!"
+          );
           router.refresh();
           router.push(`${allRoutes.user.dashboard.home.url}`);
         }
@@ -55,7 +58,7 @@ export default function SignInForm() {
   return (
     <Form {...signInForm}>
       <form
-        className="space-y-4"  
+        className="space-y-4"
         onSubmit={signInForm.handleSubmit(handleSubmit)}
       >
         <div className="space-y-4">

@@ -36,7 +36,7 @@ export default function SignUpForm() {
   const handleSubmit = (values: z.infer<typeof RegisterSchema>) => {
     RegisterStepOne(values, {
       onSuccess: (data) => {
-        if (data?.status) {
+        if (data.data?.status) {
           safeSuccess(
             "register-success",
             "Registration successful! Please check your email for verification."

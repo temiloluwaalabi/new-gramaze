@@ -60,7 +60,7 @@ export const paymentPlans = [
     ],
   },
 ];
-export const PlanSelectionStep: React.FC<OnboardingStepsI> = () => {
+export const PlanSelectionStep: React.FC<Partial<OnboardingStepsI>> = () => {
   const { user, setUser } = useUserStore();
   const {
     updateData,

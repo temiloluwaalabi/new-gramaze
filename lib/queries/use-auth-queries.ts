@@ -31,11 +31,11 @@ export const useRegisterStepOne = () => {
     mutationKey: ["auth", "registerStepOne"],
     mutationFn: async (values: RegisterSchemaType) => {
       const data = await RegisterStepOne(values);
-      if (data.success) {
-        return data.data;
+      if (!data.success) {
+        return data;
       }
       // Optionally, throw an error or return a value for unsuccessful cases
-      throw new Error(data.message || "Registration failed");
+      return data;
     },
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);
@@ -55,11 +55,11 @@ export const useLoginMutation = () => {
     mutationKey: ["auth", "login"],
     mutationFn: async (values: LoginSchemaType) => {
       const data = await LoginAction(values);
-      if (data.success) {
-        return data.data;
+      if (!data.success) {
+        return data;
       }
       // Optionally, throw an error or return a value for unsuccessful cases
-      throw new Error(data.message || "Login failed");
+      return data;
     },
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);

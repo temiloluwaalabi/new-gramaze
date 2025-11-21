@@ -28,7 +28,7 @@ import { OnboardingStepsI } from "@/types";
 
 import { StepFooter } from "./step-footer";
 import { StepHeader } from "./step-header";
-export const AppointmentStep: React.FC<OnboardingStepsI> = () => {
+export const AppointmentStep: React.FC<Partial<OnboardingStepsI>> = () => {
   const router = useRouter();
   const [internalStep, setinternalStep] = React.useState<1 | 2>(1);
   const { data, updateData, goToPrevStep } = useOnboarding();

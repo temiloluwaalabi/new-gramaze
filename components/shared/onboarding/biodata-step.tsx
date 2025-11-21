@@ -7,7 +7,7 @@ import { OnboardingStepsI } from "@/types";
 
 import { StepFooter } from "./step-footer";
 import { StepHeader } from "./step-header";
-export const BiodataStep: React.FC<OnboardingStepsI> = () => {
+export const BiodataStep: React.FC<Partial<OnboardingStepsI>> = () => {
   const { user } = useUserStore();
 
   const hasFilledBiodata = user?.has_set_bio_data;
