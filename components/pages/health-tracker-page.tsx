@@ -231,12 +231,12 @@ export const HealthTrackerPage = ({
                     showStat
                   />
                   <HealthOverviewWidget
-                    title={`${latestVitals?.weight?.value ?? "0"}kg`}
+                    title={`${latestVitals?.weight?.value ?? "0"}`}
                     category="Weight"
                     showStat
                   />
                   <HealthOverviewWidget
-                    title={`${latestVitals?.pulse?.value ?? "0"}bpm`}
+                    title={`${latestVitals?.pulse?.value ?? "0"}`}
                     category="Pulse"
                     showStat
                   />
