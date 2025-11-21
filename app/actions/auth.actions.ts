@@ -12,7 +12,7 @@ import {
   RegisterSchema,
   RegisterSchemaType,
 } from "@/lib/schemas/user.schema";
-import { ApiResponse, Appointment, User } from "@/types";
+import { ApiResponse, Appointment, ServerActionResponse, User } from "@/types";
 
 import {
   getSession,
@@ -21,7 +21,24 @@ import {
   RegisterSession,
 } from "./session.actions";
 
-export const RegisterStepOne = async (values: RegisterSchemaType) => {
+export const RegisterStepOne = async (
+  values: RegisterSchemaType
+): Promise<
+  ServerActionResponse<{
+    status: true;
+    message: string;
+    token: string;
+    user_data: {
+      first_name: string;
+      last_name: string;
+      email: string;
+      agree_to_terms: boolean;
+      updated_at: string;
+      created_at: string;
+      id: number;
+    };
+  }>
+> => {
   try {
     const validatedValues = RegisterSchema.safeParse(values);
 
@@ -36,12 +53,14 @@ export const RegisterStepOne = async (values: RegisterSchemaType) => {
         }
       );
 
-      throw new ApiError({
-        statusCode: 400,
+      // Return error object instead of throwing
+      return {
+        success: false,
         message: "Validation failed",
-        errorType: "ValidationError",
-        rawErrors: fieldErrors,
-      });
+        errors: fieldErrors as Record<string, string[]>,
+        statusCode: 400,
+        errorType: "VALIDATION_ERROR",
+      };
     }
 
     const response = await authService.registerStepOne(
@@ -50,7 +69,15 @@ export const RegisterStepOne = async (values: RegisterSchemaType) => {
     );
 
     if (ApiError.isAPiError(response)) {
-      throw response;
+      const apiError = response as ApiError;
+      // Return the error with all its details
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
     }
 
     // At this point, response is not an ApiError
@@ -72,20 +99,6 @@ export const RegisterStepOne = async (values: RegisterSchemaType) => {
           id: number;
         };
       };
-      rawResponse: ApiResponse<{
-        status: true;
-        message: string;
-        token: string;
-        user_data: {
-          first_name: string;
-          last_name: string;
-          email: string;
-          agree_to_terms: boolean;
-          updated_at: string;
-          created_at: string;
-          id: number;
-        };
-      }>;
     };
 
     console.log("SUCCESS RESPONSE", successResponse);
@@ -100,20 +113,36 @@ export const RegisterStepOne = async (values: RegisterSchemaType) => {
     };
   } catch (error) {
     console.error("RegisterStepOne error:", error);
-
     if (error instanceof ApiError) {
-      throw error;
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
     }
 
-    throw new ApiError({
-      statusCode: 500,
+    // For any other error
+    return {
+      success: false,
       message:
         error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
       errorType: "UnknownError",
-    });
+    };
   }
 };
-export const LoginAction = async (values: LoginSchemaType) => {
+export const LoginAction = async (
+  values: LoginSchemaType
+): Promise<
+  ServerActionResponse<{
+    status: true;
+    message: string;
+    token: string;
+    user: User;
+  }>
+> => {
   try {
     const validatedValues = LoginSchema.safeParse(values);
 
@@ -128,35 +157,38 @@ export const LoginAction = async (values: LoginSchemaType) => {
         }
       );
 
-      throw new ApiError({
-        statusCode: 400,
+      return {
+        success: false,
         message: "Validation failed",
-        errorType: "ValidationError",
-        rawErrors: fieldErrors,
-      });
+        errors: fieldErrors as Record<string, string[]>,
+        statusCode: 400,
+        errorType: "VALIDATION_ERROR",
+      };
     }
 
     const response = await authService.Login(validatedValues.data, "/sign-in");
 
     if (ApiError.isAPiError(response)) {
-      throw response;
-    }
+      const apiError = response as ApiError;
+      console.log("AYPGS", response);
 
+      // Return the error with all its details
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
     // At this point, response is not an ApiError
     const successResponse = response as {
       success: true;
       status: number;
       message: string;
       data: { status: true; message: string; token: string; user: User };
-      rawResponse: ApiResponse<{
-        status: true;
-        message: string;
-        token: string;
-        user: User;
-      }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
     await LoginSession(successResponse.data.user, successResponse.data.token);
     revalidatePath("/");
     return {
@@ -168,15 +200,23 @@ export const LoginAction = async (values: LoginSchemaType) => {
     console.error("Registration error:", error);
 
     if (error instanceof ApiError) {
-      throw error;
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
     }
 
-    throw new ApiError({
-      statusCode: 500,
+    // For any other error
+    return {
+      success: false,
       message:
         error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
       errorType: "UnknownError",
-    });
+    };
   }
 };
 export const OnboardUserType = async (userType: string) => {
