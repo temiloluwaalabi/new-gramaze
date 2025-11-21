@@ -328,7 +328,7 @@ export default function SinglePatientDetailsPage({
   return (
     <section className="h-full gap-6 space-y-3 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="space-y-4 rounded-md border border-[#E8E8E8] bg-white p-6">
+        <div className="h-fit space-y-4 rounded-md border border-[#E8E8E8] bg-white p-6">
           <h6 className="text-base font-medium text-[#333]">
             Basic Information
           </h6>
