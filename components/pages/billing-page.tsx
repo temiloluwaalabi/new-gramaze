@@ -71,12 +71,12 @@ export const BillingPage = ({ payments }: BillingPageProps) => {
             >
               Billing
             </TabsTrigger>
-            <TabsTrigger
+            {/* <TabsTrigger
               className="cursor-pointer rounded-none text-sm font-normal text-[#b6b6b6] data-[state=active]:!border-b data-[state=active]:border-blue-600 data-[state=active]:font-medium data-[state=active]:text-blue-600 data-[state=active]:shadow-none lg:text-base"
               value="payment-method"
             >
               Payment Method
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
           <TabsContent
             value="billing"
