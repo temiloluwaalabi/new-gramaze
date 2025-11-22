@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { SessionData } from "@/lib/auth/session";
 import { useServerSession } from "@/providers/SessionProvider";
 import { useUserStore } from "@/store/user-store";
-import { User } from "@/types";
 
 const sessionApiRoute = "/api/auth/session";
 
@@ -77,12 +76,12 @@ export default function useSession() {
   // };
 
   // Handle login
-  const clientLoginSession = async (user: User) => {
+  const clientLoginSession = async (username: string) => {
     setIsLoading(true);
     try {
       const data = await fetchJSON<SessionData>(sessionApiRoute, {
         method: "POST",
-        body: JSON.stringify(user),
+        body: JSON.stringify({ username }),
       });
       setSession(data);
       setError(null);
