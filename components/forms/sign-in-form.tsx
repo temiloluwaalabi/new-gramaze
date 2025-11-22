@@ -42,7 +42,6 @@ export default function SignInForm() {
             "login-success",
             data.data.message || "Login successful!"
           );
-          router.refresh();
           router.push(`${allRoutes.user.dashboard.home.url}`);
         }
       },

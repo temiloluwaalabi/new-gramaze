@@ -15,16 +15,21 @@ import { formatDate } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export default async function UserDashboard() {
-  const appointments = await getUserAppointments();
-  const mainAppointments = appointments.appointments.data;
-
-  const paymentNotifications = await getUserPaymentNotifications();
-  const trackers = await getLastTrackers();
-  const userCaregivers = await getCaregiverHistory();
-  const session = await getSession();
-
-  console.log("APPOINTMENTS", mainAppointments);
-  const { conversations } = await fetchConversations();
+  const [
+    appointments,
+    paymentNotifications,
+    trackers,
+    userCaregivers,
+    session,
+    { conversations }
+  ] = await Promise.all([
+    getUserAppointments(),
+    getUserPaymentNotifications(),
+    getLastTrackers(),
+    getCaregiverHistory(),
+    getSession(),
+    fetchConversations(),
+  ]);
 
   const getSenderName = (id: string) => {
     const match = conversations.find((c) => String(c.id) === id);
@@ -61,7 +66,7 @@ export default async function UserDashboard() {
   return (
     <MainUserDashboard
       payment_notification={paymentNotifications.payment_notifications || []}
-      appointments={mainAppointments}
+      appointments={appointments.appointments.data}
       healthTrackers={trackers.tracker}
       caregivers={userCaregivers.caregivers?.data || []}
       messages={userMessages}
