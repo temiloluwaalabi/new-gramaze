@@ -2,11 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-import { Button } from "../ui/button"; 
+import { Button } from "../ui/button";
 
 type Props = {
   url: string;
-}; 
+};
 
 export default function MessagesUserDashboardClient(props: Props) {
   return (

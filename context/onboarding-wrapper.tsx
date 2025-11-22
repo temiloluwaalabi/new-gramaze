@@ -12,10 +12,10 @@ import { SessionProvider } from "@/providers/SessionProvider";
 
 export default function OnboardingWrapper({
   children,
-  serverSession
+  serverSession,
 }: {
   children: ReactNode;
-  serverSession:SessionData
+  serverSession: SessionData;
 }) {
   const [isMobile, setIsMobile] = useState(false);
   useCurrentUser();
@@ -33,8 +33,7 @@ export default function OnboardingWrapper({
   return (
     <Suspense>
       <SessionProvider initialSession={serverSession}>
-
-      <OnboardingProvider>{children}</OnboardingProvider>
+        <OnboardingProvider>{children}</OnboardingProvider>
       </SessionProvider>
     </Suspense>
   );

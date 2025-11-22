@@ -16,7 +16,7 @@ export function useCurrentUserId() {
           return;
         }
 
-        setUserId(res.data.user.id); 
+        setUserId(res.data.user.id);
       } catch (err) {
         console.error("Unexpected error loading user:", err);
       }

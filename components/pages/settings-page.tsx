@@ -64,7 +64,7 @@ const SettingsLoadingSkeleton = () => {
       <section className="mt-4 flex w-full gap-5">
         <div className="w-full space-y-4">
           {/* Tabs Skeleton */}
-          <div className="mb-2 flex h-auto w-full items-start justify-start gap-3 overflow-hidden  rounded-none border-b border-[#F0F2F5] bg-transparent pb-2 lg:mb-4">
+          <div className="mb-2 flex h-auto w-full items-start justify-start gap-3 overflow-hidden rounded-none border-b border-[#F0F2F5] bg-transparent pb-2 lg:mb-4">
             <Skeleton className="h-10 w-24" />
             <Skeleton className="h-10 w-40" />
             <Skeleton className="h-10 w-32" />
@@ -166,7 +166,9 @@ export const SettingsClientPage = () => {
 
   const [email, setEmail] = React.useState(user?.email || "");
   const [twoFactorEnabled, setTwoFactorEnabled] = React.useState(true);
-  const [connectedDevices, setConnectedDevices] = React.useState<ConnectedDevice[]>([
+  const [connectedDevices, setConnectedDevices] = React.useState<
+    ConnectedDevice[]
+  >([
     {
       id: "1",
       name: "Chrome 110.0.0.0",
@@ -206,18 +208,18 @@ export const SettingsClientPage = () => {
   };
 
   console.log("MEDICAL FILES", user);
-  
+
   const handleCheckEmail = () => {
     console.log("Redirecting to email client...");
     setFlowStep("form");
   };
-  
+
   const handleSignOut = (deviceId: string) => {
     setConnectedDevices(
       connectedDevices.filter((device) => device.id !== deviceId)
     );
   };
-  
+
   const handleToggle = (
     categoryId: string,
     channel: "sms" | "email",
@@ -299,7 +301,7 @@ export const SettingsClientPage = () => {
         title="Settings"
         description="Change your account settings"
       />
-      
+
       <section className="mt-4 flex w-full gap-5">
         <Tabs defaultValue="profile" className="w-full">
           <TabsList className="custom-scrollbar mb-2 flex h-auto w-full items-start justify-start gap-3 overflow-hidden overflow-x-scroll rounded-none border-b border-[#F0F2F5] bg-transparent p-0 pb-0 lg:mb-4">

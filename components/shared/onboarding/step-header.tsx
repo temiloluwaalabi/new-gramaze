@@ -7,8 +7,8 @@ type StepHeaderProps = {
 export const StepHeader = ({ title, description }: StepHeaderProps) => {
   return (
     <div className="mb-6">
-      <h2 className="text-lg md:text-xl lg:text-2xl font-semibold">{title}</h2>
-      <p className="text-gray-500 text-xs md:text-sm">{description}</p>
+      <h2 className="text-lg font-semibold md:text-xl lg:text-2xl">{title}</h2>
+      <p className="text-xs text-gray-500 md:text-sm">{description}</p>
     </div>
   );
 };

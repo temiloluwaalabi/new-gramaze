@@ -261,61 +261,67 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
 
       return (
         <DropdownMenu>
-            <VerificationGuard
-              route="/billing"
-              fallback={
-                <Button disabled className="!h-fit !py-2 text-xs" size={"sm"}>
-                  Verify Account
-                </Button>
-              }
-            >
-              <DropdownMenuTrigger>
-                  <Button variant="ghost" className="!h-8 w-8 p-0 bg-blue-100 text-blue-700 hover:bg-blue-200">
+          <VerificationGuard
+            route="/billing"
+            fallback={
+              <Button disabled className="!h-fit !py-2 text-xs" size={"sm"}>
+                Verify Account
+              </Button>
+            }
+          >
+            <DropdownMenuTrigger>
+              <Button
+                variant="ghost"
+                className="!h-8 w-8 bg-blue-100 p-0 text-blue-700 hover:bg-blue-200"
+              >
                 <span className="sr-only">Open menu</span>
                 <EllipsisVertical className="h-4 w-4" />
               </Button>
-          </DropdownMenuTrigger>
-            
-            </VerificationGuard>
-          
+            </DropdownMenuTrigger>
+          </VerificationGuard>
+
           <DropdownMenuContent align="end" className="w-56">
-             <DropdownMenuLabel>
+            <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">
+                <p className="text-sm leading-none font-medium">
                   {appointment.appointment_type.charAt(0).toUpperCase() +
                     appointment.appointment_type.slice(1)}{" "}
                   Appointment
                 </p>
-                <p className="text-xs leading-none text-muted-foreground">
+                <p className="text-muted-foreground text-xs leading-none">
                   {appointment.location}
                 </p>
               </div>
             </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
+            <DropdownMenuSeparator />
 
-              <TableAppointmentSheet
-                sheetTrigger={
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
-                    <View className="mr-2 size-4" />
-                    <span>View Details</span>
-            </DropdownMenuItem>
-                }
-                appointment={appointment}
-              />
-            
+            <TableAppointmentSheet
+              sheetTrigger={
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
+                  className="cursor-pointer"
+                >
+                  <View className="mr-2 size-4" />
+                  <span>View Details</span>
+                </DropdownMenuItem>
+              }
+              appointment={appointment}
+            />
 
             {appointment.status !== "completed" &&
               appointment.status !== "cancelled" && (
                 <ReschedileAppointmentSheet
                   appoinment={appointment.id.toString()}
                   sheetTrigger={
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
-                    <Settings className="mr-2 size-4" />
-                    <span>Reschedule Appointment</span>
-            </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={(e) => e.preventDefault()}
+                      className="cursor-pointer"
+                    >
+                      <Settings className="mr-2 size-4" />
+                      <span>Reschedule Appointment</span>
+                    </DropdownMenuItem>
                   }
                 />
-               
               )}
 
             {appointment.appointment_type === "virtual" &&
@@ -325,7 +331,7 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
                     href={appointment.meeting_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                className="flex cursor-pointer items-center"
+                    className="flex cursor-pointer items-center"
                   >
                     Join Meeting
                   </Link>

@@ -1,23 +1,23 @@
-import pino from 'pino';
+import pino from "pino";
 
-const isEdge = process.env.NEXT_RUNTIME === 'edge';
-const isProduction = process.env.NODE_ENV === 'production';
+const isEdge = process.env.NEXT_RUNTIME === "edge";
+const isProduction = process.env.NODE_ENV === "production";
 
-const isServerSide = typeof window === 'undefined';
+const isServerSide = typeof window === "undefined";
 
 const logger = isServerSide
   ? pino(
       !isEdge && !isProduction
         ? {
             transport: {
-              target: 'pino-pretty',
+              target: "pino-pretty",
               options: {
                 colorize: true,
-                ignore: 'pid,hostname',
-                translateTime: 'SYS:standard',
+                ignore: "pid,hostname",
+                translateTime: "SYS:standard",
               },
             },
-            level: process.env.LOG_LEVEL || 'info',
+            level: process.env.LOG_LEVEL || "info",
             formatters: {
               level: (label) => ({ level: label.toUpperCase() }),
             },
@@ -27,7 +27,7 @@ const logger = isServerSide
             timestamp: pino.stdTimeFunctions.isoTime,
           }
         : {
-            level: process.env.LOG_LEVEL || 'info',
+            level: process.env.LOG_LEVEL || "info",
             formatters: {
               level: (label) => ({ level: label.toUpperCase() }),
             },

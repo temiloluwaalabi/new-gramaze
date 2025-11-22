@@ -19,7 +19,6 @@ export default function useSafeToast() {
 
     toast.dismiss(id);
 
-
     toast[type](message, {
       id,
       ...options,

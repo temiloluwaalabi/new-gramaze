@@ -55,11 +55,14 @@ export const CaregiverHistory: ColumnDef<{
           <Avatar className="size-6">
             <AvatarFallback className="bg-blue-100 text-blue-600">
               {initialsFromName(
-                                [caregiver.caregiver?.first_name, caregiver.caregiver?.last_name]
-                                  .filter(Boolean)
-                                  .join(" ")
-                                  .trim()
-                              )}
+                [
+                  caregiver.caregiver?.first_name,
+                  caregiver.caregiver?.last_name,
+                ]
+                  .filter(Boolean)
+                  .join(" ")
+                  .trim()
+              )}
             </AvatarFallback>
             {/* <AvatarImage src={DEFAULT_IMAGE_URL} /> */}
           </Avatar>

@@ -142,7 +142,7 @@ export default function MessageSidebar({
                 }`}
                 onClick={() => onSelect(conversation.id)}
               >
-                <div className="relative mr-3  h-8 w-8 flex-shrink-0">
+                <div className="relative mr-3 h-8 w-8 flex-shrink-0">
                   <Image
                     src={conversation.avatar ?? "/asset/images/robert.jpg"}
                     alt={conversation.name}

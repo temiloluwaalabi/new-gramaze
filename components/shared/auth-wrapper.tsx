@@ -33,8 +33,8 @@ export const AuthWrapper = (props: Props) => {
             className="object-start object-cover"
           />
         </div>
-        <div className="col-span-12 flex w-full flex-col items-center justify-center space-y-4 py-4 md:col-span-7 ">
-          <div className="flex w-full items-center justify-center px-0 md:px-8 ">
+        <div className="col-span-12 flex w-full flex-col items-center justify-center space-y-4 py-4 md:col-span-7">
+          <div className="flex w-full items-center justify-center px-0 md:px-8">
             <Button
               variant={"outline"}
               className="relative mr-auto flex !h-fit items-center gap-1 border-none !p-0 text-[14px] shadow-none md:hidden"
@@ -51,8 +51,8 @@ export const AuthWrapper = (props: Props) => {
               className="flex h-[70px] w-[240px] items-end justify-end md:h-[75px] md:w-[249px]"
             />
           </div>
-          <div className="custom-scrollbar h-fit w-full space-y-2 overflow-y-auto px-0 md:px-8 max-w-2xl">
-            <div className="space-y-1 flex flex-col items-center justify-center mb-2 ">
+          <div className="custom-scrollbar h-fit w-full max-w-2xl space-y-2 overflow-y-auto px-0 md:px-8">
+            <div className="mb-2 flex flex-col items-center justify-center space-y-1">
               <h2 className="text-[25px] font-bold text-gray-800 md:text-[30px]">
                 {props.authTitle}
               </h2>

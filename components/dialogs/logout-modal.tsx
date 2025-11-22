@@ -15,7 +15,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import useSession from "@/hooks/use-session";
-import { useUserStore } from "@/store/user-store";
 
 type Props = {
   trigger: React.ReactNode;
@@ -30,7 +29,6 @@ export const LogoutModal = (props: Props) => {
     await clientLogoutSession().then(() => {
       toast("Logged out successfully");
       // useUserStore.getState().clearStore();
-      useUserStore.getState().logout();
       setOpenDialog(false);
       setLoading(false);
     });

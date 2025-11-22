@@ -17,29 +17,28 @@ export function useCurrentUser() {
   const hasInitializedRef = useRef(false); // ✅ Use ref instead of state
   const hasSeenSessionRef = useRef(false); // ✅ Track if we've ever seen a session
 
-    console.log("🔍 User Store Debug:", {
+  console.log("🔍 User Store Debug:", {
     session: session?.email,
     storedUser: storedUser?.email,
     sessionLoading,
     hasInitialized: hasInitializedRef.current,
     hasSeenSession: hasSeenSessionRef.current,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 
-  console.log("SESSION", session)
-  console.log("HOOK USER", storedUser)
+  console.log("SESSION", session);
+  console.log("HOOK USER", storedUser);
   useEffect(() => {
     const syncUserData = async () => {
       // ✅ Wait for session to finish loading before making decisions
       if (sessionLoading) {
         return;
       }
-     // ✅ Track if we've ever had a session
+      // ✅ Track if we've ever had a session
       if (session) {
         hasSeenSessionRef.current = true;
       }
 
-      
       // No session - logout only after initialization
       //  if (!session) {
       //   if (hasInitializedRef.current && hasSeenSessionRef.current) {
@@ -50,15 +49,14 @@ export function useCurrentUser() {
       //   hasInitializedRef.current = true;
       //   return;
       // }
-         // ✅ Mark that we've seen the first session state
-          // hasInitializedRef.current = true;
+      // ✅ Mark that we've seen the first session state
+      // hasInitializedRef.current = true;
 
-
-       // Skip if we already have matching user data
-    if (storedUser && storedUser.email === session?.email) {
-      setIsLoading(false);
-      return;
-    }
+      // Skip if we already have matching user data
+      if (storedUser && storedUser.email === session?.email) {
+        setIsLoading(false);
+        return;
+      }
       try {
         const res = await authService.getUserDetails();
 
@@ -111,10 +109,11 @@ export function useCurrentUser() {
         setUser(userData);
       } catch (err: any) {
         console.error("Failed to load user", err);
- // ⚠️ Only logout on auth errors, not network errors
+        // ⚠️ Only logout on auth errors, not network errors
         if (err.status === 401 || err.status === 403) {
           logout();
-        }      } finally {
+        }
+      } finally {
         setIsLoading(false);
       }
     };
@@ -123,14 +122,14 @@ export function useCurrentUser() {
   }, [session, sessionLoading, storedUser?.email]); // Re-sync when session changes
 
   useEffect(() => {
-  console.log('🔍 User Store Debug:', {
-    session: session?.email,
-    storedUser: storedUser?.email,
-    sessionLoading,
-    hasInitialized: hasInitializedRef.current,
-    timestamp: new Date().toISOString()
-  });
-}, [session, storedUser, sessionLoading]);
+    console.log("🔍 User Store Debug:", {
+      session: session?.email,
+      storedUser: storedUser?.email,
+      sessionLoading,
+      hasInitialized: hasInitializedRef.current,
+      timestamp: new Date().toISOString(),
+    });
+  }, [session, storedUser, sessionLoading]);
 
   // Manual refetch function that also updates the store
   const refetchUser = async () => {

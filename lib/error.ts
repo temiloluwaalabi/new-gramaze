@@ -13,19 +13,19 @@ export class AppError extends Error {
 
 export class ValidationError extends AppError {
   constructor(errors: Record<string, string[]>) {
-    super('Validation failed', 400, errors);
+    super("Validation failed", 400, errors);
   }
 }
 
 export class UnauthorizedError extends AppError {
   constructor() {
-    super('Unauthorized', 401);
+    super("Unauthorized", 401);
   }
 }
 
 export class ForbiddenError extends AppError {
   constructor() {
-    super('Forbidden', 403);
+    super("Forbidden", 403);
   }
 }
 

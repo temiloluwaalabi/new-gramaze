@@ -32,16 +32,16 @@ export async function fetchJSON<JSON = unknown>(
 }
 
 export default function useSession() {
-  const serverSession = useServerSession()
+  const serverSession = useServerSession();
   const [session, setSession] = useState<SessionData | null>(serverSession); // ✅ Start with null
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const router = useRouter();
 
-  console.log("Server Session", serverSession)
+  console.log("Server Session", serverSession);
 
   useEffect(() => {
-    if(!serverSession?.isLoggedIn){
+    if (!serverSession?.isLoggedIn) {
       return;
     }
     const fetchSession = async () => {
@@ -53,7 +53,7 @@ export default function useSession() {
         setError(null);
       } catch (error) {
         setError(error as Error);
-        setSession(null)
+        setSession(null);
       } finally {
         setIsLoading(false);
       }
@@ -88,7 +88,7 @@ export default function useSession() {
       return data;
     } catch (err) {
       setError(err as Error);
-      setSession(null)
+      setSession(null);
     } finally {
       setIsLoading(false);
     }
@@ -98,13 +98,13 @@ export default function useSession() {
   const clientLogoutSession = async () => {
     setIsLoading(true);
     try {
-     await fetchJSON<SessionData>(sessionApiRoute, {
+      await fetchJSON<SessionData>(sessionApiRoute, {
         method: "DELETE",
       });
-      useUserStore.getState().logout();
       setSession(null);
       setError(null);
       router.push("/");
+      useUserStore.getState().logout();
     } catch (err) {
       setError(err as Error);
     } finally {

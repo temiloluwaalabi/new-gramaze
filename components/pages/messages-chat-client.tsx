@@ -15,7 +15,7 @@ import type { ChatUser, Message as ChatMessage } from "@/types";
 import MessageSidebar from "../shared/layout/message-sidebar";
 import MessageThread from "../shared/layout/message-thread";
 
-type SafeSession = { 
+type SafeSession = {
   userId?: string | number;
   email?: string;
   firstName?: string;
@@ -31,9 +31,13 @@ export default function MessagesChatClient({
   session: SafeSession;
   initialChatList: ChatUser[];
 }) {
-  const [conversations, setConversations] = React.useState<ChatUser[]>(initialChatList ?? []);
+  const [conversations, setConversations] = React.useState<ChatUser[]>(
+    initialChatList ?? []
+  );
   const [selectedId, setSelectedId] = React.useState<string | null>(() =>
-    initialChatList && initialChatList.length ? String(initialChatList[0].id) : null
+    initialChatList && initialChatList.length
+      ? String(initialChatList[0].id)
+      : null
   );
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [loadingConvos, setLoadingConvos] = React.useState(false);
@@ -63,7 +67,10 @@ export default function MessagesChatClient({
         }
       } catch (err: unknown) {
         console.error("Failed to load messages", err);
-        const message = err instanceof Error ? err.message : String(err ?? "Failed to load messages");
+        const message =
+          err instanceof Error
+            ? err.message
+            : String(err ?? "Failed to load messages");
         setError(message);
       } finally {
         setLoadingMessages(false);
@@ -104,7 +111,6 @@ export default function MessagesChatClient({
         message: messageText,
       } as Parameters<typeof sendMessageAction>[0]);
 
-
       // refresh
       const refreshed = await fetchMessagesAction(receiverId);
       if (refreshed?.success) setMessages(refreshed.messages ?? []);
@@ -124,7 +130,11 @@ export default function MessagesChatClient({
   const handleMarkAsRead = async (messageId: string) => {
     try {
       await markMessageAsReadAction(String(messageId));
-      setMessages((prev) => prev.map((m) => (String(m.id) === String(messageId) ? { ...m, isRead: true } : m)));
+      setMessages((prev) =>
+        prev.map((m) =>
+          String(m.id) === String(messageId) ? { ...m, isRead: true } : m
+        )
+      );
     } catch (err) {
       console.error("Failed to mark as read", err);
     }
@@ -176,7 +186,8 @@ export default function MessagesChatClient({
     });
   };
 
-  const currentConversation = conversations.find((c) => String(c.id) === String(selectedId)) ?? undefined;
+  const currentConversation =
+    conversations.find((c) => String(c.id) === String(selectedId)) ?? undefined;
 
   return (
     <section className="flex h-full !bg-white pl-[15px] lg:pl-[15px] 2xl:pl-[20px]">
@@ -193,7 +204,10 @@ export default function MessagesChatClient({
           id: m.id,
           sender: m.senderId,
           message: m.message,
-          time: new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          time: new Date(m.timestamp).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
           isUserMessage: String(m.senderId) === currentUserId,
         }))}
         currentConversation={
@@ -201,7 +215,8 @@ export default function MessagesChatClient({
             ? {
                 id: String(currentConversation.id),
                 name: currentConversation.name,
-                avatar: currentConversation.avatar ?? "/asset/images/robert.jpg",
+                avatar:
+                  currentConversation.avatar ?? "/asset/images/robert.jpg",
                 unread: currentConversation.message_notification !== null,
                 online: false,
                 time: "",
@@ -209,7 +224,9 @@ export default function MessagesChatClient({
               }
             : undefined
         }
-        onSend={(text) => selectedId && handleSendMessage(String(selectedId), text)}
+        onSend={(text) =>
+          selectedId && handleSendMessage(String(selectedId), text)
+        }
         loadingMessages={loadingMessages}
         onMarkAsRead={handleMarkAsRead}
       />

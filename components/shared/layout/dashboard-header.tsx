@@ -73,7 +73,7 @@ export default function DashboardHeader(props: Props) {
             className="no-focus h-[40px] w-[320px] border-none shadow-none outline-none"
           />
         </div>
-         <Bell className="size-5 cursor-pointer border-[#66666B]" />
+        <Bell className="size-5 cursor-pointer border-[#66666B]" />
         {/* <NotificationPanelSheet
           sheetTrigger={
             <Bell className="size-5 cursor-pointer border-[#66666B]" />
@@ -97,13 +97,13 @@ export default function DashboardHeader(props: Props) {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">
+                <p className="text-sm leading-none font-medium">
                   {[user?.first_name, user?.last_name]
                     .filter(Boolean)
                     .join(" ")
                     .trim() || "User"}
                 </p>
-                <p className="text-xs leading-none text-muted-foreground">
+                <p className="text-muted-foreground text-xs leading-none">
                   {user?.email}
                 </p>
               </div>
@@ -143,8 +143,6 @@ export default function DashboardHeader(props: Props) {
             />
           </DropdownMenuContent>
         </DropdownMenu>
-
-     
       </div>
     </div>
   );
