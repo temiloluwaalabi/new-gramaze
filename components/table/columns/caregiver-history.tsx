@@ -2,10 +2,10 @@ import { ColumnDef } from "@tanstack/react-table";
 import { EllipsisVertical } from "lucide-react";
 import Link from "next/link";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DEFAULT_IMAGE_URL } from "@/config/constants";
-import { formatDate } from "@/lib/utils";
+// import { DEFAULT_IMAGE_URL } from "@/config/constants";
+import { formatDate, initialsFromName } from "@/lib/utils";
 
 export const CaregiverHistory: ColumnDef<{
   id: number;
@@ -53,8 +53,15 @@ export const CaregiverHistory: ColumnDef<{
       return (
         <div className="flex items-center space-x-2">
           <Avatar className="size-6">
-            <AvatarFallback>CN</AvatarFallback>
-            <AvatarImage src={DEFAULT_IMAGE_URL} />
+            <AvatarFallback className="bg-blue-100 text-blue-600">
+              {initialsFromName(
+                                [caregiver.caregiver?.first_name, caregiver.caregiver?.last_name]
+                                  .filter(Boolean)
+                                  .join(" ")
+                                  .trim()
+                              )}
+            </AvatarFallback>
+            {/* <AvatarImage src={DEFAULT_IMAGE_URL} /> */}
           </Avatar>
           <Link
             href={`/dashboard/caregiver-history/${caregiver?.caregiver?.id}`}

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useEffect, useState } from "react";
 
@@ -9,25 +11,37 @@ import { User } from "@/types";
 import useSession from "./use-session";
 
 export function useCurrentUser() {
-  const { session } = useSession();
+  const { session, isLoading: sessionLoading } = useSession();
   const { user: storedUser, setUser, logout } = useUserStore();
   const [isLoading, setIsLoading] = useState(true);
+  const [hasInitialized, setHasInitialized] = useState(false); // ✅ Track initialization
 
+  console.log("SESSION", session)
+  console.log("HOOK USER", storedUser)
   useEffect(() => {
     const syncUserData = async () => {
+      // ✅ Wait for session to finish loading before making decisions
+      if (sessionLoading) {
+        return;
+      }
+       // ✅ Mark that we've seen the first session state
+      if (!hasInitialized) {
+        setHasInitialized(true);
+      }
       // No session means logout
       if (!session) {
-        logout(); // Clear the store
-        setIsLoading(false);
+// ✅ Only logout if we've initialized and there's no session
+        if (hasInitialized) {
+          logout();
+        }        setIsLoading(false);
         return;
       }
 
-      // If we already have user data in store and it matches the session, skip fetch
-      // Optional: You might want to always fetch fresh data
-      // if (storedUser && storedUser.email === session.email) {
-      //   setIsLoading(false);
-      //   return;
-      // }
+       // Skip if we already have matching user data
+    if (storedUser && storedUser.email === session.email) {
+      setIsLoading(false);
+      return;
+    }
 
       try {
         const res = await authService.getUserDetails();
@@ -79,16 +93,18 @@ export function useCurrentUser() {
 
         // Update the store with fresh user data
         setUser(userData);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Failed to load user", err);
-        logout(); // Clear store on error
-      } finally {
+ // ⚠️ Only logout on auth errors, not network errors
+        if (err.status === 401 || err.status === 403) {
+          logout();
+        }      } finally {
         setIsLoading(false);
       }
     };
 
     syncUserData();
-  }, [session, setUser, logout]); // Re-sync when session changes
+  }, [session, sessionLoading, storedUser?.email]); // Re-sync when session changes
 
   // Manual refetch function that also updates the store
   const refetchUser = async () => {
@@ -154,7 +170,7 @@ export function useCurrentUser() {
   // Return data from the store (single source of truth)
   return {
     user: storedUser,
-    isLoading,
+    isLoading: isLoading || sessionLoading,
     refetchUser,
     isAuthenticated: !!session && !!storedUser,
   };

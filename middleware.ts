@@ -36,7 +36,7 @@ export default async function middleware(req: NextRequest) {
   const isOnboarded = session?.isBoarded || false;
   const isVerified = session?.isVerified || false;
 
-  console.log("SESSION", session);
+  console.log("MIDDLEWARE SESSION", session);
 
   const isApiAuthRoute = pathname.startsWith(apiAuthPrefix);
   const isAuthRoute = authRoutes.includes(pathname);

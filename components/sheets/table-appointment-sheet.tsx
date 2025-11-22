@@ -106,7 +106,7 @@ export const TableAppointmentSheet = (props: Props) => {
   ) : (
     <Sheet open={openSheet} onOpenChange={setOpenSheet}>
       <SheetTrigger className="size-full">{props.sheetTrigger}</SheetTrigger>
-      <SheetContent className="!w-[600px] max-w-full border-none bg-transparent p-5 md:!max-w-[600px]">
+      <SheetContent className="!w-[550px] max-w-full border-none bg-transparent p-5 md:!max-w-[550px]">
         <div className="custom-scrollbar flex h-full flex-col overflow-y-scroll rounded-lg border border-gray-200 bg-white p-6 shadow-lg">
           <SheetHeader className="mb-6 p-0">
             <div className="flex items-center justify-between">
@@ -403,7 +403,7 @@ export const TableAppointmentSheet = (props: Props) => {
                       setOpenSheet(false);
                       setShowReschedule(true);
                     }}
-                    className="flex items-center space-x-2"
+                    className="flex text-sm items-center space-x-2"
                   >
                     <Calendar className="h-4 w-4" />
                     <span>Reschedule Appointment</span>
@@ -411,7 +411,7 @@ export const TableAppointmentSheet = (props: Props) => {
                 </VerificationGuard>
               )}
 
-              {appointment.status === "assigned" && (
+              {appointment.status === "assigned" && user?.user_role === "caregiver" && (
                 <Button
                   variant="secondary"
                   className="flex items-center space-x-2"

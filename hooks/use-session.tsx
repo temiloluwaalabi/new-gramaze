@@ -30,11 +30,11 @@ export async function fetchJSON<JSON = unknown>(
 }
 
 export default function useSession() {
-  const [session, setSession] = useState<SessionData>();
+  const [session, setSession] = useState<SessionData | null>(null); // ✅ Start with null
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-
   const router = useRouter();
+
   useEffect(() => {
     const fetchSession = async () => {
       setIsLoading(true);
@@ -45,6 +45,7 @@ export default function useSession() {
         setError(null);
       } catch (error) {
         setError(error as Error);
+        setSession(null)
       } finally {
         setIsLoading(false);
       }
@@ -76,8 +77,10 @@ export default function useSession() {
       });
       setSession(data);
       setError(null);
+      return data;
     } catch (err) {
       setError(err as Error);
+      setSession(null)
     } finally {
       setIsLoading(false);
     }
@@ -87,11 +90,11 @@ export default function useSession() {
   const clientLogoutSession = async () => {
     setIsLoading(true);
     try {
-      const data = await fetchJSON<SessionData>(sessionApiRoute, {
+     await fetchJSON<SessionData>(sessionApiRoute, {
         method: "DELETE",
       });
       useUserStore.getState().logout();
-      setSession(data);
+      setSession(null);
       setError(null);
       router.push("/");
     } catch (err) {

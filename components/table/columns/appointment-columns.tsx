@@ -6,9 +6,12 @@ import {
   Clock,
   EllipsisVertical,
   Home,
+  Settings,
   User,
   Video,
+  View,
 } from "lucide-react";
+import Link from "next/link";
 
 import { VerificationGuard } from "@/components/guards/verification-guard";
 import { ReschedileAppointmentSheet } from "@/components/sheets/reschedule-appointment-sheet";
@@ -21,6 +24,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn, formatDate } from "@/lib/utils";
@@ -256,7 +261,6 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
 
       return (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
             <VerificationGuard
               route="/billing"
               fallback={
@@ -265,67 +269,78 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
                 </Button>
               }
             >
-              <Button variant="ghost" className="h-8 w-8 p-0">
+              <DropdownMenuTrigger>
+                  <Button variant="ghost" className="!h-8 w-8 p-0 bg-blue-100 text-blue-700 hover:bg-blue-200">
                 <span className="sr-only">Open menu</span>
                 <EllipsisVertical className="h-4 w-4" />
               </Button>
-            </VerificationGuard>
           </DropdownMenuTrigger>
+            
+            </VerificationGuard>
+          
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+             <DropdownMenuLabel>
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">
+                  {appointment.appointment_type.charAt(0).toUpperCase() +
+                    appointment.appointment_type.slice(1)}{" "}
+                  Appointment
+                </p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {appointment.location}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+
               <TableAppointmentSheet
                 sheetTrigger={
-                  <Button
-                    variant="ghost"
-                    className="h-auto justify-start p-0 font-normal"
-                  >
-                    View Details
-                  </Button>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
+                    <View className="mr-2 size-4" />
+                    <span>View Details</span>
+            </DropdownMenuItem>
                 }
                 appointment={appointment}
               />
-            </DropdownMenuItem>
+            
 
             {appointment.status !== "completed" &&
               appointment.status !== "cancelled" && (
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  <ReschedileAppointmentSheet
-                    appoinment={appointment.id.toString()}
-                    sheetTrigger={
-                      <Button
-                        variant="ghost"
-                        className="h-auto justify-start p-0 font-normal"
-                      >
-                        Reschedule
-                      </Button>
-                    }
-                  />
-                </DropdownMenuItem>
+                <ReschedileAppointmentSheet
+                  appoinment={appointment.id.toString()}
+                  sheetTrigger={
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer">
+                    <Settings className="mr-2 size-4" />
+                    <span>Reschedule Appointment</span>
+            </DropdownMenuItem>
+                  }
+                />
+               
               )}
 
             {appointment.appointment_type === "virtual" &&
               appointment.meeting_link && (
                 <DropdownMenuItem>
-                  <a
+                  <Link
                     href={appointment.meeting_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full text-left"
+                className="flex cursor-pointer items-center"
                   >
                     Join Meeting
-                  </a>
+                  </Link>
                 </DropdownMenuItem>
               )}
 
             {appointment.status === "assigned" && (
-              <DropdownMenuItem className="text-green-600">
+              <DropdownMenuItem className="cursor-pointer text-green-600">
                 Mark as Arrived
               </DropdownMenuItem>
             )}
 
             {(appointment.status === "pending" ||
               appointment.status === "assigned") && (
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuItem className="cursor-pointer text-red-600">
                 Cancel Appointment
               </DropdownMenuItem>
             )}

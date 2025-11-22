@@ -14,6 +14,7 @@ export default function OnboardingWrapper({
   children: ReactNode;
 }) {
   const [isMobile, setIsMobile] = useState(false);
+  // const { isLoading } = useCurrentUser(); // ✅ Capture loading state
 
   useCurrentUser();
   useEffect(() => {

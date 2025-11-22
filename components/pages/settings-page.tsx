@@ -31,6 +31,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Separator } from "../ui/separator";
+import { Skeleton } from "../ui/skeleton";
 import { Switch } from "../ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
@@ -49,6 +50,82 @@ export interface ConnectedDevice {
   lastActivity: string;
   location: string;
 }
+
+// ✅ Loading Skeleton Component
+const SettingsLoadingSkeleton = () => {
+  return (
+    <section className="max-w-5xl space-y-3 !bg-white px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
+      {/* Header Skeleton */}
+      <div className="space-y-2">
+        <Skeleton className="h-8 w-32" />
+        <Skeleton className="h-4 w-64" />
+      </div>
+
+      <section className="mt-4 flex w-full gap-5">
+        <div className="w-full space-y-4">
+          {/* Tabs Skeleton */}
+          <div className="mb-2 flex h-auto w-full items-start justify-start gap-3 overflow-hidden  rounded-none border-b border-[#F0F2F5] bg-transparent pb-2 lg:mb-4">
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-10 w-40" />
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-10 w-36" />
+            <Skeleton className="h-10 w-44" />
+          </div>
+
+          {/* Profile Section Skeleton */}
+          <div className="mt-2 w-full space-y-6">
+            {/* Profile Header */}
+            <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+              <div className="flex items-center gap-3">
+                <Skeleton className="size-[70px] rounded-full md:size-[96px]" />
+                <div className="space-y-2">
+                  <Skeleton className="h-5 w-48" />
+                  <Skeleton className="h-4 w-36" />
+                </div>
+              </div>
+              <Skeleton className="h-[38px] w-40" />
+            </div>
+
+            <Separator className="bg-[#E8E8E8]" />
+
+            {/* Form Fields Skeleton */}
+            <div className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <Skeleton className="h-10 w-32" />
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  );
+};
 
 export const SettingsClientPage = () => {
   const { user } = useUserStore();
@@ -89,9 +166,7 @@ export const SettingsClientPage = () => {
 
   const [email, setEmail] = React.useState(user?.email || "");
   const [twoFactorEnabled, setTwoFactorEnabled] = React.useState(true);
-  const [connectedDevices, setConnectedDevices] = React.useState<
-    ConnectedDevice[]
-  >([
+  const [connectedDevices, setConnectedDevices] = React.useState<ConnectedDevice[]>([
     {
       id: "1",
       name: "Chrome 110.0.0.0",
@@ -101,9 +176,16 @@ export const SettingsClientPage = () => {
       location: "LA, Nigeria",
     },
   ]);
+
+  // ✅ Update email when user loads
+  React.useEffect(() => {
+    if (user?.email) {
+      setEmail(user.email);
+    }
+  }, [user?.email]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle password reset logic here
     console.log("Password reset requested for:", email);
   };
 
@@ -124,18 +206,18 @@ export const SettingsClientPage = () => {
   };
 
   console.log("MEDICAL FILES", user);
+  
   const handleCheckEmail = () => {
-    // In a real app, this might redirect to email provider or back to login
     console.log("Redirecting to email client...");
-    // For demo purposes, we'll go back to the form
     setFlowStep("form");
   };
+  
   const handleSignOut = (deviceId: string) => {
-    // Handle device sign out logic
     setConnectedDevices(
       connectedDevices.filter((device) => device.id !== deviceId)
     );
   };
+  
   const handleToggle = (
     categoryId: string,
     channel: "sms" | "email",
@@ -146,7 +228,6 @@ export const SettingsClientPage = () => {
         if (category.id === categoryId) {
           return {
             ...category,
-            // When enabling a channel, disable the other one
             smsEnabled:
               channel === "sms" ? value : value ? false : category.smsEnabled,
             emailEnabled:
@@ -173,12 +254,11 @@ export const SettingsClientPage = () => {
       (cat) => cat.id.toLowerCase() === "reminders"
     );
 
-    // Helper function to determine notification type
     const getNotificationType = (category: typeof messages) => {
-      if (!category) return "sms"; // default fallback
+      if (!category) return "sms";
       if (category.emailEnabled) return "email";
       if (category.smsEnabled) return "sms";
-      return "sms"; // default if neither is enabled
+      return "sms";
     };
 
     const JSON_VALUE = {
@@ -205,13 +285,21 @@ export const SettingsClientPage = () => {
       toast.error("An unexpected error occurred");
     }
   };
+
   console.log("CATEGO", categories);
+
+  // ✅ Show loading skeleton if user is not loaded
+  if (!user) {
+    return <SettingsLoadingSkeleton />;
+  }
+
   return (
     <section className="max-w-5xl space-y-3 !bg-white px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <PageTitleHeader
         title="Settings"
         description="Change your account settings"
       />
+      
       <section className="mt-4 flex w-full gap-5">
         <Tabs defaultValue="profile" className="w-full">
           <TabsList className="custom-scrollbar mb-2 flex h-auto w-full items-start justify-start gap-3 overflow-hidden overflow-x-scroll rounded-none border-b border-[#F0F2F5] bg-transparent p-0 pb-0 lg:mb-4">
@@ -272,7 +360,7 @@ export const SettingsClientPage = () => {
                       alt="mainImage"
                     />
                   ) : (
-                    <div className="flex size-[70px] items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-600 md:size-[96]">
+                    <div className="flex size-[70px] items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-600 md:size-[96px]">
                       {initialsFromName(
                         [user?.first_name, user?.last_name]
                           .filter(Boolean)
@@ -296,7 +384,7 @@ export const SettingsClientPage = () => {
                 </Button>
               </div>
               <Separator className="bg-[#E8E8E8]" />
-              {user && <UpdateAccountDataForm user={user} />}
+              <UpdateAccountDataForm user={user} />
             </div>
           </TabsContent>
           <TabsContent
@@ -391,14 +479,6 @@ export const SettingsClientPage = () => {
                   </p>
                 </div>
               </div>
-              {/* <ChangeCarePlanSheet
-                sheetTrigger={
-                  <Button className="!h-[45px] rounded-[6px] border border-[#DCDCDC] bg-white p-3 text-base font-normal text-[#333] hover:bg-white">
-                    Change Plan
-                  </Button>
-                }
-                user_id={user?.id || 0}
-              /> */}
             </div>
             <div className="space-y-2">
               <h4 className="text-lg font-semibold text-[#333]">
@@ -448,20 +528,6 @@ export const SettingsClientPage = () => {
                     record on your behalf. Contact our provider or support if
                     you need a record created or to share files.
                   </p>
-                  {/* 
-                  <div className="flex items-center gap-2">
-                    <UpdateMedicalRecordSheet
-                      sheetTrigger={
-                        <Button className="flex !h-[38px] items-center gap-2 text-sm">
-                          <Plus className="h-4 w-4" />
-                          Upload medical record
-                        </Button>
-                      }
-                    />
-                    <Button variant="ghost" className="!h-[38px]">
-                      Learn how
-                    </Button>
-                  </div> */}
                 </div>
               )}
             </div>
@@ -471,41 +537,6 @@ export const SettingsClientPage = () => {
               <h6 className="flex items-center text-base font-normal text-[#333]">
                 Attachments <Paperclip className="ms-2 size-5 text-[#66666B]" />
               </h6>
-              {/* <div className="mt-4 flex flex-wrap items-center gap-[12px]">
-                <Image
-                  src={`${process.env.NEXT_PUBLIC_ADMIN_URL}/${user?.medical_file[0]}`}
-                  width={145}
-                  height={105}
-                  className="h-[105px] w-[145px] rounded-[6px] object-cover"
-                  alt="attachment"
-                />
-                <Image
-                  src="https://res.cloudinary.com/davidleo/image/upload/v1745305715/733bc4196e8369bfa4710a5113244c66_qb9svi.jpg"
-                  width={145}
-                  height={105}
-                  className="h-[105px] w-[145px] rounded-[6px] object-cover"
-                  alt="attachment"
-                />
-                <Image
-                  src="https://res.cloudinary.com/davidleo/image/upload/v1745305715/733bc4196e8369bfa4710a5113244c66_qb9svi.jpg"
-                  width={145}
-                  height={105}
-                  className="h-[105px] w-[145px] rounded-[6px] object-cover"
-                  alt="attachment"
-                />
-                <div className="relative">
-                  <Image
-                    src="https://res.cloudinary.com/davidleo/image/upload/v1745305715/733bc4196e8369bfa4710a5113244c66_qb9svi.jpg"
-                    width={145}
-                    height={105}
-                    className="relative h-[105px] w-[145px] rounded-[6px] object-cover"
-                    alt="attachment"
-                  />
-                  <div className="absolute top-0 left-0 z-20 flex size-full items-center justify-center bg-[#CCCCCC33]">
-                    <h2 className="text-2xl font-semibold text-white">+2</h2>
-                  </div>
-                </div>
-              </div> */}
               <MedicalFilesDisplay
                 medicalFiles={user?.medical_file || ""}
                 className="mt-6"

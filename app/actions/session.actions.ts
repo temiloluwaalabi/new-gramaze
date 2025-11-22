@@ -3,26 +3,42 @@
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 
-import { SessionData, sessionOptions, sleep } from "@/lib/auth/session";
+import { defaultSessionData, SessionData, sessionOptions } from "@/lib/auth/session";
 import { User } from "@/types";
 
-export async function getSession() {
-  const shouldSleep = process.env.NODE_ENV === "development"; // Only sleep in development
-
+async function getSessionInstance() {
   const session = await getIronSession<SessionData>(
     await cookies(),
     sessionOptions
   );
-
-  if (shouldSleep) {
-    await sleep(250);
-  }
-
   return session;
 }
 
+export async function getSession() {
+  // const shouldSleep = process.env.NODE_ENV === "development"; // Only sleep in development
+
+   const session = await getSessionInstance();
+
+
+  // if (shouldSleep) {
+  //   await sleep(250);
+  // }
+
+  // ✅ Return only the data, not the session instance
+  return {
+    user_id: session.user_id ?? defaultSessionData.user_id,
+    accessToken: session.accessToken ?? defaultSessionData.accessToken,
+    refreshToken: session.refreshToken ?? defaultSessionData.refreshToken,
+    email: session.email ?? defaultSessionData.email,
+    firstName: session.firstName ?? defaultSessionData.firstName,
+    isLoggedIn: session.isLoggedIn ?? defaultSessionData.isLoggedIn,
+    userType: session.userType ?? defaultSessionData.userType,
+    isBoarded: session.isBoarded ?? defaultSessionData.isBoarded,
+    isVerified: session.isVerified ?? defaultSessionData.isVerified,
+  };}
+
 export async function LoginSession(user: User, accessToken: string) {
-  const session = await getSession();
+  const session = await getSessionInstance();
 
   Object.assign(session, {
     user_id: user.id,
@@ -35,7 +51,17 @@ export async function LoginSession(user: User, accessToken: string) {
     isVerified: user.user_status === "active",
   });
 
-  await session.save();
+  await session.save(); // ✅ Return plain data after saving
+  return {
+    user_id: session.user_id,
+    accessToken: session.accessToken,
+    email: session.email,
+    firstName: session.firstName,
+    isLoggedIn: session.isLoggedIn,
+    userType: session.userType,
+    isBoarded: session.isBoarded,
+    isVerified: session.isVerified,
+  } as SessionData;
 }
 
 export async function RegisterSession(
@@ -50,7 +76,7 @@ export async function RegisterSession(
     id: number;
   }
 ) {
-  const session = await getSession();
+  const session = await getSessionInstance();
   Object.assign(session, {
     user_id: user_data.id,
     accessToken,
@@ -61,15 +87,37 @@ export async function RegisterSession(
     isBoarded: false,
   });
   await session.save();
+    // ✅ Return plain data
+  return {
+    user_id: session.user_id,
+    accessToken: session.accessToken,
+    email: session.email,
+    firstName: session.firstName,
+    isLoggedIn: session.isLoggedIn,
+    userType: session.userType,
+    isBoarded: session.isBoarded,
+    isVerified: session.isVerified,
+  } as SessionData;
 }
 export async function OnboardSession() {
-  const session = await getSession();
+  const session = await getSessionInstance();
   // Set some initial session data, e.g., user ID or token
   session.isBoarded = true; // Set isBoarded to true when onboarding is complete
   await session.save();
+    // ✅ Return plain data
+  return {
+    user_id: session.user_id,
+    accessToken: session.accessToken,
+    email: session.email,
+    firstName: session.firstName,
+    isLoggedIn: session.isLoggedIn,
+    userType: session.userType,
+    isBoarded: session.isBoarded,
+    isVerified: session.isVerified,
+  } as SessionData;
 }
 export async function SessionLogout() {
-  const session = await getSession();
+  const session = await getSessionInstance();
   session.destroy();
   // Redirect to the homepage (or login page) immediately
   const headers = new Headers();
