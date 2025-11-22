@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { authService } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
@@ -14,7 +14,17 @@ export function useCurrentUser() {
   const { session, isLoading: sessionLoading } = useSession();
   const { user: storedUser, setUser, logout } = useUserStore();
   const [isLoading, setIsLoading] = useState(true);
-  const [hasInitialized, setHasInitialized] = useState(false); // ✅ Track initialization
+  const hasInitializedRef = useRef(false); // ✅ Use ref instead of state
+  const hasSeenSessionRef = useRef(false); // ✅ Track if we've ever seen a session
+
+    console.log("🔍 User Store Debug:", {
+    session: session?.email,
+    storedUser: storedUser?.email,
+    sessionLoading,
+    hasInitialized: hasInitializedRef.current,
+    hasSeenSession: hasSeenSessionRef.current,
+    timestamp: new Date().toISOString()
+  });
 
   console.log("SESSION", session)
   console.log("HOOK USER", storedUser)
@@ -24,25 +34,31 @@ export function useCurrentUser() {
       if (sessionLoading) {
         return;
       }
-       // ✅ Mark that we've seen the first session state
-      if (!hasInitialized) {
-        setHasInitialized(true);
-      }
-      // No session means logout
-      if (!session) {
-// ✅ Only logout if we've initialized and there's no session
-        if (hasInitialized) {
-          logout();
-        }        setIsLoading(false);
-        return;
+     // ✅ Track if we've ever had a session
+      if (session) {
+        hasSeenSessionRef.current = true;
       }
 
+      
+      // No session - logout only after initialization
+      //  if (!session) {
+      //   if (hasInitializedRef.current && hasSeenSessionRef.current) {
+      //     console.log("🚪 Logging out - no session after having one");
+      //     logout();
+      //   }
+      //   setIsLoading(false);
+      //   hasInitializedRef.current = true;
+      //   return;
+      // }
+         // ✅ Mark that we've seen the first session state
+          // hasInitializedRef.current = true;
+
+
        // Skip if we already have matching user data
-    if (storedUser && storedUser.email === session.email) {
+    if (storedUser && storedUser.email === session?.email) {
       setIsLoading(false);
       return;
     }
-
       try {
         const res = await authService.getUserDetails();
 
@@ -105,6 +121,16 @@ export function useCurrentUser() {
 
     syncUserData();
   }, [session, sessionLoading, storedUser?.email]); // Re-sync when session changes
+
+  useEffect(() => {
+  console.log('🔍 User Store Debug:', {
+    session: session?.email,
+    storedUser: storedUser?.email,
+    sessionLoading,
+    hasInitialized: hasInitializedRef.current,
+    timestamp: new Date().toISOString()
+  });
+}, [session, storedUser, sessionLoading]);
 
   // Manual refetch function that also updates the store
   const refetchUser = async () => {

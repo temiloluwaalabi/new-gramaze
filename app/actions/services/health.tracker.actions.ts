@@ -49,7 +49,7 @@ export const getLastTracker = async () => {
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,
@@ -131,7 +131,7 @@ export const getLastTrackers = async ({
       }[];
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,
@@ -206,7 +206,7 @@ export const getLastThreeReports = async () => {
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,
@@ -261,7 +261,7 @@ export const getLastThreeNotes = async () => {
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,
@@ -331,7 +331,7 @@ export const getUserHealthReports = async ({
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,
@@ -401,7 +401,7 @@ export const getUserHealthNotes = async ({
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,

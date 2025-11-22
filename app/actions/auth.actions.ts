@@ -101,7 +101,7 @@ export const RegisterStepOne = async (
       };
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     await RegisterSession(
       successResponse.data.token,
       successResponse.data.user_data
@@ -256,7 +256,7 @@ export const OnboardUserType = async (userType: string) => {
       rawResponse: ApiResponse<{ status: true; message: string }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/onboarding");
     return {
       success: true,
@@ -314,7 +314,7 @@ export const OnboardUserPlan = async (userPlan: string) => {
       rawResponse: ApiResponse<{ status: true; message: string }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/onboarding");
     return {
       success: true,
@@ -374,7 +374,7 @@ export const UpdateUserBiodate = async (values: BiodataSchemaType) => {
       user: User;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/");
     return {
       success: true,
@@ -440,7 +440,7 @@ export const UpdateUserProfile = async (values: BiodataSchemaType) => {
       };
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/");
     return {
       success: true,
@@ -493,7 +493,7 @@ export const UpdateNotificationSettings = async (values: {
       user: User;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/");
     return {
       success: true,
@@ -547,7 +547,7 @@ export const ResetPassword = async (values: {
       user: User;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/");
     return {
       success: true,
@@ -598,7 +598,7 @@ export const InitiatePasswordReset = async (
       message: string;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/");
     return {
       success: true,
@@ -659,7 +659,7 @@ export const UpdateMedicalReport = async (values: FormData) => {
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
 
     revalidatePath("/");
     return {
@@ -731,7 +731,7 @@ export const VirtualAppointment = async (values: {
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/");
 
     if (!sessionToken.isBoarded) {
@@ -804,7 +804,7 @@ export const PhysicalHomeAppointment = async (values: {
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/");
     if (!sessionToken.isBoarded) {
       await OnboardSession();
@@ -877,7 +877,7 @@ export const PhysicalHospitalAppointment = async (values: {
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/");
     if (!sessionToken.isBoarded) {
       await OnboardSession();

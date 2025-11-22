@@ -74,7 +74,7 @@ export const getUserAppointments = async ({
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,
@@ -138,7 +138,7 @@ export const getAppointmentDetail = async (appointmentId: string) => {
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,
@@ -216,7 +216,7 @@ export const rescheduleAppointment = async ({
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/appointments");
     revalidatePath("/");
     return {
@@ -305,7 +305,7 @@ export const getCaregiverAppointments = async ({
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,
@@ -371,7 +371,7 @@ export const getCaregiverAppointmentDetails = async (appointmentId: string) => {
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,
@@ -439,7 +439,7 @@ export const markAppointmentAsArrived = async (
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/appointments");
     revalidatePath(pathname);
     return {
@@ -513,7 +513,7 @@ export const confirmAppointmentArrival = async (values: {
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/appointments");
     revalidatePath("/");
     return {

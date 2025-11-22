@@ -64,7 +64,7 @@ export const InitiatePayment = async (
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath(pathname);
     return {
       success: true,
@@ -124,7 +124,7 @@ export const VerifyPayment = async (pathname: string, reference: string) => {
     };
 
     revalidatePath(pathname);
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,

@@ -7,15 +7,17 @@ import { ReactNode, Suspense, useEffect, useState } from "react";
 
 import { OnboardingProvider } from "@/context/onboarding-context";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { SessionData } from "@/lib/auth/session";
+import { SessionProvider } from "@/providers/SessionProvider";
 
 export default function OnboardingWrapper({
   children,
+  serverSession
 }: {
   children: ReactNode;
+  serverSession:SessionData
 }) {
   const [isMobile, setIsMobile] = useState(false);
-  // const { isLoading } = useCurrentUser(); // ✅ Capture loading state
-
   useCurrentUser();
   useEffect(() => {
     const checkScreenSize = () => {
@@ -30,7 +32,10 @@ export default function OnboardingWrapper({
 
   return (
     <Suspense>
+      <SessionProvider initialSession={serverSession}>
+
       <OnboardingProvider>{children}</OnboardingProvider>
+      </SessionProvider>
     </Suspense>
   );
 }

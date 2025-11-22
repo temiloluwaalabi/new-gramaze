@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-undef */
 "use client";
 
@@ -5,7 +6,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { SessionData } from "@/lib/auth/session";
+import { useServerSession } from "@/providers/SessionProvider";
 import { useUserStore } from "@/store/user-store";
+import { User } from "@/types";
 
 const sessionApiRoute = "/api/auth/session";
 
@@ -30,12 +33,18 @@ export async function fetchJSON<JSON = unknown>(
 }
 
 export default function useSession() {
-  const [session, setSession] = useState<SessionData | null>(null); // ✅ Start with null
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const serverSession = useServerSession()
+  const [session, setSession] = useState<SessionData | null>(serverSession); // ✅ Start with null
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
   const router = useRouter();
 
+  console.log("Server Session", serverSession)
+
   useEffect(() => {
+    if(!serverSession?.isLoggedIn){
+      return;
+    }
     const fetchSession = async () => {
       setIsLoading(true);
 
@@ -68,12 +77,12 @@ export default function useSession() {
   // };
 
   // Handle login
-  const clientLoginSession = async (username: string) => {
+  const clientLoginSession = async (user: User) => {
     setIsLoading(true);
     try {
       const data = await fetchJSON<SessionData>(sessionApiRoute, {
         method: "POST",
-        body: JSON.stringify({ username }),
+        body: JSON.stringify(user),
       });
       setSession(data);
       setError(null);

@@ -39,12 +39,14 @@ export const useUserStore = create<UserState>()(
           user: userData,
           isAutheticated: true,
         })),
-      logout: () =>
+      logout: () =>{
+           console.log('🚪 Logging out - clearing user');
+    console.trace(); // This will show you the call stack
         set(() => ({
           user: null,
           isAutheticated: false,
           isOnboarded: false, // Also reset onboarding status on logout
-        })),
+        }))},
     }),
     {
       name: "gramaze-user-storage",

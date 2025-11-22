@@ -47,7 +47,6 @@ export default async function CaregiverMainDashboard() {
         timestamp: formatDate(new Date(msg.timestamp)),
         unreadCount: msg.isRead ? 0 : 1,
       };
-      console.log("Mapped Message:", formatted);
       return formatted;
     });
 

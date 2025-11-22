@@ -111,7 +111,7 @@ export const getCaregiverHistory = async ({
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,
@@ -229,7 +229,7 @@ export const getCaregiverHistoryDetails = async (
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message:
@@ -319,7 +319,7 @@ export const getPatientHistoryDetails = async (
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message:
@@ -395,7 +395,7 @@ export const rateCaregiver = async (values: {
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     revalidatePath("/caregivers");
     revalidatePath("/history");
     return {
@@ -482,7 +482,7 @@ export const getUserBillHistory = async ({
       }>;
     };
 
-    console.log("SUCCESS RESPONSE", successResponse);
+    
     return {
       success: true,
       message: successResponse.message,

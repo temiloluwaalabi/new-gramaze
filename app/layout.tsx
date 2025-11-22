@@ -67,7 +67,7 @@ export default async function RootLayout({
       <body className={`h-full ${dmSans.variable} antialiased`}>
         <VerificationProvider isVerified={session.isVerified || false}>
           <Providers>
-            <OnboardingWrapper>
+            <OnboardingWrapper serverSession={session}>
               <main className="h-full">{children}</main>
               <Toaster richColors expand={true} />
             </OnboardingWrapper>
