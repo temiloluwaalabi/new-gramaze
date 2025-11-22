@@ -4,7 +4,7 @@ import Link from "next/link";
 import React from "react";
 
 import { LogoutModal } from "@/components/dialogs/logout-modal";
-import { NotificationPanelSheet } from "@/components/sheets/notification-panel-sheet";
+// import { NotificationPanelSheet } from "@/components/sheets/notification-panel-sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -73,11 +73,12 @@ export default function DashboardHeader(props: Props) {
             className="no-focus h-[40px] w-[320px] border-none shadow-none outline-none"
           />
         </div>
-        <NotificationPanelSheet
+         <Bell className="size-5 cursor-pointer border-[#66666B]" />
+        {/* <NotificationPanelSheet
           sheetTrigger={
             <Bell className="size-5 cursor-pointer border-[#66666B]" />
           }
-        />
+        /> */}
 
         {/* Avatar Dropdown Menu */}
         <DropdownMenu>

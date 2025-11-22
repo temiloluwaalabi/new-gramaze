@@ -379,9 +379,9 @@ export const SettingsClientPage = () => {
                     </p>
                   </div>
                 </div>
-                <Button className="!h-[38px] text-sm font-normal">
+                {/* <Button className="!h-[38px] text-sm font-normal">
                   Edit Profile Image
-                </Button>
+                </Button> */}
               </div>
               <Separator className="bg-[#E8E8E8]" />
               <UpdateAccountDataForm user={user} />
