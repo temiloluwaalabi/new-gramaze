@@ -51,7 +51,7 @@ export const AuthWrapper = (props: Props) => {
               className="flex h-[70px] w-[240px] items-end justify-end md:h-[75px] md:w-[249px]"
             />
           </div>
-          <div className="custom-scrollbar h-fit w-full max-w-2xl space-y-2 overflow-y-auto px-0 md:px-8">
+          <div className="custom-scrollbar h-fit w-full max-w-2xl space-y-2 overflow-y-auto px-0 md:px-8 xl:max-w-3xl">
             <div className="mb-2 flex flex-col items-center justify-center space-y-1">
               <h2 className="text-[25px] font-bold text-gray-800 md:text-[30px]">
                 {props.authTitle}

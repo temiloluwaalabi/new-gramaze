@@ -117,6 +117,11 @@ export const gramazeEndpoints = {
       detail: "/caregiver/patient/detail", // ?patient_id=1
       rating: "/caregiver/rating",
     },
+
+    "health-report": {
+      add: "/caregiver/health-report/add",
+      fetch: "/admin/health-report/fetch",
+    },
   },
 
   // Billing endpoints

@@ -13,6 +13,8 @@ import { allRoutes } from "@/config/routes";
 import useSafeToast from "@/hooks/useSafeToast";
 import { useRegisterStepOne } from "@/lib/queries/use-auth-queries";
 import { RegisterSchema } from "@/lib/schemas/user.schema";
+import { useUserStore } from "@/store/user-store";
+import { User } from "@/types";
 
 import { CustomFormField } from "../shared/custom-form-field";
 import { Button } from "../ui/button";
@@ -20,6 +22,7 @@ import { Form } from "../ui/form";
 
 export default function SignUpForm() {
   const router = useRouter();
+  const { setUser } = useUserStore();
   const { isPending, mutate: RegisterStepOne } = useRegisterStepOne();
   const SignUpForm = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
@@ -41,6 +44,46 @@ export default function SignUpForm() {
             "register-success",
             "Registration successful! Please check your email for verification."
           );
+
+          const userData: User = {
+            id: data.data.user_data.id,
+            first_name: data.data.user_data.first_name,
+            last_name: data.data.user_data.last_name,
+            email: data.data.user_data.email,
+            email_verified_at: null,
+            agree_to_terms: "",
+            user_type: null,
+            user_role: "",
+            has_set_user_type: "",
+            plan: null,
+            dob: null,
+            gender: null,
+            phone: null,
+            has_set_bio_data: "",
+            address: null,
+            medical_history: null,
+            medical_file: null,
+            has_set_medical_history: "",
+            has_set_up_appointment: "",
+            has_set_plan: "",
+            user_status: "",
+            last_login_time: null,
+            created_at: "",
+            updated_at: "",
+            activities_notification: null,
+            factor_authentication: null,
+            reminder_notification: null,
+            dependents: null,
+            message_notification: null,
+            relationship_to_emergency_contact: null,
+            emergency_contact_name: null,
+            emergency_contact_phone: null,
+            connected_device: null,
+            image: null,
+          };
+
+          setUser(userData);
+
           router.push(`${allRoutes.auth.onboarding.url}?step=plan`);
         }
       },

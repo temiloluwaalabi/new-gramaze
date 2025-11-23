@@ -18,6 +18,7 @@ import {
   ChatUser,
   hospital,
   lgas,
+  HealthReport,
 } from "@/types";
 
 import { ApiError, backendAPiClient } from "./api-client";
@@ -685,6 +686,33 @@ export const caregiverServices = {
           patient_id,
         },
       });
+    },
+  },
+  healthReport: {
+    addReport: async (values: FormData) => {
+      return makeApiRequest<{
+        report_name: string;
+        report_file: string;
+        health_record_id: number;
+        user_id: number;
+        caregiver_id: number;
+        updated_at: string;
+        created_at: string;
+        id: number;
+      }>(`${gramazeEndpoints.caregiver["health-report"].add}`, "POST", {
+        body: values,
+      });
+    },
+    getPatientHealthReports: async (patient_id: string) => {
+      return makeApiRequest<HealthReport[]>(
+        `${gramazeEndpoints.caregiver["health-report"].fetch}`,
+        "POST",
+        {
+          body: {
+            user_id: patient_id,
+          },
+        }
+      );
     },
   },
 };

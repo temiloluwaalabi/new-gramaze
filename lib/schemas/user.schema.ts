@@ -69,6 +69,13 @@ export const VirtualAssessmentSchema = z.object({
   hospital_id: z.optional(z.string()),
 });
 
+export const AddHealthReportSchema = z.object({
+  report_name: z.string().min(1, "Report name is required"),
+  report_type: z.string().min(1, "Report type is required"),
+  summary: z.string().min(10, "Summary must be at least 10 characters"),
+  report_file: z.instanceof(File),
+});
+
 export type RegisterSchemaType = z.infer<typeof RegisterSchema>;
 export type LoginSchemaType = z.infer<typeof LoginSchema>;
 export type BiodataSchemaType = z.infer<typeof BiodataSchema>;
@@ -80,3 +87,4 @@ export type VirtualAssessmentSchemaType = z.infer<
   typeof VirtualAssessmentSchema
 >;
 export type AddHealthVitalsType = z.infer<typeof AddHealthVitalSchema>;
+export type AddHealthReportSchemaType = z.infer<typeof AddHealthReportSchema>;

@@ -28,7 +28,11 @@ export default async function middleware(req: NextRequest) {
   const { pathname, origin, search } = nextUrl;
 
   // Define accessible routes for unverified users
-  const unverifiedAccessibleRoutes = ["/dashboard", "/dashboard/appointment"];
+  const unverifiedAccessibleRoutes = [
+    "/dashboard",
+    "/dashboard/appointment",
+    "/booked",
+  ];
   console.log("PATHNAME", pathname);
   const session = await getSession();
   const hasAccessToken = !!session?.accessToken;

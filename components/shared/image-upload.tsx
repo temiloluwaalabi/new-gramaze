@@ -139,7 +139,7 @@ export const ImageUpload = ({
           setOpemImageDialog(false);
         }
 
-        toast.success("Image uploaded successfully");
+        // toast.success("Image uploaded successfully");
       }
 
       if (fileRejections.length > 0) {

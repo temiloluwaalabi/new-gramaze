@@ -305,3 +305,14 @@ export type hospital = {
   state: State;
   lga: lgas;
 };
+
+export type HealthReport = {
+  report_name: string;
+  report_file: string;
+  health_record_id: number;
+  user_id: number;
+  caregiver_id: number;
+  updated_at: string;
+  created_at: string;
+  id: number;
+};

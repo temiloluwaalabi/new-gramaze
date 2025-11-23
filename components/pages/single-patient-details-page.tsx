@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import {
   Activity,
@@ -32,10 +33,12 @@ import {
   initialsFromName,
 } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
-import { Appointment, User } from "@/types";
+import { Appointment, HealthReport, User } from "@/types";
 
 import AddHealthVitals from "../dialogs/add-health-vitals";
+import AddReportDialog from "../dialogs/add-report-dialog";
 import { ViewHealthRecordDialog } from "../dialogs/view-health-record-dialog";
+import { ViewReportDialog } from "../dialogs/view-report-dialog";
 import { getStatusBadge } from "../shared/health-record/health-record-list";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -84,11 +87,13 @@ type SinglePatientDetailsPageProps = {
     created_at: string;
     updated_at: string;
   }[];
+  patientReports: HealthReport[];
 };
 
 export default function SinglePatientDetailsPage({
   patient,
   appointments,
+  patientReports,
   metrics,
 }: SinglePatientDetailsPageProps) {
   const { user } = useUserStore();
@@ -97,7 +102,9 @@ export default function SinglePatientDetailsPage({
   const [selectedRecord, setSelectedRecord] =
     React.useState<HealthRecord | null>(null);
   const [viewRecordOpen, setViewRecordOpen] = React.useState(false);
-
+  const [selectedReport, setSelectedReport] =
+    React.useState<HealthReport | null>(null);
+  const [viewReportOpen, setViewReportOpen] = React.useState(false);
   // Alternative version that only returns metrics that have values
   const getLatestVitalsWithValues = (
     trackers?: Tracker[]
@@ -252,6 +259,68 @@ export default function SinglePatientDetailsPage({
 
     return config[metricName] || config.default;
   };
+  // Helper function to get file extension icon
+  const getFileIcon = (fileName: string) => {
+    const extension = fileName.split(".").pop()?.toLowerCase();
+    switch (extension) {
+      case "pdf":
+        return "📄";
+      case "doc":
+      case "docx":
+        return "📝";
+      case "jpg":
+      case "jpeg":
+      case "png":
+        return "🖼️";
+      default:
+        return "📎";
+    }
+  };
+
+  // Helper function to format file size (you'll need actual size from backend)
+  const formatFileSize = (fileName: string) => {
+    // Placeholder until backend provides actual file size
+    return "2.5 MB";
+  };
+
+  // Helper function to get report type badge color
+  const getReportTypeBadge = (reportType: string) => {
+    const colors: Record<string, string> = {
+      lab: "bg-purple-100 text-purple-600 border-purple-200",
+      imaging: "bg-blue-100 text-blue-600 border-blue-200",
+      prescription: "bg-green-100 text-green-600 border-green-200",
+      consultation: "bg-orange-100 text-orange-600 border-orange-200",
+      discharge: "bg-red-100 text-red-600 border-red-200",
+      progress: "bg-teal-100 text-teal-600 border-teal-200",
+      other: "bg-gray-100 text-gray-600 border-gray-200",
+    };
+
+    const labels: Record<string, string> = {
+      lab: "Lab Results",
+      imaging: "Imaging",
+      prescription: "Prescription",
+      consultation: "Consultation",
+      discharge: "Discharge",
+      progress: "Progress",
+      other: "Other",
+    };
+
+    return (
+      <Badge
+        variant="outline"
+        className={`text-xs ${colors[reportType] || colors.other}`}
+      >
+        {labels[reportType] || "Other"}
+      </Badge>
+    );
+  };
+
+  // Handle view/download report
+  const handleViewReport = (report: HealthReport) => {
+    setSelectedReport(report);
+    setViewReportOpen(true);
+  };
+
   // // Get health trackers from today
   // const healthTrackersToday = React.useMemo(() => {
   //   if (!HealthTracker?.tracker) return [];
@@ -767,23 +836,115 @@ export default function SinglePatientDetailsPage({
                 See all <ChevronRight className="size-5 text-gray-500" />
               </span>
             </div>
+
             <div className="mt-4 flex flex-col gap-4">
-              <div className="grid grid-cols-3 gap-6">
-                <div className="h-[73px] rounded-[6px] bg-[#F5F5F5]" />
-                <div className="h-[73px] rounded-[6px] bg-[#F5F5F5]" />
-                <div className="h-[73px] rounded-[6px] bg-[#F5F5F5]" />
-              </div>
-              <div className="space-y-4">
-                <div className="h-[26px] w-full rounded-[6px] bg-[#F5F5F5]" />
-                <div className="h-[26px] w-[40%] rounded-[6px] bg-[#F5F5F5]" />
-              </div>
-              <Button className="ml-auto flex !h-[45px] w-fit text-sm font-normal">
-                Add report
-              </Button>
+              {patientReports && patientReports.length > 0 ? (
+                <>
+                  {/* Display first 3 reports as cards in grid */}
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    {patientReports.slice(0, 3).map((report) => (
+                      <div
+                        key={report.id}
+                        onClick={() => handleViewReport(report)}
+                        className="group flex cursor-pointer flex-col gap-3 rounded-[6px] border border-[#E8E8E8] bg-[#F5F5F5] p-4 transition-all hover:border-blue-500 hover:bg-blue-50"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-2xl">
+                              {getFileIcon(report.report_file)}
+                            </span>
+                            <div className="flex-1">
+                              <h6 className="line-clamp-1 text-sm font-medium text-[#333] group-hover:text-blue-600">
+                                {report.report_name}
+                              </h6>
+                              <p className="text-xs text-gray-500">
+                                {formatFileSize(report.report_file)}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          {getReportTypeBadge("prescription")}
+                          <p className="text-xs text-gray-400">
+                            {formatDate(report.created_at)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Display remaining reports as list */}
+                  {patientReports.length > 3 && (
+                    <div className="space-y-3">
+                      {patientReports.slice(3).map((report) => (
+                        <div
+                          key={report.id}
+                          onClick={() => handleViewReport(report)}
+                          className="group flex cursor-pointer items-center justify-between rounded-[6px] border border-[#E8E8E8] p-3 transition-all hover:border-blue-500 hover:bg-blue-50"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-xl">
+                              {getFileIcon(report.report_file)}
+                            </span>
+                            <div>
+                              <h6 className="text-sm font-medium text-[#333] group-hover:text-blue-600">
+                                {report.report_name}
+                              </h6>
+                              <div className="flex items-center gap-2 text-xs text-gray-500">
+                                <span>
+                                  Uploaded by Dr. Sarah Johnson
+                                  {/* {report.caregiver
+                                ? `${report.caregiver.first_name} ${report.caregiver.last_name}`
+                                : 'Dr. Sarah Johnson'}{' '} */}
+                                  {/* Hardcoded for now */}
+                                </span>
+                                <span>•</span>
+                                <span>{formatDate(report.created_at)}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            {getReportTypeBadge("prescription")}
+                            <ChevronRight className="size-4 text-gray-400 group-hover:text-blue-500" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                // Empty state
+                <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed py-12">
+                  <FileText className="mb-3 size-12 text-gray-400" />
+                  <p className="text-base font-medium text-gray-600">
+                    No reports found
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Add a new report to get started
+                  </p>
+                </div>
+              )}
+
+              {/* Add Report Button */}
+              <AddReportDialog
+                patient_id={patient.id || 0}
+                dialogTrigger={
+                  <Button className="ml-auto flex !h-[45px] w-fit text-sm font-normal">
+                    <Plus className="mr-2 size-4" /> Add report
+                  </Button>
+                }
+              />
             </div>
           </div>
         </div>
       </div>
+      <ViewReportDialog
+        report={selectedReport}
+        open={viewReportOpen}
+        onOpenChange={setViewReportOpen}
+      />
     </section>
   );
 }

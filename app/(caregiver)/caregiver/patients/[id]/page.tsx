@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import React from "react";
 
 import { getAppointmentByUser } from "@/app/actions/appointment.actions";
+import { getPatientHealthReports } from "@/app/actions/caregiver-patient.actions";
 import { getPatientHistoryDetails } from "@/app/actions/services/caregiver.actions";
 import { getAllHealthMetrics } from "@/app/actions/services/health.tracker.actions";
 import { getSession } from "@/app/actions/session.actions";
@@ -16,6 +17,9 @@ export default async function CaregiverPatientDash({
   const id = (await params).id;
 
   const patient = await getPatientHistoryDetails(id.toString());
+
+  const patientReport = await getPatientHealthReports(id.toString());
+
   const patientAppointments = await getAppointmentByUser({
     user_id: id,
   });
@@ -53,6 +57,7 @@ export default async function CaregiverPatientDash({
       metrics={metrics.metrics || []}
       patient={patient.data?.patient}
       appointments={upcomingAppointments}
+      patientReports={patientReport.data || []}
     />
   );
 }

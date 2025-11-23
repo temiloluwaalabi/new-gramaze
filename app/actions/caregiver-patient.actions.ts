@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { adminServices, caregiverServices } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
-import { ServerActionResponse, User } from "@/types";
+import { HealthReport, ServerActionResponse, User } from "@/types";
 
 import { getSession } from "./session.actions";
 
@@ -445,5 +445,166 @@ export const updateHealthTracker = async (
         error instanceof Error ? error.message : "An unknown error occurred",
       errorType: "UnknownError",
     });
+  }
+};
+
+export const AddHealthReport = async (
+  values: FormData
+): Promise<
+  ServerActionResponse<{
+    report_name: string;
+    report_file: string;
+    health_record_id: number;
+    user_id: number;
+    caregiver_id: number;
+    updated_at: string;
+    created_at: string;
+    id: number;
+  }>
+> => {
+  try {
+    console.log("FORMDATA", values);
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      return {
+        success: false,
+        message: "No active session found",
+        statusCode: 401,
+        errorType: "AUTH_ERROR",
+      };
+    }
+
+    const response = await caregiverServices.healthReport.addReport(values);
+
+    console.log("RESPONSE", response);
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+
+    // At this point, response is not an ApiError
+    const successResponse = response as unknown as {
+      success: true;
+      status: true;
+      message: string;
+      data: {
+        report_name: string;
+        report_file: string;
+        health_record_id: number;
+        user_id: number;
+        caregiver_id: number;
+        updated_at: string;
+        created_at: string;
+        id: number;
+      };
+    };
+
+    revalidatePath("/");
+    return {
+      success: true,
+      message: successResponse.message,
+      data: successResponse.data,
+    };
+  } catch (error) {
+    console.error("Update BIODATA ERROR:", error);
+
+    if (error instanceof ApiError) {
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
+    }
+
+    // For any other error
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
+      errorType: "UnknownError",
+    };
+  }
+};
+
+export const getPatientHealthReports = async (
+  patient_id: string
+): Promise<ServerActionResponse<HealthReport[]>> => {
+  try {
+    if (!patient_id || typeof patient_id !== "string") {
+      return {
+        success: false,
+        message: "PATIENT_ID is required",
+        statusCode: 401,
+        errorType: "AUTH_ERROR",
+      };
+    }
+
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      return {
+        success: false,
+        message: "No active session found",
+        statusCode: 401,
+        errorType: "AUTH_ERROR",
+      };
+    }
+
+    const response =
+      await caregiverServices.healthReport.getPatientHealthReports(patient_id);
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: HealthReport[];
+    };
+
+    return {
+      success: true,
+      message: successResponse.message,
+      data: successResponse.data,
+    };
+  } catch (error) {
+    console.error("Get patient History Details Error:", error);
+
+    if (error instanceof ApiError) {
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
+    }
+
+    // For any other error
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
+      errorType: "UnknownError",
+    };
   }
 };
