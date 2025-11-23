@@ -10,8 +10,8 @@ export default async function CaregiverPatientDash() {
   return (
     <CaregiverPatientsClientPage
       allPatients={
-        patients?.success && Array.isArray(patients.data?.data)
-          ? patients.data.data.filter(
+        patients?.success && Array.isArray(patients.data)
+          ? patients.data.filter(
               (data) => data.patient.email !== "superadmin@gramaze.com"
             )
           : []
