@@ -2,12 +2,10 @@
 /* eslint-disable no-undef */
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { SessionData } from "@/lib/auth/session";
 import { useServerSession } from "@/providers/SessionProvider";
-import { useUserStore } from "@/store/user-store";
 
 const sessionApiRoute = "/api/auth/session";
 
@@ -36,7 +34,6 @@ export default function useSession() {
   const [session, setSession] = useState<SessionData | null>(serverSession); // ✅ Start with null
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
-  const router = useRouter();
 
   console.log("Server Session", serverSession);
 
@@ -101,14 +98,14 @@ export default function useSession() {
       await fetchJSON<SessionData>(sessionApiRoute, {
         method: "DELETE",
       });
-      setSession(null);
-      setError(null);
-      router.push("/");
-      useUserStore.getState().logout();
+      // setSession(null);
+      // setError(null);
+      window.location.href = "/sign-in"; // Redirect to login page
+      // router.refresh();
+      // useUserStore.getState().logout();
     } catch (err) {
       setError(err as Error);
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Only set loading false on error
     }
   };
 
