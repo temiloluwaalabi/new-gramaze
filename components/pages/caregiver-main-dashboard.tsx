@@ -34,7 +34,16 @@ import { Separator } from "../ui/separator";
 
 type CaregiverMainDashboardProps = {
   appointments: Appointment[];
-  allPatients: Partial<User>[];
+  allPatients: {
+    id: number;
+    user_id: string;
+    caregiver_id: string;
+    start_date: string;
+    end_date: string;
+    created_at: string;
+    updated_at: string;
+    patient: Partial<User>;
+  }[];
   messages: MessagePreview[];
 };
 
@@ -49,6 +58,7 @@ export default function CaregiverMainDashboardClient({
   const transformedData =
     appointments.length > 0 ? transformAppointmentData(appointments) : [];
 
+  console.log("APP PLAT", allPatients);
   return (
     <section className="grid size-full grid-cols-12 gap-6 space-y-3 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <div className="col-span-12 space-y-4 lg:col-span-6">
@@ -239,33 +249,37 @@ export default function CaregiverMainDashboardClient({
 
           {allPatients && allPatients.length > 0 ? (
             <div className="space-y-3 sm:space-y-4">
-              {allPatients.slice(0, 5).map((patient) => (
-                <div
-                  key={patient.id}
-                  className="flex items-center justify-between rounded-md p-1 transition-colors hover:bg-gray-50"
-                >
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-600 sm:h-9 sm:w-9">
-                      {patient?.first_name?.charAt(0)}
-                      {patient?.last_name?.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 sm:text-base">
-                        {patient?.first_name} {patient?.last_name}
-                      </p>
-                      <p className="text-xs text-gray-500 sm:text-sm">
-                        {patient.phone || patient.email}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    className="rounded-full p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
-                    aria-label={`Email ${patient?.first_name} ${patient?.last_name}`}
+              {allPatients
+                .filter((pat) => pat.patient.email !== "superadmin@gramaze.com")
+                .slice(0, 5)
+                .map((patient) => (
+                  <div
+                    key={patient.id}
+                    className="flex items-center justify-between rounded-md p-1 transition-colors hover:bg-gray-50"
                   >
-                    <Mail size={18} className="sm:size-5" />
-                  </button>
-                </div>
-              ))}
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-600 sm:h-9 sm:w-9">
+                        {patient.patient?.first_name?.charAt(0)}
+                        {patient.patient?.last_name?.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 sm:text-base">
+                          {patient.patient.first_name}{" "}
+                          {patient.patient.last_name}
+                        </p>
+                        <p className="text-xs text-gray-500 sm:text-sm">
+                          {patient.patient.phone || patient.patient.email}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      className="rounded-full p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                      aria-label={`Email ${patient.patient?.first_name} ${patient.patient?.last_name}`}
+                    >
+                      <Mail size={18} className="sm:size-5" />
+                    </button>
+                  </div>
+                ))}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-8">

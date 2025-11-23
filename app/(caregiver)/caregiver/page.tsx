@@ -26,7 +26,6 @@ export default async function CaregiverMainDashboard() {
   };
 
   const rawMessages = await fetchMessages(String(session.user_id));
-  console.log("Fetched Raw Messages:", rawMessages.messages);
 
   console.log("PATIENTS", patients);
   const userMessages = rawMessages.messages
@@ -60,9 +59,7 @@ export default async function CaregiverMainDashboard() {
           : appointments?.appointments?.data || []
       }
       allPatients={
-        patients?.success && Array.isArray(patients.data?.data)
-          ? patients.data.data
-          : []
+        patients?.success && Array.isArray(patients.data) ? patients.data : []
       }
     />
   );

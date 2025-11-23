@@ -193,9 +193,8 @@ export const getCaregiverPatientHistory = async ({
   end_date?: string;
   per_page?: number;
 } = {}): Promise<
-  ServerActionResponse<{
-    current_page: number;
-    data: {
+  ServerActionResponse<
+    {
       id: number;
       user_id: string;
       caregiver_id: string;
@@ -204,13 +203,8 @@ export const getCaregiverPatientHistory = async ({
       created_at: string;
       updated_at: string;
       patient: Partial<User>;
-    }[];
-    from: number;
-    last_page: number;
-    per_page: number;
-    to: number;
-    total: number;
-  }>
+    }[]
+  >
 > => {
   try {
     const sessionToken = await getSession();
@@ -248,23 +242,15 @@ export const getCaregiverPatientHistory = async ({
       status: number;
       message: string;
       data: {
-        current_page: number;
-        data: {
-          id: number;
-          user_id: string;
-          caregiver_id: string;
-          start_date: string;
-          end_date: string;
-          created_at: string;
-          updated_at: string;
-          patient: Partial<User>;
-        }[];
-        from: number;
-        last_page: number;
-        per_page: number;
-        to: number;
-        total: number;
-      };
+        id: number;
+        user_id: string;
+        caregiver_id: string;
+        start_date: string;
+        end_date: string;
+        created_at: string;
+        updated_at: string;
+        patient: Partial<User>;
+      }[];
     };
     return {
       success: true,
