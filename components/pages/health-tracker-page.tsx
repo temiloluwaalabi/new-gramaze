@@ -10,6 +10,7 @@ import * as React from "react";
 
 import { useGetLastTracker } from "@/lib/queries/use-health-tracker-query";
 import { cn, formatDate } from "@/lib/utils";
+import { HealthReport } from "@/types";
 
 import { HealthVitalsChart } from "../charts/health-vitals-chart";
 import { HealthOverviewWidget } from "../shared/widget/health-overview-widget";
@@ -61,15 +62,7 @@ type HealthTrackerPageProps = {
     weight: string;
     pulse: string;
   }[];
-  reports: {
-    id: number;
-    report_name: string;
-    report_file: string;
-    user_id: string;
-    caregiver_id: string;
-    created_at: string;
-    updated_at: string;
-  }[];
+  reports: HealthReport[];
 };
 
 type Metric = {
