@@ -4,6 +4,7 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
+  AddHealthNote,
   AddHealthReport,
   addHealthTracker,
   fetchHealthTracker,
@@ -261,6 +262,27 @@ export const useAddHealthReport = () => {
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);
       toast.success(data.message || "Health report added successfully!");
+      return data;
+    },
+    onError: (error) => {
+      handleMutationError(error);
+    },
+  });
+};
+export const useAddHealthNote = () => {
+  return useMutation({
+    mutationKey: ["health-note", "add"],
+    mutationFn: async (values: FormData) => {
+      console.log("FORMDATA", FormData);
+      const data = await AddHealthNote(values);
+      if (!data.success) {
+        throw data;
+      }
+      return data;
+    },
+    onSuccess: (data) => {
+      console.log("SUCCESS DATA", data);
+      toast.success(data.message || "Health note added successfully!");
       return data;
     },
     onError: (error) => {

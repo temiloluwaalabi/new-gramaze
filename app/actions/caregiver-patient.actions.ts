@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { adminServices, caregiverServices } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
-import { HealthReport, ServerActionResponse, User } from "@/types";
+import { HealthNote, HealthReport, ServerActionResponse, User } from "@/types";
 
 import { getSession } from "./session.actions";
 
@@ -578,6 +578,146 @@ export const getPatientHealthReports = async (
       status: number;
       message: string;
       data: HealthReport[];
+    };
+
+    return {
+      success: true,
+      message: successResponse.message,
+      data: successResponse.data,
+    };
+  } catch (error) {
+    console.error("Get patient History Details Error:", error);
+
+    if (error instanceof ApiError) {
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
+    }
+
+    // For any other error
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
+      errorType: "UnknownError",
+    };
+  }
+};
+export const AddHealthNote = async (
+  values: FormData
+): Promise<ServerActionResponse<HealthNote>> => {
+  try {
+    console.log("FORMDATA", values);
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      return {
+        success: false,
+        message: "No active session found",
+        statusCode: 401,
+        errorType: "AUTH_ERROR",
+      };
+    }
+
+    const response = await caregiverServices.patientNotes.addNote(values);
+
+    console.log("RESPONSE", response);
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+
+    // At this point, response is not an ApiError
+    const successResponse = response as unknown as {
+      success: true;
+      status: true;
+      message: string;
+      data: HealthNote;
+    };
+
+    revalidatePath("/");
+    return {
+      success: true,
+      message: successResponse.message,
+      data: successResponse.data,
+    };
+  } catch (error) {
+    console.error("Update BIODATA ERROR:", error);
+
+    if (error instanceof ApiError) {
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
+    }
+
+    // For any other error
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
+      errorType: "UnknownError",
+    };
+  }
+};
+
+export const getPatientHealthNotes = async (
+  patient_id: string
+): Promise<ServerActionResponse<HealthNote[]>> => {
+  try {
+    if (!patient_id || typeof patient_id !== "string") {
+      return {
+        success: false,
+        message: "PATIENT_ID is required",
+        statusCode: 401,
+        errorType: "AUTH_ERROR",
+      };
+    }
+
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      return {
+        success: false,
+        message: "No active session found",
+        statusCode: 401,
+        errorType: "AUTH_ERROR",
+      };
+    }
+
+    const response =
+      await caregiverServices.patientNotes.getUserHealthNotes(patient_id);
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: HealthNote[];
     };
 
     return {

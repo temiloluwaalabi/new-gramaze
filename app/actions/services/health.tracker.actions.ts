@@ -2,7 +2,7 @@
 
 import { adminServices, healthTrackerService } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
-import { ApiResponse } from "@/types";
+import { ApiResponse, HealthNote, HealthReport } from "@/types";
 
 import { getSession } from "../session.actions";
 
@@ -49,7 +49,6 @@ export const getLastTracker = async () => {
       }>;
     };
 
-    
     return {
       success: true,
       message: successResponse.message,
@@ -131,7 +130,6 @@ export const getLastTrackers = async ({
       }[];
     };
 
-    
     return {
       success: true,
       message: successResponse.message,
@@ -174,43 +172,18 @@ export const getLastThreeReports = async () => {
       throw response;
     }
 
+    console.log("RESPOnSE", response);
     const successResponse = response as {
       success: true;
       status: number;
       message: string;
-      data: {
-        status: true;
-        message: string;
-        reports: {
-          id: number;
-          report_name: string;
-          report_file: string;
-          user_id: string;
-          caregiver_id: string;
-          created_at: string;
-          updated_at: string;
-        }[];
-      };
-      rawResponse: ApiResponse<{
-        status: true;
-        message: string;
-        reports: {
-          id: number;
-          report_name: string;
-          report_file: string;
-          user_id: string;
-          caregiver_id: string;
-          created_at: string;
-          updated_at: string;
-        }[];
-      }>;
+      data: HealthReport[];
     };
 
-    
     return {
       success: true,
       message: successResponse.message,
-      reports: successResponse.data.reports,
+      reports: successResponse.data,
     };
   } catch (error) {
     console.error("Get Last Three Reports Error:", error);
@@ -249,23 +222,13 @@ export const getLastThreeNotes = async () => {
       success: true;
       status: number;
       message: string;
-      data: {
-        status: true;
-        message: string;
-        notes: [];
-      };
-      rawResponse: ApiResponse<{
-        status: true;
-        message: string;
-        notes: [];
-      }>;
+      data: HealthNote[];
     };
 
-    
     return {
       success: true,
       message: successResponse.message,
-      notes: successResponse.data.notes,
+      notes: successResponse.data,
     };
   } catch (error) {
     console.error("Get Last Three Notes Error:", error);
@@ -319,23 +282,13 @@ export const getUserHealthReports = async ({
       success: true;
       status: number;
       message: string;
-      data: {
-        status: true;
-        message: string;
-        reports: [];
-      };
-      rawResponse: ApiResponse<{
-        status: true;
-        message: string;
-        reports: [];
-      }>;
+      data: HealthReport[];
     };
 
-    
     return {
       success: true,
       message: successResponse.message,
-      reports: successResponse.data.reports,
+      reports: successResponse.data,
     };
   } catch (error) {
     console.error("Get User Health Reports Error:", error);
@@ -385,27 +338,19 @@ export const getUserHealthNotes = async ({
       throw response;
     }
 
+    console.log("NOTES REPONSE", response);
+
     const successResponse = response as {
       success: true;
       status: number;
       message: string;
-      data: {
-        status: true;
-        message: string;
-        reports: [];
-      };
-      rawResponse: ApiResponse<{
-        status: true;
-        message: string;
-        reports: [];
-      }>;
+      data: HealthNote[];
     };
 
-    
     return {
       success: true,
       message: successResponse.message,
-      notes: successResponse.data.reports, // Note: API returns 'reports' but we're treating as notes
+      notes: successResponse.data, // Note: API returns 'reports' but we're treating as notes
     };
   } catch (error) {
     console.error("Get User Health Notes Error:", error);

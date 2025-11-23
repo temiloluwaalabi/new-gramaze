@@ -151,6 +151,7 @@ export default function AddReportDialog({
               name="summary"
               label="Summary"
               fieldType={FormFieldTypes.TEXTAREA}
+              rows={2}
               disabled={AddingReport}
               placeholder="Provide a brief summary of the report findings..."
               formDescription="Include key findings, observations, or important notes"

@@ -309,10 +309,35 @@ export type hospital = {
 export type HealthReport = {
   report_name: string;
   report_file: string;
+  report_type: string;
   health_record_id: number;
+  user_id: number;
+  caregiver_id: number;
+  created_by_id: string;
+  created_by_name: string;
+  updated_at: string;
+  created_at: string;
+  id: number;
+  rejection_reason: string;
+  summary: string;
+  user: {
+    user_id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+};
+export type HealthNote = {
+  health_record_id: number;
+  notes: string;
+  title: string;
+  created_by_name: string;
+  created_by_id: string;
+  attachments: string[] | string;
   user_id: number;
   caregiver_id: number;
   updated_at: string;
   created_at: string;
   id: number;
+  caregiver: User;
 };

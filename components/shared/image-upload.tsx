@@ -271,7 +271,7 @@ export const ImageUpload = ({
     <div
       {...getRootProps({
         className:
-          "border dark:light-border-2 bg-white dark:bg-transparent flex flex-col items-center justify-center gap-4 border-dashed h-[216px] border-[#CCCCCC] rounded-[4px] py-[33px] px-[14px] cursor-pointer",
+          "border dark:light-border-2 bg-white dark:bg-transparent flex flex-col items-center justify-center gap-4 border-dashed h-[122px] border-[#CCCCCC] rounded-[4px] py-[33px] px-[14px] cursor-pointer",
       })}
     >
       {files.length === 0 ? (

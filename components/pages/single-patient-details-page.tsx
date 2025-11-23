@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import {
   Activity,
@@ -11,6 +10,7 @@ import {
   FileText,
   Mail,
   MapPin,
+  Paperclip,
   Pencil,
   Plus,
   SquarePen,
@@ -25,6 +25,11 @@ import CalendarBlankIcon from "@/icons/calendar-blank";
 import DropIcon from "@/icons/drop";
 import HeartbeatIcon from "@/icons/heartbeat";
 import { HealthRecord, REPORT_TYPE_CONFIGS } from "@/lib/health-record-types";
+import {
+  getFileIcon,
+  formatFileSize,
+  getReportTypeBadge,
+} from "@/lib/health-report-notes-utils";
 import { useGetHealthTracker } from "@/lib/queries/use-caregiver-query";
 import {
   formatDate,
@@ -33,16 +38,19 @@ import {
   initialsFromName,
 } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
-import { Appointment, HealthReport, User } from "@/types";
+import { Appointment, HealthNote, HealthReport, User } from "@/types";
 
 import AddHealthVitals from "../dialogs/add-health-vitals";
+import AddNoteDialog from "../dialogs/add-note-dialog";
 import AddReportDialog from "../dialogs/add-report-dialog";
 import { ViewHealthRecordDialog } from "../dialogs/view-health-record-dialog";
+import { ViewNoteDialog } from "../dialogs/view-note-dialog";
 import { ViewReportDialog } from "../dialogs/view-report-dialog";
 import { getStatusBadge } from "../shared/health-record/health-record-list";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { QuillPreview } from "../ui/quill-preview";
 import { Separator } from "../ui/separator";
 type Metric = {
   name: string;
@@ -88,6 +96,7 @@ type SinglePatientDetailsPageProps = {
     updated_at: string;
   }[];
   patientReports: HealthReport[];
+  patientNotes: HealthNote[];
 };
 
 export default function SinglePatientDetailsPage({
@@ -95,6 +104,7 @@ export default function SinglePatientDetailsPage({
   appointments,
   patientReports,
   metrics,
+  patientNotes,
 }: SinglePatientDetailsPageProps) {
   const { user } = useUserStore();
   const { isPending, data: HealthTracker } = useGetHealthTracker(patient.id);
@@ -105,6 +115,11 @@ export default function SinglePatientDetailsPage({
   const [selectedReport, setSelectedReport] =
     React.useState<HealthReport | null>(null);
   const [viewReportOpen, setViewReportOpen] = React.useState(false);
+  const [selectedNote, setSelectedNote] = React.useState<HealthNote | null>(
+    null
+  );
+  const [viewNoteOpen, setViewNoteOpen] = React.useState(false);
+
   // Alternative version that only returns metrics that have values
   const getLatestVitalsWithValues = (
     trackers?: Tracker[]
@@ -259,68 +274,17 @@ export default function SinglePatientDetailsPage({
 
     return config[metricName] || config.default;
   };
-  // Helper function to get file extension icon
-  const getFileIcon = (fileName: string) => {
-    const extension = fileName.split(".").pop()?.toLowerCase();
-    switch (extension) {
-      case "pdf":
-        return "📄";
-      case "doc":
-      case "docx":
-        return "📝";
-      case "jpg":
-      case "jpeg":
-      case "png":
-        return "🖼️";
-      default:
-        return "📎";
-    }
-  };
-
-  // Helper function to format file size (you'll need actual size from backend)
-  const formatFileSize = (fileName: string) => {
-    // Placeholder until backend provides actual file size
-    return "2.5 MB";
-  };
-
-  // Helper function to get report type badge color
-  const getReportTypeBadge = (reportType: string) => {
-    const colors: Record<string, string> = {
-      lab: "bg-purple-100 text-purple-600 border-purple-200",
-      imaging: "bg-blue-100 text-blue-600 border-blue-200",
-      prescription: "bg-green-100 text-green-600 border-green-200",
-      consultation: "bg-orange-100 text-orange-600 border-orange-200",
-      discharge: "bg-red-100 text-red-600 border-red-200",
-      progress: "bg-teal-100 text-teal-600 border-teal-200",
-      other: "bg-gray-100 text-gray-600 border-gray-200",
-    };
-
-    const labels: Record<string, string> = {
-      lab: "Lab Results",
-      imaging: "Imaging",
-      prescription: "Prescription",
-      consultation: "Consultation",
-      discharge: "Discharge",
-      progress: "Progress",
-      other: "Other",
-    };
-
-    return (
-      <Badge
-        variant="outline"
-        className={`text-xs ${colors[reportType] || colors.other}`}
-      >
-        {labels[reportType] || "Other"}
-      </Badge>
-    );
-  };
 
   // Handle view/download report
   const handleViewReport = (report: HealthReport) => {
     setSelectedReport(report);
     setViewReportOpen(true);
   };
-
+  // Handle viewing a note
+  const handleViewNote = (note: HealthNote) => {
+    setSelectedNote(note);
+    setViewNoteOpen(true);
+  };
   // // Get health trackers from today
   // const healthTrackersToday = React.useMemo(() => {
   //   if (!HealthTracker?.tracker) return [];
@@ -930,9 +894,88 @@ export default function SinglePatientDetailsPage({
               {/* Add Report Button */}
               <AddReportDialog
                 patient_id={patient.id || 0}
+                health_record_id={1}
                 dialogTrigger={
                   <Button className="ml-auto flex !h-[45px] w-fit text-sm font-normal">
                     <Plus className="mr-2 size-4" /> Add report
+                  </Button>
+                }
+              />
+            </div>
+          </div>
+          {/* Add Notes Section - Place this after Reports section */}
+          <div className="h-fit rounded-[6px] border border-[#E8E8E8] bg-white p-4">
+            <div className="flex items-center justify-between">
+              <h6 className="text-sm font-medium text-[#787878]">
+                Recent notes
+              </h6>
+              <span className="flex cursor-pointer items-center gap-1 text-base font-medium text-[#333]">
+                See all <ChevronRight className="size-5 text-gray-500" />
+              </span>
+            </div>
+
+            <div className="mt-4 flex flex-col gap-4">
+              {patientNotes && patientNotes.length > 0 ? (
+                <div className="space-y-3">
+                  {patientNotes.map((note) => (
+                    <div
+                      key={note.id}
+                      onClick={() => handleViewNote(note)}
+                      className="group flex cursor-pointer items-start gap-4 rounded-[6px] border border-[#E8E8E8] p-4 transition-all hover:border-blue-500 hover:bg-blue-50"
+                    >
+                      <div className="flex size-[42px] flex-shrink-0 items-center justify-center rounded-full bg-[#F5F5F5] group-hover:bg-blue-500 group-hover:text-white">
+                        <FileText className="size-5" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="mb-2 flex items-start justify-between">
+                          <div className="flex-1">
+                            <QuillPreview
+                              value={note.notes}
+                              className="prose prose-sm dark:text-light-200/80 dark:[&_p]:text-light-400 dark:[&_span]:!text-light-400 -mt-2 line-clamp-2 max-w-none text-sm text-[#303030] group-hover:text-blue-600 [&_.ql-editor]:flex [&_.ql-editor]:flex-col [&_.ql-editor]:gap-2 [&_.ql-editor]:!p-0 [&_.ql-editor]:px-0 [&_.ql-editor]:text-sm [&_h2]:hidden [&_h4]:text-sm [&_li]:text-sm [&_p]:text-sm [&_p]:leading-[25px] [&_p]:font-normal [&_p]:tracking-wide [&_p]:!text-black [&_p_br]:hidden [&_p:first-of-type]:line-clamp-2 [&_p:not(:first-of-type)]:hidden [&_span]:!bg-transparent [&_span]:!text-black [&_ul]:space-y-3"
+                            />
+                          </div>
+                          {note.attachments && note.attachments.length > 0 && (
+                            <Paperclip className="ml-2 size-4 flex-shrink-0 text-gray-400" />
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <span>By {note.created_by_name}</span>
+                          <span>•</span>
+                          <span>{formatDate(note.created_at)}</span>
+                          {note.attachments && note.attachments.length > 0 && (
+                            <>
+                              <span>•</span>
+                              <span>
+                                {note.attachments.length} attachment(s)
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      <ChevronRight className="size-4 flex-shrink-0 text-gray-400 group-hover:text-blue-500" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                // Empty state
+                <div className="flex flex-col items-center justify-center rounded-md border-2 border-dashed py-12">
+                  <FileText className="mb-3 size-12 text-gray-400" />
+                  <p className="text-base font-medium text-gray-600">
+                    No notes found
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Add a new note to get started
+                  </p>
+                </div>
+              )}
+
+              {/* Add Note Button */}
+              <AddNoteDialog
+                patient_id={patient.id || 0}
+                health_record_id={1}
+                dialogTrigger={
+                  <Button className="ml-auto flex !h-[45px] w-fit text-sm font-normal">
+                    <Plus className="mr-2 size-4" /> Add note
                   </Button>
                 }
               />
@@ -944,6 +987,12 @@ export default function SinglePatientDetailsPage({
         report={selectedReport}
         open={viewReportOpen}
         onOpenChange={setViewReportOpen}
+      />
+      {/* View Note Dialog */}
+      <ViewNoteDialog
+        note={selectedNote}
+        open={viewNoteOpen}
+        onOpenChange={setViewNoteOpen}
       />
     </section>
   );

@@ -122,6 +122,10 @@ export const gramazeEndpoints = {
       add: "/caregiver/health-report/add",
       fetch: "/admin/health-report/fetch",
     },
+    "health-note": {
+      add: "/caregiver/notes",
+      fetch: "/admin/health-report/fetch",
+    },
   },
 
   // Billing endpoints

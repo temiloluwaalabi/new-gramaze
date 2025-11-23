@@ -19,6 +19,7 @@ import {
   hospital,
   lgas,
   HealthReport,
+  HealthNote,
 } from "@/types";
 
 import { ApiError, backendAPiClient } from "./api-client";
@@ -482,26 +483,22 @@ export const healthTrackerService = {
     }
   },
   getLastThreeReports: async () => {
-    return makeApiRequest<{
-      status: true;
-      message: string;
-      reports: {
-        id: number;
-        report_name: string;
-        report_file: string;
-        user_id: string;
-        caregiver_id: string;
-        created_at: string;
-        updated_at: string;
-      }[];
-    }>(`${gramazeEndpoints.health.user.lastThreeReports}`, "GET");
+    return makeApiRequest<HealthReport[]>(
+      `${gramazeEndpoints.health.user.lastThreeReports}`,
+      "GET",
+      {
+        dataKey: "reports",
+      }
+    );
   },
   getLastThreeNotes: async () => {
-    return makeApiRequest<{
-      status: true;
-      message: string;
-      notes: [];
-    }>(`${gramazeEndpoints.health.user.lastThreeNotes}`, "GET");
+    return makeApiRequest<HealthNote[]>(
+      `${gramazeEndpoints.health.user.lastThreeNotes}`,
+      "GET",
+      {
+        dataKey: "notes",
+      }
+    );
   },
   getUserHealthReports: async ({
     start_date,
@@ -514,18 +511,18 @@ export const healthTrackerService = {
     caregiver_name?: string;
     report_name?: number;
   } = {}) => {
-    return makeApiRequest<{
-      status: true;
-      message: string;
-      reports: [];
-    }>(`${gramazeEndpoints.health.user.reports}`, "GET", {
-      params: {
-        ...(start_date && { start_date }),
-        ...(end_date && { end_date }),
-        ...(caregiver_name && { caregiver_name }),
-        ...(report_name && { report_name }),
-      },
-    });
+    return makeApiRequest<HealthReport[]>(
+      `${gramazeEndpoints.health.user.reports}`,
+      "GET",
+      {
+        params: {
+          ...(start_date && { start_date }),
+          ...(end_date && { end_date }),
+          ...(caregiver_name && { caregiver_name }),
+          ...(report_name && { report_name }),
+        },
+      }
+    );
   },
   getUserHealthNotess: async ({
     start_date,
@@ -538,18 +535,19 @@ export const healthTrackerService = {
     caregiver_name?: string;
     notes?: number;
   } = {}) => {
-    return makeApiRequest<{
-      status: true;
-      message: string;
-      reports: [];
-    }>(`${gramazeEndpoints.health.user.notes}`, "GET", {
-      params: {
-        ...(start_date && { start_date }),
-        ...(end_date && { end_date }),
-        ...(caregiver_name && { caregiver_name }),
-        ...(notes && { notes }),
-      },
-    });
+    return makeApiRequest<HealthNote[]>(
+      `${gramazeEndpoints.health.user.notes}`,
+      "GET",
+      {
+        dataKey: ["reports", "data"],
+        params: {
+          ...(start_date && { start_date }),
+          ...(end_date && { end_date }),
+          ...(caregiver_name && { caregiver_name }),
+          ...(notes && { notes }),
+        },
+      }
+    );
   },
 };
 export const caregiverServices = {
@@ -712,6 +710,30 @@ export const caregiverServices = {
             user_id: patient_id,
           },
         }
+      );
+    },
+  },
+  patientNotes: {
+    addNote: async (values: FormData) => {
+      return makeApiRequest<{
+        // report_name: string;
+        // report_file: string;
+        health_record_id: number;
+        notes: string;
+        attachments: [];
+        user_id: number;
+        caregiver_id: number;
+        updated_at: string;
+        created_at: string;
+        id: number;
+      }>(`${gramazeEndpoints.caregiver["health-note"].add}`, "POST", {
+        body: values,
+      });
+    },
+    getUserHealthNotes: async (patient_id: string) => {
+      return makeApiRequest<HealthNote[]>(
+        `/admin/users/${patient_id}/notes`,
+        "GET"
       );
     },
   },

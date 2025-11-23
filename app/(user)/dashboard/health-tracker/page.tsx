@@ -1,6 +1,11 @@
 import React from "react";
 
-import { getLastThreeReports } from "@/app/actions/services/health.tracker.actions";
+import {
+  getLastThreeNotes,
+  getLastThreeReports,
+  getUserHealthNotes,
+  getUserHealthReports,
+} from "@/app/actions/services/health.tracker.actions";
 import { getSession } from "@/app/actions/session.actions";
 // import { HealthTrackerPage } from "@/components/pages/health-tracker-page";
 import { HealthTrackerPageTwo } from "@/components/pages/health-tracker-page-two";
@@ -12,6 +17,9 @@ export default async function HealthTrackerDashboard() {
   const session = await getSession();
   const reports = await getLastThreeReports();
 
+  const notes = await getLastThreeNotes();
+  const allNotes = await getUserHealthNotes();
+  const allReports = await getUserHealthReports();
   const response = await backendAPiClient.request({
     method: "GET",
     url: `${gramazeEndpoints.health.user.trackers}`,
@@ -26,10 +34,14 @@ export default async function HealthTrackerDashboard() {
   });
   // const trackers = await getLastTrackers();
 
+  console.log("allNotes", allNotes);
   return (
     <HealthTrackerPageTwo
       reports={reports.reports}
       healthTrackers={response.data.health_tracker}
+      notes={notes.notes}
+      allNotes={allNotes.notes}
+      allReports={allReports.reports}
     />
   );
 }
