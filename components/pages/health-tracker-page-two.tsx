@@ -267,7 +267,8 @@ export const HealthTrackerPageTwo = ({
                       >
                         <div className="flex items-center gap-4">
                           <span className="text-2xl">
-                            {getFileIcon(report.report_file)}
+                            {report?.report_file &&
+                              getFileIcon(report.report_file)}
                           </span>{" "}
                           <div>
                             <div className="flex-1">
@@ -552,8 +553,8 @@ export const HealthTrackerPageTwo = ({
                           </div>
                           <span className="mt-4 flex items-center gap-2">
                             <span className="text-sm font-medium text-[#333]">
-                              {note.caregiver.first_name}{" "}
-                              {note.caregiver.last_name}
+                              {note.caregiver?.first_name}{" "}
+                              {note.caregiver?.last_name}
                             </span>
                             <span className="text-sm font-normal text-[#AFAFAF]">
                               {formatDate(note.created_at)}

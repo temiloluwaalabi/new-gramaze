@@ -74,7 +74,6 @@ export const getUserAppointments = async ({
       }>;
     };
 
-    
     return {
       success: true,
       message: successResponse.message,
@@ -138,7 +137,6 @@ export const getAppointmentDetail = async (appointmentId: string) => {
       }>;
     };
 
-    
     return {
       success: true,
       message: successResponse.message,
@@ -173,20 +171,22 @@ export const rescheduleAppointment = async ({
 }) => {
   try {
     if (!id || !date || !time) {
-      throw new ApiError({
-        statusCode: 400,
-        message: "ID, date, and time are required",
-        errorType: "ValidationError",
-      });
+      return {
+        success: false,
+        message: "No params",
+        statusCode: 401,
+        errorType: "VALIDATION_ERROR",
+      };
     }
 
     const sessionToken = await getSession();
     if (!sessionToken) {
-      throw new ApiError({
-        statusCode: 401,
+      return {
+        success: false,
         message: "No active session found",
-        errorType: "SessionError",
-      });
+        statusCode: 401,
+        errorType: "AUTH_ERROR",
+      };
     }
 
     const response = await appointmentService.user.rescheduleAppointment({
@@ -197,7 +197,15 @@ export const rescheduleAppointment = async ({
     });
 
     if (ApiError.isAPiError(response)) {
-      throw response;
+      const apiError = response as ApiError;
+      console.log("AYPGS", response);
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
     }
 
     const successResponse = response as {
@@ -209,14 +217,8 @@ export const rescheduleAppointment = async ({
         message: string;
         appointment: Appointment;
       };
-      rawResponse: ApiResponse<{
-        status: true;
-        message: string;
-        appointment: Appointment;
-      }>;
     };
 
-    
     revalidatePath("/appointments");
     revalidatePath("/");
     return {
@@ -228,15 +230,23 @@ export const rescheduleAppointment = async ({
     console.error("Reschedule Appointment Error:", error);
 
     if (error instanceof ApiError) {
-      throw error;
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
     }
 
-    throw new ApiError({
-      statusCode: 500,
+    // For any other error
+    return {
+      success: false,
       message:
         error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
       errorType: "UnknownError",
-    });
+    };
   }
 };
 
@@ -305,7 +315,6 @@ export const getCaregiverAppointments = async ({
       }>;
     };
 
-    
     return {
       success: true,
       message: successResponse.message,
@@ -371,7 +380,6 @@ export const getCaregiverAppointmentDetails = async (appointmentId: string) => {
       }>;
     };
 
-    
     return {
       success: true,
       message: successResponse.message,
@@ -439,7 +447,6 @@ export const markAppointmentAsArrived = async (
       }>;
     };
 
-    
     revalidatePath("/appointments");
     revalidatePath(pathname);
     return {
@@ -513,7 +520,6 @@ export const confirmAppointmentArrival = async (values: {
       }>;
     };
 
-    
     revalidatePath("/appointments");
     revalidatePath("/");
     return {

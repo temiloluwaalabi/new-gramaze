@@ -41,8 +41,8 @@ export const HealthTrackerInfoSheet = ({ sheetTrigger, healthNote }: Props) => {
                   Created by
                 </span>
                 <span className="text-base font-medium text-[#333333]">
-                  {healthNote.caregiver.first_name}{" "}
-                  {healthNote.caregiver.last_name}
+                  {healthNote.caregiver?.first_name}{" "}
+                  {healthNote.caregiver?.last_name}
                 </span>
               </span>
               <span className="space-x-6">

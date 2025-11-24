@@ -69,10 +69,10 @@ export const useRescheduleAppointment = () => {
       additional_note: string;
     }) => {
       const data = await rescheduleAppointment(values);
-      if (data.success) {
-        return data;
+      if (!data.success) {
+        throw data;
       }
-      throw new Error(data.message || "Rescheduling appointment failed");
+      return data;
     },
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);
