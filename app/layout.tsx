@@ -64,7 +64,7 @@ export default async function RootLayout({
   const session = await getSession();
   return (
     <html lang="en">
-      <body className={`h-full ${dmSans.variable} antialiased`}>
+      <body className={`!h-full ${dmSans.variable} antialiased`}>
         <VerificationProvider isVerified={session.isVerified || false}>
           <Providers>
             <OnboardingWrapper serverSession={session}>

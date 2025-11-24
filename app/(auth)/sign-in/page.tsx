@@ -8,7 +8,7 @@ import { allRoutes } from "@/config/routes";
 export default function SignInPage() {
   return (
     <AuthWrapper
-      wrapper="!h-screen"
+      wrapper="h-full md:!h-screen"
       bgImage="/asset/images/home-bg.jpeg"
       authTitle="Hi! Welcome back"
       authDesc={
