@@ -55,7 +55,7 @@ export const BillingPage = ({ payments }: BillingPageProps) => {
 
   const selectedPlan = paymentPlans.find((plan) => plan.id === user?.plan);
   return (
-    <section className="space-y-3 !bg-white px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
+    <section className="space-y-3 !bg-red-900 px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <section>
         <h2 className="text-2xl font-medium text-[#131B0B]">Billing</h2>
         <p className="text-xs font-semibold text-[#7f7f7f]">

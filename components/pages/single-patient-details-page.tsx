@@ -544,7 +544,7 @@ export default function SinglePatientDetailsPage({
               <span className="text-base font-medium text-[#71717a]">
                 No appointments found
               </span>
-              <span className="mt-1 text-sm text-[#b0b0b0]">
+              <span className="mt-1 text-center text-sm text-[#b0b0b0]">
                 You have no upcoming appointments at the moment.
               </span>
             </div>

@@ -86,6 +86,7 @@ export default function VirtualAssessmentForm() {
             label="Email address"
             fieldType={FormFieldTypes.INPUT}
             inputType="email"
+            disabled={true}
             // disabled={isPending}
             placeholder="Email Address"
           />

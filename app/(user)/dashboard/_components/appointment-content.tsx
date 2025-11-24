@@ -7,14 +7,21 @@ import { DbAppointmentSheet } from "@/components/sheets/db-appointment-sheet";
 import { AppointmentStatus } from "@/components/table/columns/appointment-columns";
 import { Calendar, CalendarDayButton } from "@/components/ui/calendar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { cn, determineAppointmentStatus, formatDate, createAppointmentEndTime } from "@/lib/utils";
+import {
+  cn,
+  determineAppointmentStatus,
+  formatDate,
+  createAppointmentEndTime,
+} from "@/lib/utils";
 import { Appointment } from "@/types";
 
 type AppointmentsContentProps = {
   appointments: Appointment[];
 };
 
-export function AppointmentsContent({ appointments }: AppointmentsContentProps) {
+export function AppointmentsContent({
+  appointments,
+}: AppointmentsContentProps) {
   const [appointmentView, setAppointmentView] = useState("list");
   const isMobile = useIsMobile();
 
@@ -109,9 +116,7 @@ export function AppointmentsContent({ appointments }: AppointmentsContentProps) 
             (appointment) => new Date(appointment.date) > new Date()
           ).length > 0 ? (
             appointments
-              .filter(
-                (appointment) => new Date(appointment.date) > new Date()
-              )
+              .filter((appointment) => new Date(appointment.date) > new Date())
               .slice(0, 3)
               .map((appointment) => {
                 const status = determineAppointmentStatus(appointment);
@@ -129,7 +134,8 @@ export function AppointmentsContent({ appointments }: AppointmentsContentProps) 
                                 ? "bg-green-500"
                                 : status === ("pending" as AppointmentStatus)
                                   ? "bg-yellow-500"
-                                  : status === ("cancelled" as AppointmentStatus)
+                                  : status ===
+                                      ("cancelled" as AppointmentStatus)
                                     ? "bg-red-500"
                                     : "bg-blue-500"
                             )}
@@ -196,7 +202,7 @@ export function AppointmentsContent({ appointments }: AppointmentsContentProps) 
               <span className="text-base font-medium text-[#71717a]">
                 No appointments found
               </span>
-              <span className="mt-1 text-sm text-[#b0b0b0]">
+              <span className="mt-1 text-center text-sm text-[#b0b0b0]">
                 You have no upcoming appointments at the moment.
               </span>
             </div>

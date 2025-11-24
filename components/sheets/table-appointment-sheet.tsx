@@ -394,7 +394,7 @@ export const TableAppointmentSheet = (props: Props) => {
                   route="/billing"
                   fallback={
                     <Button disabled className="!py-2 text-xs" size={"sm"}>
-                      Verify Account
+                      Review Pending
                     </Button>
                   }
                 >
@@ -403,7 +403,7 @@ export const TableAppointmentSheet = (props: Props) => {
                       setOpenSheet(false);
                       setShowReschedule(true);
                     }}
-                    className="flex text-sm items-center space-x-2"
+                    className="flex items-center space-x-2 text-sm"
                   >
                     <Calendar className="h-4 w-4" />
                     <span>Reschedule Appointment</span>
@@ -411,15 +411,16 @@ export const TableAppointmentSheet = (props: Props) => {
                 </VerificationGuard>
               )}
 
-              {appointment.status === "assigned" && user?.user_role === "caregiver" && (
-                <Button
-                  variant="secondary"
-                  className="flex items-center space-x-2"
-                >
-                  <AlertCircle className="h-4 w-4" />
-                  <span>Mark as Arrived</span>
-                </Button>
-              )}
+              {appointment.status === "assigned" &&
+                user?.user_role === "caregiver" && (
+                  <Button
+                    variant="secondary"
+                    className="flex items-center space-x-2"
+                  >
+                    <AlertCircle className="h-4 w-4" />
+                    <span>Mark as Arrived</span>
+                  </Button>
+                )}
             </div>
           </div>
         </div>

@@ -1,12 +1,20 @@
-import { CheckIcon, LayersIcon, MenuIcon, UserIcon, X } from "lucide-react";
-import Link from "next/link";
+import {
+  CheckIcon,
+  LayersIcon,
+  LogOut,
+  MenuIcon,
+  UserIcon,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { allRoutes } from "@/config/routes";
+import { LogoutModal } from "@/components/dialogs/logout-modal";
+import { Button } from "@/components/ui/button";
 import { useOnboarding } from "@/context/onboarding-context";
 import CalendarBlankIcon from "@/icons/calendar-blank";
 import HeartbeatIcon from "@/icons/heartbeat";
 import UserFocusIcon from "@/icons/user-focus";
+import { useUserStore } from "@/store/user-store";
 
 import { Logo } from "../logo";
 
@@ -18,6 +26,7 @@ type Step = {
 
 const OnboardingSidebar = ({ steps }: { steps: Step[] }) => {
   const { currentStep, completedSteps, goToStep } = useOnboarding();
+  const { user } = useUserStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   // Handle screen size detection
   const [isMobile, setIsMobile] = useState(false);
@@ -148,18 +157,27 @@ const OnboardingSidebar = ({ steps }: { steps: Step[] }) => {
           <div className="rounded-lg border border-gray-300 bg-gray-100 p-4">
             <div className="flex items-center space-x-2">
               <UserIcon className="size-5 text-gray-600 lg:size-6" />
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-gray-600 2xl:text-base">
-                  Already have an account?
+              <p>
+                <span>
+                  {user?.first_name} {user?.last_name}
                 </span>
-                <Link
-                  href={allRoutes.auth.signIn.url}
-                  className="text-xs font-medium text-blue-700 2xl:text-base"
-                  onClick={() => isMobile && setIsMobileMenuOpen(false)}
-                >
-                  Log in
-                </Link>
-              </div>
+              </p>
+            </div>
+            <div className="mt-2 flex flex-col">
+              <LogoutModal
+                trigger={
+                  <Button
+                    variant={"ghost"}
+                    size={"icon"}
+                    className="flex !h-fit w-full cursor-pointer items-center justify-end bg-red-800 px-2 !py-2 hover:bg-red-900"
+                  >
+                    <LogOut className="!size-5 rotate-180 text-white group-data-[collapsible=icon]:-ml-[2px]" />
+                    <span className="hover:text-primary ms-1 truncate text-sm font-normal text-white hover:font-medium dark:text-gray-300">
+                      Logout
+                    </span>
+                  </Button>
+                }
+              />
             </div>
           </div>
         </div>

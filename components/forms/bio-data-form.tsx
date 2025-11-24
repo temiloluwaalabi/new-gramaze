@@ -92,6 +92,9 @@ export default function BiodataForm() {
               name="dob"
               label="Date of birth"
               fieldType={FormFieldTypes.DATE_PICKER}
+              calendarProps={{
+                toYear: new Date().getFullYear() - 18,
+              }}
               className="w-full"
               disabled={isPending || hasFilledBiodate}
             />

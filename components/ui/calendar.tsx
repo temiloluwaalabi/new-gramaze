@@ -29,6 +29,8 @@ function Calendar({
   buttonVariant = "ghost",
   formatters,
   components,
+  fromYear,
+  toYear,
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>["variant"];
@@ -37,6 +39,8 @@ function Calendar({
 
   return (
     <DayPicker
+      fromYear={fromYear}
+      toYear={toYear}
       showOutsideDays={showOutsideDays}
       className={cn(
         "bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
@@ -150,18 +154,27 @@ function Calendar({
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
             return (
-              <ChevronLeftIcon className={cn("size-4", className)} {...cleanProps(props)} />
+              <ChevronLeftIcon
+                className={cn("size-4", className)}
+                {...cleanProps(props)}
+              />
             );
           }
 
           if (orientation === "right") {
             return (
-              <ChevronRightIcon className={cn("size-4", className)} {...cleanProps(props)} />
+              <ChevronRightIcon
+                className={cn("size-4", className)}
+                {...cleanProps(props)}
+              />
             );
           }
 
           return (
-            <ChevronDownIcon className={cn("size-4", className)} {...cleanProps(props)} />
+            <ChevronDownIcon
+              className={cn("size-4", className)}
+              {...cleanProps(props)}
+            />
           );
         },
         DayButton: CalendarDayButton,

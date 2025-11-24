@@ -3,7 +3,11 @@
 import { getIronSession } from "iron-session";
 import { cookies } from "next/headers";
 
-import { defaultSessionData, SessionData, sessionOptions } from "@/lib/auth/session";
+import {
+  defaultSessionData,
+  SessionData,
+  sessionOptions,
+} from "@/lib/auth/session";
 import { User } from "@/types";
 
 async function getSessionInstance() {
@@ -17,8 +21,7 @@ async function getSessionInstance() {
 export async function getSession() {
   // const shouldSleep = process.env.NODE_ENV === "development"; // Only sleep in development
 
-   const session = await getSessionInstance();
-
+  const session = await getSessionInstance();
 
   // if (shouldSleep) {
   //   await sleep(250);
@@ -35,7 +38,8 @@ export async function getSession() {
     userType: session.userType ?? defaultSessionData.userType,
     isBoarded: session.isBoarded ?? defaultSessionData.isBoarded,
     isVerified: session.isVerified ?? defaultSessionData.isVerified,
-  };}
+  };
+}
 
 export async function LoginSession(user: User, accessToken: string) {
   const session = await getSessionInstance();
@@ -87,7 +91,23 @@ export async function RegisterSession(
     isBoarded: false,
   });
   await session.save();
-    // ✅ Return plain data
+  // ✅ Return plain data
+  return {
+    user_id: session.user_id,
+    accessToken: session.accessToken,
+    email: session.email,
+    firstName: session.firstName,
+    isLoggedIn: session.isLoggedIn,
+    userType: session.userType,
+    isBoarded: session.isBoarded,
+    isVerified: session.isVerified,
+  } as SessionData;
+}
+export async function UpdateVerificationStatus(isVerified: boolean) {
+  const session = await getSessionInstance();
+  session.isVerified = isVerified;
+  await session.save();
+
   return {
     user_id: session.user_id,
     accessToken: session.accessToken,
@@ -104,7 +124,7 @@ export async function OnboardSession() {
   // Set some initial session data, e.g., user ID or token
   session.isBoarded = true; // Set isBoarded to true when onboarding is complete
   await session.save();
-    // ✅ Return plain data
+  // ✅ Return plain data
   return {
     user_id: session.user_id,
     accessToken: session.accessToken,

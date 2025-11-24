@@ -165,7 +165,7 @@ export const DbAppointmentSheet = (props: Props) => {
                   className="!h-[49px] !py-2 text-xs"
                   size={"sm"}
                 >
-                  Verify Account
+                  Review Pending
                 </Button>
               }
             >

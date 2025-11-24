@@ -265,7 +265,7 @@ export const AppointmentColumn: ColumnDef<Appointment>[] = [
             route="/billing"
             fallback={
               <Button disabled className="!h-fit !py-2 text-xs" size={"sm"}>
-                Verify Account
+                Review Pending
               </Button>
             }
           >

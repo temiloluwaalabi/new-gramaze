@@ -6,6 +6,5 @@ export const dynamic = "force-dynamic";
 
 export default async function BillingDashboard() {
   const billingHistory = await getUserBillHistory();
-  console.log("BILLIN", billingHistory.payments?.data);
   return <BillingPage payments={billingHistory.payments.data} />;
 }

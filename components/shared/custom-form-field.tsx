@@ -143,6 +143,8 @@ interface DatePickerProps<TFormValues extends FieldValues>
     footer?: React.ReactNode;
     showTimePicker?: boolean;
     timeFormat?: string;
+    fromYear?: number;
+    toYear?: any;
   };
 }
 
@@ -544,7 +546,7 @@ const RenderInput = <TFormValues extends FieldValues>({
               </FormControl>
             )}
           </PopoverTrigger>
-          <PopoverContent className="w-full p-0" align="start">
+          <PopoverContent className="w-full p-0" align="start" side="right">
             <Calendar
               mode={dateProps.calendarProps?.mode || "single"}
               selected={dateProps.calendarProps?.selected || field.value}
@@ -552,6 +554,7 @@ const RenderInput = <TFormValues extends FieldValues>({
                 setOpenCalendar(false);
                 field.onChange(e);
               }}
+              fromYear={dateProps.calendarProps?.fromYear}
               captionLayout="dropdown"
               disabled={dateProps.calendarProps?.disabled || props.disabled}
               initialFocus
@@ -646,6 +649,8 @@ const RenderInput = <TFormValues extends FieldValues>({
             onChange={(value) => field.onChange(value)}
             disabled={props.disabled}
             className={cn(
+              "[&>.PhoneInputInput]:focus:!border-gray-300 [&>.PhoneInputInput]:focus:!ring-0 [&>.PhoneInputInput]:focus:!outline-none",
+              "[&>.PhoneInputInput]:focus-visible:!border-transparent [&>.PhoneInputInput]:focus-visible:!ring-0 [&>.PhoneInputInput]:focus-visible:!outline-none",
               "h-[51px] rounded-[6px] !border border-gray-300 !p-2",
               props.className
             )}

@@ -225,7 +225,7 @@ export default function CaregiverMainDashboardClient({
               <span className="text-base font-medium text-[#71717a]">
                 No messages
               </span>
-              <span className="mt-1 text-sm text-[#b0b0b0]">
+              <span className="mt-1 text-center text-sm text-[#b0b0b0]">
                 Please send a message to start a conversation.
               </span>
             </div>

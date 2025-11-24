@@ -285,7 +285,7 @@ export const HealthTrackerPage = ({
                       <span className="text-sm font-medium">
                         No reports found
                       </span>
-                      <span className="mt-1 text-xs text-[#b6b6b6]">
+                      <span className="mt-1 text-center text-xs text-[#b6b6b6]">
                         You have no recent reports yet.
                       </span>
                     </div>
