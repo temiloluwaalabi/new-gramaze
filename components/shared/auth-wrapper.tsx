@@ -18,8 +18,8 @@ type Props = {
 };
 export const AuthWrapper = (props: Props) => {
   return (
-    <div className={cn("h-full p-6 md:!h-screen md:p-0", props.wrapper)}>
-      <div className="grid h-full grid-cols-12">
+    <div className={cn("!h-full p-6 md:!h-screen md:p-0", props.wrapper)}>
+      <div className="grid h-full w-full grid-cols-12">
         <div className="relative col-span-12 hidden h-[300px] w-full md:col-span-5 md:flex md:h-full">
           {/* <Button className="absolute top-0 right-0 z-50 mt-3 mr-3 flex !h-[45px] items-center gap-1 text-[14px]">
             <Link href={"/"} className="absolute top-0 left-0 z-30 size-full" />

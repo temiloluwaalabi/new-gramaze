@@ -59,6 +59,7 @@ export default function CaregiverMainDashboardClient({
     appointments.length > 0 ? transformAppointmentData(appointments) : [];
 
   console.log("APP PLAT", allPatients);
+  console.log("APP AAA", appointments);
   return (
     <section className="grid size-full grid-cols-12 gap-6 space-y-3 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <div className="col-span-12 space-y-4 lg:col-span-6">
@@ -247,7 +248,12 @@ export default function CaregiverMainDashboardClient({
             </Link>
           </div>
 
-          {allPatients && allPatients.length > 0 ? (
+          {allPatients.filter(
+            (pat) => pat.patient.email !== "superadmin@gramaze.com"
+          ) &&
+          allPatients.filter(
+            (pat) => pat.patient.email !== "superadmin@gramaze.com"
+          ).length > 0 ? (
             <div className="space-y-3 sm:space-y-4">
               {allPatients
                 .filter((pat) => pat.patient.email !== "superadmin@gramaze.com")

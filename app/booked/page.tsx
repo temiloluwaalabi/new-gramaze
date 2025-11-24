@@ -13,18 +13,21 @@ export default async function OnboardingBookedPage({
 }) {
   const id = (await searchParams).id;
 
-  const appointment = await getAppointmentDetail(id.toString());
+  const [appointment, allHospitals] = await Promise.all([
+    getAppointmentDetail(id.toString()),
+    getAllHospitals(),
+  ]);
 
   if (!appointment.appointment) {
     return notFound();
   }
 
-  console.log("ID", id);
-
-  const allHospitals = await getAllHospitals()
   return (
     <Suspense>
-      <OnboardingSuccess appointment={appointment.appointment} hospitals={allHospitals.hospitals || []}/>
+      <OnboardingSuccess
+        appointment={appointment.appointment}
+        hospitals={allHospitals.hospitals || []}
+      />
     </Suspense>
   );
 }

@@ -101,7 +101,6 @@ export const RegisterStepOne = async (
       };
     };
 
-    
     await RegisterSession(
       successResponse.data.token,
       successResponse.data.user_data
@@ -256,7 +255,6 @@ export const OnboardUserType = async (userType: string) => {
       rawResponse: ApiResponse<{ status: true; message: string }>;
     };
 
-    
     revalidatePath("/onboarding");
     return {
       success: true,
@@ -314,7 +312,6 @@ export const OnboardUserPlan = async (userPlan: string) => {
       rawResponse: ApiResponse<{ status: true; message: string }>;
     };
 
-    
     revalidatePath("/onboarding");
     return {
       success: true,
@@ -335,7 +332,9 @@ export const OnboardUserPlan = async (userPlan: string) => {
     });
   }
 };
-export const UpdateUserBiodate = async (values: BiodataSchemaType) => {
+export const UpdateUserBiodate = async (
+  values: BiodataSchemaType
+): Promise<ServerActionResponse<User>> => {
   try {
     const validatedValues = BiodataSchema.safeParse(values);
 
@@ -350,12 +349,13 @@ export const UpdateUserBiodate = async (values: BiodataSchemaType) => {
         }
       );
 
-      throw new ApiError({
-        statusCode: 400,
+      return {
+        success: false,
         message: "Validation failed",
-        errorType: "ValidationError",
-        rawErrors: fieldErrors,
-      });
+        errors: fieldErrors as Record<string, string[]>,
+        statusCode: 400,
+        errorType: "VALIDATION_ERROR",
+      };
     }
 
     console.log("VALUES", values);
@@ -364,7 +364,17 @@ export const UpdateUserBiodate = async (values: BiodataSchemaType) => {
     console.log("RESPONSE", response);
 
     if (ApiError.isAPiError(response)) {
-      throw response;
+      const apiError = response as ApiError;
+      console.log("AYPGS", response);
+
+      // Return the error with all its details
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
     }
 
     // At this point, response is not an ApiError
@@ -374,26 +384,33 @@ export const UpdateUserBiodate = async (values: BiodataSchemaType) => {
       user: User;
     };
 
-    
     revalidatePath("/");
     return {
       success: true,
       message: successResponse.message,
-      user: successResponse.user,
+      data: successResponse.user,
     };
   } catch (error) {
     console.error("Update BIODATA ERROR:", error);
 
     if (error instanceof ApiError) {
-      throw error;
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
     }
 
-    throw new ApiError({
-      statusCode: 500,
+    // For any other error
+    return {
+      success: false,
       message:
         error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
       errorType: "UnknownError",
-    });
+    };
   }
 };
 export const UpdateUserProfile = async (values: BiodataSchemaType) => {
@@ -440,7 +457,6 @@ export const UpdateUserProfile = async (values: BiodataSchemaType) => {
       };
     };
 
-    
     revalidatePath("/");
     return {
       success: true,
@@ -493,7 +509,6 @@ export const UpdateNotificationSettings = async (values: {
       user: User;
     };
 
-    
     revalidatePath("/");
     return {
       success: true,
@@ -547,7 +562,6 @@ export const ResetPassword = async (values: {
       user: User;
     };
 
-    
     revalidatePath("/");
     return {
       success: true,
@@ -598,7 +612,6 @@ export const InitiatePasswordReset = async (
       message: string;
     };
 
-    
     revalidatePath("/");
     return {
       success: true,
@@ -658,8 +671,6 @@ export const UpdateMedicalReport = async (values: FormData) => {
         user: User;
       }>;
     };
-
-    
 
     revalidatePath("/");
     return {
@@ -731,7 +742,6 @@ export const VirtualAppointment = async (values: {
       }>;
     };
 
-    
     revalidatePath("/");
 
     if (!sessionToken.isBoarded) {
@@ -804,7 +814,6 @@ export const PhysicalHomeAppointment = async (values: {
       }>;
     };
 
-    
     revalidatePath("/");
     if (!sessionToken.isBoarded) {
       await OnboardSession();
@@ -877,7 +886,6 @@ export const PhysicalHospitalAppointment = async (values: {
       }>;
     };
 
-    
     revalidatePath("/");
     if (!sessionToken.isBoarded) {
       await OnboardSession();

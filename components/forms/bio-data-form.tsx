@@ -54,7 +54,7 @@ export default function BiodataForm() {
 
     UpdateBiodata(values, {
       onSuccess: (data) => {
-        setUser(data.user);
+        setUser(data.data!);
         // toast.success(data.message);
         markStepComplete(currentStep);
         goToNextStep();

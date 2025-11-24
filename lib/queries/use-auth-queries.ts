@@ -120,11 +120,11 @@ export const useUpdateBiodate = () => {
     mutationKey: ["onboard", "biodata"],
     mutationFn: async (values: BiodataSchemaType) => {
       const data = await UpdateUserBiodate(values);
-      if (data.success) {
-        return data;
+      if (!data.success) {
+        throw data;
       }
       // Optionally, throw an error or return a value for unsuccessful cases
-      throw new Error(data.message);
+      return data;
     },
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);

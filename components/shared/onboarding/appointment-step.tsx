@@ -1,6 +1,6 @@
 "use client";
 import { format } from "date-fns";
-import { Clock, Loader2, Video } from "lucide-react";
+import { CheckCircle2, Clock, Loader2, Video } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import * as React from "react";
@@ -36,6 +36,12 @@ export const AppointmentStep: React.FC<Partial<OnboardingStepsI>> = () => {
     React.useState<string>("physical");
   const [physicalVisitType, setPhysicalVisitType] =
     React.useState("at-home-visit");
+  const [appointmentBooked, setAppointmentBooked] = React.useState(false);
+  const [bookedAppointmentId, setBookedAppointmentId] = React.useState<
+    string | null
+  >(null);
+  const [countdown, setCountdown] = React.useState(5);
+
   const appointment = data.appointment.type;
   const parsedDate = data.appointment.date
     ? new Date(data.appointment.date)
@@ -66,6 +72,18 @@ export const AppointmentStep: React.FC<Partial<OnboardingStepsI>> = () => {
     setinternalStep(2);
     setAssessmentType(value);
   };
+  // Countdown timer effect
+  React.useEffect(() => {
+    if (appointmentBooked && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (appointmentBooked && countdown === 0 && bookedAppointmentId) {
+      router.push(`/booked?id=${bookedAppointmentId}`);
+    }
+  }, [appointmentBooked, countdown, bookedAppointmentId, router]);
+
   const handleSwitchToVirtual = () => {
     // Switch to virtual appointment view
     setAssessmentType("virtual");
@@ -131,7 +149,10 @@ export const AppointmentStep: React.FC<Partial<OnboardingStepsI>> = () => {
 
       BookVirtualAppointment(JSONVALUES, {
         onSuccess: (data) => {
-          router.push(`/booked?id=${data.appointment.id}`);
+          setBookedAppointmentId(String(data.appointment.id));
+          setAppointmentBooked(true);
+          safeSuccess("book-virtual-appointment", data.message);
+          // router.push(`/booked?id=${data.appointment.id}`);
           // updateData("appointmentReadyForReview", true);
           safeSuccess("book-virtual-appointment", data.message);
         },
@@ -187,6 +208,57 @@ export const AppointmentStep: React.FC<Partial<OnboardingStepsI>> = () => {
       }
     }
   };
+
+  // Success state render
+  if (appointmentBooked) {
+    return (
+      <div className="h-screen w-full max-w-2xl">
+        <div className="flex w-full flex-col items-center justify-center space-y-6 rounded-md border p-4">
+          <div className="flex size-20 items-center justify-center rounded-full bg-green-100">
+            <CheckCircle2 className="size-10 text-green-600" />
+          </div>
+
+          <div className="space-y-2 text-center">
+            <h2 className="text-2xl font-semibold text-gray-900">
+              Appointment Booked Successfully!
+            </h2>
+            <p className="max-w-md text-base text-gray-600">
+              Your appointment has been confirmed and a confirmation email has
+              been sent.
+            </p>
+          </div>
+
+          <div className="w-full max-w-md rounded-lg border border-gray-200 bg-gray-50 p-6">
+            <div className="space-y-4 text-center">
+              <p className="text-sm text-gray-600">
+                Redirecting to your appointment details in
+              </p>
+              <div className="flex items-center justify-center">
+                <span className="flex size-16 items-center justify-center rounded-full bg-blue-600 text-2xl font-bold text-white">
+                  {countdown}
+                </span>
+              </div>
+              <p className="text-xs text-gray-500">
+                Please wait while we redirect you...
+              </p>
+            </div>
+          </div>
+
+          <Button
+            variant="outline"
+            onClick={() =>
+              bookedAppointmentId &&
+              router.push(`/booked?id=${bookedAppointmentId}`)
+            }
+            className="mt-4"
+          >
+            Go to Appointment Now
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-2xl">
       {!data.appointmentReadyForReview ? (
