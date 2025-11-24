@@ -51,7 +51,7 @@ const UserDashboardLayout = async ({
     // >
     <SidebarProvider defaultOpen={defaultOpen}>
       <UserDashboardSidebar />
-      <SidebarInset className="w-full">
+      <SidebarInset className="w-full overflow-x-hidden">
         <DashboardHeader searchData={searchData} />
         <main className="relative !size-full bg-white">{children}</main>
       </SidebarInset>

@@ -114,8 +114,11 @@ export const CaregiverAppointmentSheet = (props: Props) => {
       <SheetTrigger>{props.sheetTrigger}</SheetTrigger>
       <SheetContent className="!w-[596px] max-w-full border-none bg-transparent p-5 md:!max-w-[596px]">
         <Form {...AppointmentFOrm}>
-          <form onSubmit={AppointmentFOrm.handleSubmit(handleConfirmArrival)}>
-            <div>
+          <form
+            onSubmit={AppointmentFOrm.handleSubmit(handleConfirmArrival)}
+            className="h-full"
+          >
+            <div className="h-full">
               {showArrivalWidget ? (
                 <div className="custom-scrollbar flex h-full flex-col overflow-y-scroll rounded-[6px] border border-gray-300 bg-white p-4">
                   <SheetHeader className="mb-4 p-0">
@@ -222,7 +225,7 @@ export const CaregiverAppointmentSheet = (props: Props) => {
                   </div>
                 </div>
               ) : (
-                <div className="custom-scrollbar flex h-full flex-col overflow-y-scroll rounded-[6px] border border-gray-300 bg-white p-4">
+                <div className="custom-scrollbar flex h-full flex-col overflow-scroll rounded-[6px] border border-gray-300 bg-white p-4">
                   <SheetHeader className="mb-4 p-0">
                     <SheetTitle className="text-base font-medium text-[#333333]">
                       Appointment Details
@@ -276,6 +279,7 @@ export const CaregiverAppointmentSheet = (props: Props) => {
                       <h6 className="text-base font-medium text-[#333333]">
                         Patient details
                       </h6>
+
                       <AvatarNameEmail
                         name={`${appointmentPatient?.first_name || ""} ${appointmentPatient?.last_name || ""}`.trim()}
                         email={
@@ -283,6 +287,7 @@ export const CaregiverAppointmentSheet = (props: Props) => {
                           props.appointment.contact ||
                           ""
                         }
+                        showFall
                         avatarImage="https://res.cloudinary.com/davidleo/image/upload/v1744896553/e1aa7d76f300fa1554e755fb776e171b_y9oajf.png"
                       />
                       <div className="flex items-center gap-[130px]">

@@ -1,12 +1,18 @@
 // @flow
-import { Calendar, Clock, Ellipsis, MapPin, Video } from "lucide-react";
-import Image from "next/image";
+import { Calendar, Clock, Ellipsis, MapPin, Video, View } from "lucide-react";
 import * as React from "react";
 
 import { CaregiverAppointmentSheet } from "@/components/sheets/caregiver-appointment-sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { DEFAULT_IMAGE_URL } from "@/config/constants";
-import { cn } from "@/lib/utils";
+import { cn, initialsFromName } from "@/lib/utils";
 import { Appointment } from "@/types";
 
 type Props = {
@@ -19,13 +25,29 @@ export const CaregiverAppointmentWidget = ({ appointment, isHori }: Props) => {
       <div className="space-y-3 sm:space-y-4">
         <div className="flex flex-row items-center justify-between gap-2 sm:gap-0">
           <div className="flex items-center gap-2 sm:gap-3">
-            <Image
+            {/* <Image
               src={DEFAULT_IMAGE_URL}
               width={36}
               height={36}
               className="size-8 rounded-full object-cover sm:size-[42px]"
               alt={`${appointment.name}'s avatar`}
-            />
+            /> */}
+
+            <div className="flex size-10 items-center justify-center rounded-full bg-blue-100 text-blue-500">
+              {appointment.patient
+                ? initialsFromName(
+                    [
+                      appointment.patient?.first_name,
+                      appointment.patient?.last_name,
+                    ]
+                      .filter(Boolean)
+                      .join(" ")
+                      .trim()
+                  )
+                : initialsFromName(
+                    ["Unknown Patient"].filter(Boolean).join(" ").trim()
+                  )}
+            </div>
             <CaregiverAppointmentSheet
               appointment={appointment}
               sheetTrigger={
@@ -49,9 +71,39 @@ export const CaregiverAppointmentWidget = ({ appointment, isHori }: Props) => {
             )}
           </div>
 
-          <div className="mt-1 flex items-center gap-2 sm:mt-0 sm:self-auto lg:self-end">
-            <Ellipsis className="size-4 text-gray-500 sm:size-5" />
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="mt-1 flex cursor-pointer items-center gap-2 sm:mt-0 sm:self-auto lg:self-end">
+                <Ellipsis className="size-4 text-gray-500 sm:size-5" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm leading-none font-medium">
+                    Review Appointment
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <CaregiverAppointmentSheet
+                appointment={appointment}
+                sheetTrigger={
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onSelect={(e) => {
+                      e.preventDefault();
+                    }}
+                  >
+                    <span className="flex cursor-pointer items-center">
+                      <View className="mr-2 h-4 w-4" />
+                      <span>View Appointment</span>
+                    </span>
+                  </DropdownMenuItem>
+                }
+              />
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <Separator className="bg-[#E8E8E8]" />

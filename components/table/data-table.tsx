@@ -167,7 +167,9 @@ export function DataTable<TData, TValue, T extends FilterValue>({
   });
 
   return (
-    <div className="space-y-4">
+    <div className="w-full space-y-4">
+      {" "}
+      {/* Add w-full here */}
       {toolbar.show && (
         <DataTableToolbar
           table={table}
@@ -186,107 +188,99 @@ export function DataTable<TData, TValue, T extends FilterValue>({
           // showResetButton={newToolbar.showResetButton}
         />
       )}
-      <div className="!rounded-md">
-        <Table
-          className={cn("!custom-scrollbar !rounded-md", tableClassname)}
-          // style={{ width: table.getCenterTotalSize() }}
-        >
-          <TableHeader className="bg-blue-500 hover:bg-blue-300">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="text-white">
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead
-                      key={header.id}
-                      className={cn(
-                        "border px-4 py-3 text-white",
-                        {
-                          "cursor-pointer select-none":
-                            enableSorting && header.column.getCanSort(),
-                          "resize-handle": enableColumnResizing,
-                        },
-                        headerCellClassName
-                      )}
-                      style={
-                        enableColumnResizing
-                          ? { width: header.getSize() }
-                          : undefined
-                      }
-                      colSpan={header.colSpan}
-                      // style={{ width: header.getSize() }}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+      <Table
+        className={cn(
+          "!custom-scrollbar !custom-scrollbar-x !rounded-md",
+          tableClassname
+        )}
+        // style={{ width: table.getCenterTotalSize() }}
+      >
+        <TableHeader className="bg-blue-500 hover:bg-blue-300">
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id} className="text-white">
+              {headerGroup.headers.map((header) => {
+                return (
+                  <TableHead
+                    key={header.id}
+                    className={cn(
+                      "border px-4 py-3 text-white",
+                      {
+                        "cursor-pointer select-none":
+                          enableSorting && header.column.getCanSort(),
+                        "resize-handle": enableColumnResizing,
+                      },
+                      headerCellClassName
+                    )}
+                    style={
+                      enableColumnResizing
+                        ? { width: header.getSize() }
+                        : undefined
+                    }
+                    colSpan={header.colSpan}
+                    // style={{ width: header.getSize() }}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {table.getRowModel().rows.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                className={cn(
+                  "group hover:bg-muted/50 bg- cursor-pointer",
+                  {
+                    "bg-muted/50": row.getIsSelected(),
+                  },
+                  bodyRowClassname
+                )}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    className={cn(
+                      "px-4 py-4 text-xs md:text-sm lg:text-base",
+                      bodyCellClassname
+                    )}
+                    style={
+                      enableColumnResizing
+                        ? { width: cell.column.getSize() }
+                        : undefined
+                    }
+                    // style={{ width: cell.column.getSize() }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
               </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className={cn(
-                    "group hover:bg-muted/50 bg- cursor-pointer",
-                    {
-                      "bg-muted/50": row.getIsSelected(),
-                    },
-                    bodyRowClassname
-                  )}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className={cn(
-                        "px-4 py-4 text-xs md:text-sm lg:text-base",
-                        bodyCellClassname
-                      )}
-                      style={
-                        enableColumnResizing
-                          ? { width: cell.column.getSize() }
-                          : undefined
-                      }
-                      // style={{ width: cell.column.getSize() }}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  <div className="flex items-center justify-center">
-                    <Loader2 className="me-2 size-4 animate-spin" />
-                    <span>fetching data..</span>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No Results
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+            ))
+          ) : isLoading ? (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                <div className="flex items-center justify-center">
+                  <Loader2 className="me-2 size-4 animate-spin" />
+                  <span>fetching data..</span>
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-24 text-center">
+                No Results
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
       {pagination.show && <DataTablePagination table={table} />}
     </div>
   );

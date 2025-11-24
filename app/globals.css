@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -191,18 +191,24 @@
 
 @layer utilities {
   .custom-scrollbar::-webkit-scrollbar {
-    @apply !size-[3px] !max-h-3 rounded-[2px]
-    /* width: 3px;
-    height: 3px;
-    border-radius: 2px; */;
+    @apply /* width: 3px; height: 3px; border-radius: 2px; */ !size-[3px] !max-h-3 rounded-[2px];
   }
   .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-white;
+  }
+  .custom-scrollbar-x::-webkit-scrollbar {
+    @apply /* width: 3px; height: 3px; border-radius: 2px; */ !max-h-1 !w-[4px] rounded-[2px];
+  }
+  .custom-scrollbar-x::-webkit-scrollbar-track {
     @apply bg-white;
   }
   .no-focus {
     @apply focus-visible:ring-0 focus-visible:ring-transparent focus-visible:!ring-offset-0;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-accent rounded-[50px];
+  }
+  .custom-scrollbar-x::-webkit-scrollbar-thumb {
     @apply bg-accent rounded-[50px];
   }
 }
