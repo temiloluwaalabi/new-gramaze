@@ -53,7 +53,7 @@ import { ViewHealthRecordDialog } from "../dialogs/view-health-record-dialog";
 import { ViewNoteDialog } from "../dialogs/view-note-dialog";
 import { ViewReportDialog } from "../dialogs/view-report-dialog";
 import { getStatusBadge } from "../shared/health-record/health-record-list";
-import { Avatar, AvatarImage } from "../ui/avatar";
+// import { Avatar, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { QuillPreview } from "../ui/quill-preview";
@@ -471,7 +471,7 @@ export default function SinglePatientDetailsPage({
             </div>
           </div>
           <Separator className="my-4 bg-[#E8E8E8]" />
-          <div className="mt-3">
+          {/* <div className="mt-3">
             <span className="text-xs font-normal text-[#66666B]">
               Current Caregivers
             </span>
@@ -493,7 +493,7 @@ export default function SinglePatientDetailsPage({
               </span>
             </div>
           </div>
-          <Separator className="my-4 bg-[#E8E8E8]" />
+          <Separator className="my-4 bg-[#E8E8E8]" /> */}
           {appointments.length > 0 ? (
             appointments.map((appointment) => (
               <div
