@@ -75,7 +75,19 @@ export const AddHealthReportSchema = z.object({
   summary: z.string().min(10, "Summary must be at least 10 characters"),
   report_file: z.instanceof(File),
 });
-
+export const RegisterVerifyEmailStepSchema = z.object({
+  email: z.string(),
+  otp: z.string().min(6, {
+    message: "OTP must be 6 characters",
+  }),
+});
+export const ResendOTPSchema = z.object({
+  email: z.string(),
+});
+export type RegisterVerifyEmailStepType = z.infer<
+  typeof RegisterVerifyEmailStepSchema
+>;
+export type ResendOTPSchemaType = z.infer<typeof ResendOTPSchema>;
 export type RegisterSchemaType = z.infer<typeof RegisterSchema>;
 export type LoginSchemaType = z.infer<typeof LoginSchema>;
 export type BiodataSchemaType = z.infer<typeof BiodataSchema>;

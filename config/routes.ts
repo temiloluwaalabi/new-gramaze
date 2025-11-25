@@ -55,6 +55,10 @@ export const gramazeEndpoints = {
     login: "/auth/login",
     forgotPassword: "/auth/forgot-password",
     resetPassword: "/auth/reset-password",
+    resendOtp: "/auth/resend/otp",
+    verifyOtp: "/auth/confirm/email/verification",
+    resend2FAOTP: "/auth/resend/otp/2fa",
+    confirm2FAOTP: "/auth/confirm/otp/2fa",
   },
 
   // Onboarding endpoints
@@ -63,6 +67,7 @@ export const gramazeEndpoints = {
     setUserPlan: "/onboarding/set-user-plan",
     getUserInfo: "/onboarding/get-user-info",
     updateProfile: "/onboarding/update-profile",
+    updateProfileImage: "/upload/image",
     updateMedicalReport: "/onboarding/update-medical-report",
     scheduleAppointment: "/onboarding/schedule-appointment",
   },
@@ -154,6 +159,7 @@ export const gramazeEndpoints = {
     profile: {
       get: "/account_settings/profile",
       update: "/account_settings/profile/update",
+      updateProfileImage: "/account_settings/upload/image",
     },
     notification: {
       update: "/account_settings/notification/update",

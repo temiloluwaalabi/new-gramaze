@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -11,6 +12,10 @@ import {
   LoginSchemaType,
   RegisterSchema,
   RegisterSchemaType,
+  RegisterVerifyEmailStepSchema,
+  RegisterVerifyEmailStepType,
+  ResendOTPSchema,
+  ResendOTPSchemaType,
 } from "@/lib/schemas/user.schema";
 import { ApiResponse, Appointment, ServerActionResponse, User } from "@/types";
 
@@ -19,6 +24,7 @@ import {
   LoginSession,
   OnboardSession,
   RegisterSession,
+  RegisterStepTwoSession,
 } from "./session.actions";
 
 export const RegisterStepOne = async (
@@ -188,7 +194,22 @@ export const LoginAction = async (
       data: { status: true; message: string; token: string; user: User };
     };
 
+    console.log("RESPONSE", successResponse);
+
     await LoginSession(successResponse.data.user, successResponse.data.token);
+    if (successResponse.data.user.factor_authentication === "yes") {
+      const token = await Resend2faOTP(
+        {
+          email: successResponse.data.user.email,
+        },
+        "/sign-in"
+      );
+
+      console.log("2FA TOken sent", token);
+    }
+    if (successResponse.data.user.factor_authentication !== "yes") {
+      await RegisterStepTwoSession();
+    }
     revalidatePath("/");
     return {
       success: true,
@@ -480,7 +501,7 @@ export const UpdateUserProfile = async (values: BiodataSchemaType) => {
 };
 export const UpdateNotificationSettings = async (values: {
   activities_notification: string;
-  factor_authentication: string;
+  message_notification: string;
   reminder_notification: string;
 }) => {
   try {
@@ -528,6 +549,68 @@ export const UpdateNotificationSettings = async (values: {
         error instanceof Error ? error.message : "An unknown error occurred",
       errorType: "UnknownError",
     });
+  }
+};
+export const Update2FA = async (values: { factor_authentication: string }) => {
+  try {
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      return {
+        success: false,
+        message: "Not Authorized",
+        statusCode: 500,
+        errorType: "VALIDATION_ERROR",
+      };
+    }
+
+    const response = await authService.Update2FA(values);
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      // Return the error with all its details
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+
+    // At this point, response is not an ApiError
+    const successResponse = response as unknown as {
+      status: true;
+      message: string;
+      user: User;
+    };
+
+    revalidatePath("/");
+    return {
+      success: true,
+      message: successResponse.message,
+      user: successResponse.user,
+    };
+  } catch (error) {
+    console.error("Update NOTIFICATION ERROR:", error);
+
+    if (error instanceof ApiError) {
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
+    }
+
+    // For any other error
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
+      errorType: "UnknownError",
+    };
   }
 };
 export const ResetPassword = async (values: {
@@ -980,5 +1063,434 @@ export const getOtherUsersInfo = async (user_id: number) => {
         error instanceof Error ? error.message : "An unknown error occurred",
       errorType: "UnknownError",
     });
+  }
+};
+
+export const ResendOTP = async (
+  values: ResendOTPSchemaType,
+  pathname: string
+): Promise<
+  ServerActionResponse<{
+    status: true;
+    message: string;
+  }>
+> => {
+  try {
+    const validatedValues = ResendOTPSchema.safeParse(values);
+
+    if (!validatedValues.success) {
+      const fieldErrors: Record<string, string[]> = {};
+
+      Object.entries(validatedValues.error.flatten().fieldErrors).forEach(
+        ([key, value]) => {
+          if (value) {
+            fieldErrors[key] = value;
+          }
+        }
+      );
+
+      return {
+        success: false,
+        message: "Validation failed",
+        errors: fieldErrors as Record<string, string[]>,
+        statusCode: 400,
+        errorType: "VALIDATION_ERROR",
+      };
+    }
+
+    const response = await authService.resendOTP(
+      validatedValues.data,
+      "/sign-in"
+    );
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      console.log("AYPGS", response);
+
+      // Return the error with all its details
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+    // At this point, response is not an ApiError
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: {
+        status: boolean;
+        message: string;
+      };
+    };
+    revalidatePath(pathname);
+    return {
+      success: true,
+      message: successResponse.message,
+    };
+  } catch (error) {
+    console.error("Resend OTP error:", error);
+
+    if (error instanceof ApiError) {
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
+    }
+
+    // For any other error
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
+      errorType: "UnknownError",
+    };
+  }
+};
+export const VerifyOTP = async (
+  values: RegisterVerifyEmailStepType,
+  pathname: string,
+  isVerify?: boolean
+): Promise<
+  ServerActionResponse<{
+    status: true;
+    message: string;
+  }>
+> => {
+  try {
+    const validatedValues = RegisterVerifyEmailStepSchema.safeParse(values);
+
+    if (!validatedValues.success) {
+      const fieldErrors: Record<string, string[]> = {};
+
+      Object.entries(validatedValues.error.flatten().fieldErrors).forEach(
+        ([key, value]) => {
+          if (value) {
+            fieldErrors[key] = value;
+          }
+        }
+      );
+
+      return {
+        success: false,
+        message: "Validation failed",
+        errors: fieldErrors as Record<string, string[]>,
+        statusCode: 400,
+        errorType: "VALIDATION_ERROR",
+      };
+    }
+
+    const response = await authService.verifyOTP(
+      validatedValues.data,
+      "/sign-in"
+    );
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      console.log("AYPGS", response);
+
+      // Return the error with all its details
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+    // At this point, response is not an ApiError
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: {
+        status: boolean;
+        message: string;
+      };
+    };
+    await RegisterStepTwoSession();
+    revalidatePath(pathname);
+    return {
+      success: true,
+      message: successResponse.message,
+    };
+  } catch (error) {
+    console.error("Resend OTP error:", error);
+
+    if (error instanceof ApiError) {
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
+    }
+
+    // For any other error
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
+      errorType: "UnknownError",
+    };
+  }
+};
+export const Resend2faOTP = async (
+  values: ResendOTPSchemaType,
+  pathname: string
+): Promise<
+  ServerActionResponse<{
+    status: true;
+    message: string;
+  }>
+> => {
+  try {
+    const validatedValues = ResendOTPSchema.safeParse(values);
+
+    if (!validatedValues.success) {
+      const fieldErrors: Record<string, string[]> = {};
+
+      Object.entries(validatedValues.error.flatten().fieldErrors).forEach(
+        ([key, value]) => {
+          if (value) {
+            fieldErrors[key] = value;
+          }
+        }
+      );
+
+      return {
+        success: false,
+        message: "Validation failed",
+        errors: fieldErrors as Record<string, string[]>,
+        statusCode: 400,
+        errorType: "VALIDATION_ERROR",
+      };
+    }
+
+    const response = await authService.resend2FAOTP(
+      validatedValues.data,
+      "/sign-in"
+    );
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      console.log("AYPGS", response);
+
+      // Return the error with all its details
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+    // At this point, response is not an ApiError
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: {
+        status: boolean;
+        message: string;
+      };
+    };
+    revalidatePath(pathname);
+    return {
+      success: true,
+      message: successResponse.message,
+    };
+  } catch (error) {
+    console.error("Resend OTP error:", error);
+
+    if (error instanceof ApiError) {
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
+    }
+
+    // For any other error
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
+      errorType: "UnknownError",
+    };
+  }
+};
+export const Verify2faOTP = async (
+  values: RegisterVerifyEmailStepType,
+  pathname: string,
+  isVerify?: boolean
+): Promise<
+  ServerActionResponse<{
+    status: true;
+    message: string;
+  }>
+> => {
+  try {
+    const validatedValues = RegisterVerifyEmailStepSchema.safeParse(values);
+
+    if (!validatedValues.success) {
+      const fieldErrors: Record<string, string[]> = {};
+
+      Object.entries(validatedValues.error.flatten().fieldErrors).forEach(
+        ([key, value]) => {
+          if (value) {
+            fieldErrors[key] = value;
+          }
+        }
+      );
+
+      return {
+        success: false,
+        message: "Validation failed",
+        errors: fieldErrors as Record<string, string[]>,
+        statusCode: 400,
+        errorType: "VALIDATION_ERROR",
+      };
+    }
+
+    const response = await authService.verify2FAOTP(
+      validatedValues.data,
+      "/sign-in"
+    );
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      console.log("AYPGS", response);
+
+      // Return the error with all its details
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+    // At this point, response is not an ApiError
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: {
+        status: boolean;
+        message: string;
+      };
+    };
+    await RegisterStepTwoSession();
+    revalidatePath(pathname);
+    return {
+      success: true,
+      message: successResponse.message,
+    };
+  } catch (error) {
+    console.error("Resend OTP error:", error);
+
+    if (error instanceof ApiError) {
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
+    }
+
+    // For any other error
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
+      errorType: "UnknownError",
+    };
+  }
+};
+export const UpdateProfileImage = async (values: FormData) => {
+  try {
+    console.log("FORMDATA", values);
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      return {
+        success: false,
+        message: "Validation failed",
+        statusCode: 400,
+        errorType: "VALIDATION_ERROR",
+      };
+    }
+
+    const response = await authService.UpdateProfileImage(values, "/settings");
+
+    console.log("RESPONSE", response);
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      console.log("AYPGS", response);
+
+      // Return the error with all its details
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+
+    // At this point, response is not an ApiError
+    const successResponse = response as unknown as {
+      success: true;
+      status: true;
+      message: string;
+      data: {
+        status: true;
+        message: string;
+        user: User;
+      };
+    };
+
+    revalidatePath("/settings");
+    return {
+      success: true,
+      message: successResponse.message,
+      user: successResponse.data.user,
+    };
+  } catch (error) {
+    console.error("Update BIODATA ERROR:", error);
+
+    if (error instanceof ApiError) {
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
+    }
+
+    // For any other error
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
+      errorType: "UnknownError",
+    };
   }
 };

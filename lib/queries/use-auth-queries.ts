@@ -12,8 +12,10 @@ import {
   PhysicalHospitalAppointment,
   RegisterStepOne,
   ResetPassword,
+  Update2FA,
   UpdateMedicalReport,
   UpdateNotificationSettings,
+  UpdateProfileImage,
   UpdateUserBiodate,
   UpdateUserProfile,
   VirtualAppointment,
@@ -63,7 +65,7 @@ export const useLoginMutation = () => {
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);
       // Show a success toast message
-      toast.success(data.message || "Login successful!");
+      // toast.success(data.message || "Login successful!");
       return data;
     },
     onError: (error) => {
@@ -153,6 +155,29 @@ export const useUpdateMedicalReport = () => {
       console.log("SUCCESS DATA", data);
       // Show a success toast message
       toast.success(data.message || "Medical report updated successfully!");
+      return data;
+    },
+    onError: (error) => {
+      handleMutationError(error);
+    },
+  });
+};
+export const useUpdateProfileImage = () => {
+  return useMutation({
+    mutationKey: ["profile", "updateProfileImage"],
+    mutationFn: async (values: FormData) => {
+      console.log("FORMDATA", FormData);
+      const data = await UpdateProfileImage(values);
+      if (!data.success) {
+        throw data;
+      }
+      // Optionally, throw an error or return a value for unsuccessful cases
+      return data;
+    },
+    onSuccess: (data) => {
+      console.log("SUCCESS DATA", data);
+      // Show a success toast message
+      toast.success(data.message);
       return data;
     },
     onError: (error) => {
@@ -286,7 +311,7 @@ export const useUpdateNotificationSetting = () => {
     mutationKey: ["settings", "notification"],
     mutationFn: async (values: {
       activities_notification: string;
-      factor_authentication: string;
+      message_notification: string;
       reminder_notification: string;
     }) => {
       const data = await UpdateNotificationSettings(values);
@@ -295,6 +320,28 @@ export const useUpdateNotificationSetting = () => {
       }
       // Optionally, throw an error or return a value for unsuccessful cases
       throw new Error(data.message);
+    },
+    onSuccess: (data) => {
+      console.log("SUCCESS DATA", data);
+      // Show a success toast message
+      // toast.success(data.message || "Login successful!");
+      return data;
+    },
+    onError: (error) => {
+      handleMutationError(error);
+    },
+  });
+};
+export const useUpdate2FA = () => {
+  return useMutation({
+    mutationKey: ["settings", "2FA"],
+    mutationFn: async (values: { factor_authentication: string }) => {
+      const data = await Update2FA(values);
+      if (!data.success) {
+        throw data;
+      }
+      // Optionally, throw an error or return a value for unsuccessful cases
+      return data;
     },
     onSuccess: (data) => {
       console.log("SUCCESS DATA", data);

@@ -27,6 +27,7 @@ import { Form } from "../ui/form";
 
 // Define the schema for the form
 const AddNoteSchema = z.object({
+  title: z.string(),
   content: z.string().min(10, "Note must be at least 10 characters"),
   attachments: z.array(z.instanceof(File)).optional(),
 });
@@ -62,6 +63,7 @@ export default function AddNoteDialog({
 
     // Add basic fields
     formData.append("content", dataValues.content);
+    formData.append("title", dataValues.title);
     formData.append("user_id", patient_id.toString());
     formData.append("created_by_id", user?.id?.toString() || "");
     formData.append(
@@ -105,6 +107,15 @@ export default function AddNoteDialog({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-4"
           >
+            <CustomFormField
+              control={form.control}
+              name="title"
+              label="Note title"
+              fieldType={FormFieldTypes.INPUT}
+              inputType="text"
+              disabled={AddingNote}
+              placeholder="e.g., Blood Test Results - January 2024"
+            />
             {/* Note Content */}
             <CustomFormField
               control={form.control}

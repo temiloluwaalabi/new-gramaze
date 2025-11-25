@@ -3,6 +3,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { authService } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
@@ -156,6 +157,8 @@ export function useCurrentUser() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ isVerified: true }),
           });
+
+          toast.success("Your account has been verified");
 
           router.refresh();
         } catch (error) {

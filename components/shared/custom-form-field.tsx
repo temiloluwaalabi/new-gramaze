@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { format } from "date-fns";
+import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { E164Number } from "libphonenumber-js/core";
 import {
   CalendarIcon,
@@ -44,6 +45,7 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import "react-phone-number-input/style.css";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "../ui/input-otp";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import PriceInput from "../ui/price-input";
 import { RadioGroup } from "../ui/radio-group";
@@ -75,6 +77,8 @@ interface BaseCustomProps<TFormValues extends FieldValues> {
   disabled?: boolean;
   children?: React.ReactNode;
   formDescription?: string;
+  formDescriptionClass?: string;
+  formMessage?: string;
   renderSkeleton?: (
     field: UseControllerReturn<TFormValues>["field"]
   ) => React.ReactNode;
@@ -212,6 +216,12 @@ interface SkeletonProps<TFormValues extends FieldValues>
   extends BaseCustomProps<TFormValues> {
   fieldType: FormFieldTypes.SKELETON;
 }
+interface OTPInputProps<TFormValues extends FieldValues>
+  extends BaseCustomProps<TFormValues> {
+  fieldType: FormFieldTypes.INPT_OTP;
+  maxLength: number;
+  slotClass?: string;
+}
 type CustomProps<TFormValues extends FieldValues> =
   | InputProps<TFormValues>
   | TextareaProps<TFormValues>
@@ -229,6 +239,7 @@ type CustomProps<TFormValues extends FieldValues> =
   | MultiSelectProps<TFormValues>
   | PriceInputProps<TFormValues>
   | QuillProps<TFormValues>
+  | OTPInputProps<TFormValues>
   | PasswordInputProps<TFormValues>;
 
 export const MultiSelectPills = ({
@@ -685,6 +696,36 @@ const RenderInput = <TFormValues extends FieldValues>({
       );
     }
 
+    case FormFieldTypes.INPT_OTP: {
+      const otpInputProps = props as OTPInputProps<typeof field.value>;
+      const maxLength = otpInputProps.maxLength || 6; // Default to 6 if not provided
+
+      return (
+        <FormControl>
+          <InputOTP
+            {...field}
+            maxLength={maxLength}
+            pattern={REGEXP_ONLY_DIGITS}
+            disabled={otpInputProps.disabled}
+            className={otpInputProps.className}
+          >
+            <InputOTPGroup className="!flex w-full !items-center !justify-center gap-4">
+              {Array.from({ length: maxLength }).map((_, index) => (
+                <InputOTPSlot
+                  key={index}
+                  className={cn(
+                    "border-maroon-700 size-[30px] !rounded-[4px] border bg-transparent shadow-none lg:size-[48px] dark:border-gray-300 dark:hover:text-black",
+                    otpInputProps.slotClass
+                  )}
+                  index={index}
+                />
+              ))}
+            </InputOTPGroup>
+          </InputOTP>
+        </FormControl>
+      );
+    }
+
     case FormFieldTypes.SELECT: {
       const selectProps = props as SelectProps<typeof field.value>;
       return (
@@ -743,10 +784,14 @@ export const CustomFormField = <TFormValues extends FieldValues>(
           <RenderInput field={field} props={props} />
 
           {props.formDescription && (
-            <FormDescription>{props.formDescription}</FormDescription>
+            <FormDescription
+              className={cn("dark:text-gray-400", props.formDescriptionClass)}
+            >
+              {props.formDescription}
+            </FormDescription>
           )}
 
-          <FormMessage className="shad-error" />
+          <FormMessage className={cn("shad-error", props.formMessage)} />
         </FormItem>
       )}
     />

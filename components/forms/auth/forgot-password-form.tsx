@@ -14,9 +14,9 @@ import { allRoutes } from "@/config/routes";
 import { useInitiatePasswordReset } from "@/lib/queries/use-auth-queries";
 import { ForgotPasswordSchema } from "@/lib/schemas/user.schema";
 
-import { CustomFormField } from "../shared/custom-form-field";
-import { Button } from "../ui/button";
-import { Form } from "../ui/form";
+import { CustomFormField } from "../../shared/custom-form-field";
+import { Button } from "../../ui/button";
+import { Form } from "../../ui/form";
 
 export default function ForgotPasswordForm() {
   const router = useRouter();

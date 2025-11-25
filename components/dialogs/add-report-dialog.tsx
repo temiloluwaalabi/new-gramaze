@@ -75,6 +75,10 @@ export default function AddReportDialog({
     formData.append("user_id", patient_id.toString());
     formData.append("caregiver_id", user?.id?.toString() || "");
     formData.append("created_by_id", user?.id?.toString() || "");
+    formData.append(
+      "created_by_name",
+      `${user?.first_name} ${user?.last_name}`
+    );
 
     // Add health_record_id if it exists
     if (health_record_id) {

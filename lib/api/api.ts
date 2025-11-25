@@ -28,6 +28,8 @@ import {
   BiodataSchemaType,
   LoginSchemaType,
   RegisterSchemaType,
+  RegisterVerifyEmailStepType,
+  ResendOTPSchemaType,
 } from "../schemas/user.schema";
 
 export const authService = {
@@ -57,6 +59,45 @@ export const authService = {
         id: number;
       };
     }>(`${gramazeEndpoints.auth.register}`, "POST", {
+      pathname,
+      body: values,
+    });
+  },
+  resendOTP: async (values: ResendOTPSchemaType, pathname: string) => {
+    return makeApiRequest<{
+      status: true;
+      message: string;
+    }>(`${gramazeEndpoints.auth.resendOtp}`, "POST", {
+      pathname,
+      body: values,
+    });
+  },
+  verifyOTP: async (values: RegisterVerifyEmailStepType, pathname: string) => {
+    return makeApiRequest<{
+      status: true;
+      message: string;
+    }>(`${gramazeEndpoints.auth.verifyOtp}`, "POST", {
+      pathname,
+      body: values,
+    });
+  },
+  resend2FAOTP: async (values: ResendOTPSchemaType, pathname: string) => {
+    return makeApiRequest<{
+      status: true;
+      message: string;
+    }>(`${gramazeEndpoints.auth.resend2FAOTP}`, "POST", {
+      pathname,
+      body: values,
+    });
+  },
+  verify2FAOTP: async (
+    values: RegisterVerifyEmailStepType,
+    pathname: string
+  ) => {
+    return makeApiRequest<{
+      status: true;
+      message: string;
+    }>(`${gramazeEndpoints.auth.confirm2FAOTP}`, "POST", {
       pathname,
       body: values,
     });
@@ -162,7 +203,7 @@ export const authService = {
   },
   UpdateNotificationSettings: async (values: {
     activities_notification: string;
-    factor_authentication: string;
+    message_notification: string;
     reminder_notification: string;
   }) => {
     return makeApiRequest<{
@@ -170,6 +211,15 @@ export const authService = {
       message: string;
       user: User;
     }>(`${gramazeEndpoints.accountSettings.notification.update}`, "POST", {
+      body: values,
+    });
+  },
+  Update2FA: async (values: { factor_authentication: string }) => {
+    return makeApiRequest<{
+      status: true;
+      message: string;
+      user: User;
+    }>(`${gramazeEndpoints.accountSettings.twoFactor.update}`, "POST", {
       body: values,
     });
   },
@@ -197,6 +247,20 @@ export const authService = {
       pathname,
       body: values,
     });
+  },
+  UpdateProfileImage: async (values: FormData, pathname: string) => {
+    return makeApiRequest<{
+      status: true;
+      message: string;
+      user: User;
+    }>(
+      `${gramazeEndpoints.accountSettings.profile.updateProfileImage}`,
+      "POST",
+      {
+        pathname,
+        body: values,
+      }
+    );
   },
   VirtualAppointment: async (
     values: {

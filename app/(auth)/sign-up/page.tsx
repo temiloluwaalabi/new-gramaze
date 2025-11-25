@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 
-import SignUpForm from "@/components/forms/sign-up-form";
+import { RegisterForm } from "@/components/forms/auth/registration-form-wrapper";
 import { AuthWrapper } from "@/components/shared/auth-wrapper";
 import { allRoutes } from "@/config/routes";
 
@@ -22,7 +22,7 @@ export default function SignUpPage() {
           </Link>
         </p>
       }
-      form={<SignUpForm />}
+      form={<RegisterForm />}
     />
   );
 }

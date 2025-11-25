@@ -7,11 +7,14 @@ import { toast } from "sonner";
 import SecurityIcon from "@/icons/security-icon";
 import {
   useInitiatePasswordReset,
+  useUpdate2FA,
   useUpdateNotificationSetting,
 } from "@/lib/queries/use-auth-queries";
-import { formatDate } from "@/lib/utils";
+import { formatDate, initialsFromName } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 
+import { SettingsLoadingSkeleton } from "./settings-page";
+import UpdateProfileImageDialog from "../dialogs/update-profile-image-dialog";
 import UpdateAccountDataForm from "../forms/update-account-data-form";
 import PasswordResetConfirmation from "../shared/password-reset-confirmation";
 import { PageTitleHeader } from "../shared/widget/page-title-header";
@@ -38,7 +41,7 @@ export interface ConnectedDevice {
 }
 
 export const CaregiverSettingsClientPage = () => {
-  const { user } = useUserStore();
+  const { user, setUser } = useUserStore();
   const [categories, setCategories] = React.useState<NotificationCategory[]>([
     {
       id: "messages",
@@ -70,12 +73,15 @@ export const CaregiverSettingsClientPage = () => {
   );
   const { isPending, mutate: UpdateNotification } =
     useUpdateNotificationSetting();
+  const { isPending: TWOFAPending, mutate: Update2FA } = useUpdate2FA();
 
   const { isPending: InitiatePending, mutate: InitiatePasswordReset } =
     useInitiatePasswordReset();
 
-  const [email, setEmail] = React.useState("");
-  const [twoFactorEnabled, setTwoFactorEnabled] = React.useState(true);
+  const [email, setEmail] = React.useState(user?.email || "");
+  const [twoFactorEnabled, setTwoFactorEnabled] = React.useState(
+    user?.factor_authentication === "yes"
+  );
   const [connectedDevices, setConnectedDevices] = React.useState<
     ConnectedDevice[]
   >([
@@ -128,10 +134,20 @@ export const CaregiverSettingsClientPage = () => {
     setCategories(
       categories.map((category) => {
         if (category.id === categoryId) {
-          return {
-            ...category,
-            [channel === "sms" ? "smsEnabled" : "emailEnabled"]: value,
-          };
+          // If enabling a channel, disable the other one
+          if (value) {
+            return {
+              ...category,
+              smsEnabled: channel === "sms",
+              emailEnabled: channel === "email",
+            };
+          } else {
+            // If disabling, just disable that specific channel
+            return {
+              ...category,
+              [channel === "sms" ? "smsEnabled" : "emailEnabled"]: false,
+            };
+          }
         }
         return category;
       })
@@ -157,8 +173,8 @@ export const CaregiverSettingsClientPage = () => {
     };
 
     const JSON_VALUE = {
-      activities_notification: getNotificationType(messages),
-      factor_authentication: getNotificationType(activity),
+      message_notification: getNotificationType(messages),
+      activities_notification: getNotificationType(activity),
       reminder_notification: getNotificationType(reminder),
     };
 
@@ -168,6 +184,7 @@ export const CaregiverSettingsClientPage = () => {
       UpdateNotification(JSON_VALUE, {
         onSuccess: (data) => {
           toast.success(data.message);
+          setUser(data.user);
         },
         onError: (error) => {
           toast.error(
@@ -180,6 +197,51 @@ export const CaregiverSettingsClientPage = () => {
       toast.error("An unexpected error occurred");
     }
   };
+
+  const handle2FAToggle = async (checked: boolean) => {
+    setTwoFactorEnabled(checked);
+
+    if (checked) {
+      Update2FA(
+        {
+          factor_authentication: "yes",
+        },
+        {
+          onSuccess: (data) => {
+            toast.message(data.message);
+            setUser(data.user!);
+          },
+          onError: () => {
+            // Revert the toggle if API call fails
+            setTwoFactorEnabled(false);
+          },
+        }
+      );
+    } else {
+      // Handle disabling 2FA if needed
+      Update2FA(
+        {
+          factor_authentication: "no",
+        },
+        {
+          onSuccess: (data) => {
+            toast.message(data.message);
+            setUser(data.user!);
+          },
+          onError: () => {
+            // Revert the toggle if API call fails
+            setTwoFactorEnabled(true);
+          },
+        }
+      );
+    }
+  };
+
+  // ✅ Show loading skeleton if user is not loaded
+  if (!user) {
+    return <SettingsLoadingSkeleton />;
+  }
+
   return (
     <section className="max-w-5xl space-y-3 !bg-white px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <PageTitleHeader
@@ -191,12 +253,14 @@ export const CaregiverSettingsClientPage = () => {
           <TabsList className="custom-scrollbar mb-2 flex h-auto w-fit items-start justify-start gap-3 overflow-hidden overflow-x-scroll rounded-none border-b border-[#F0F2F5] bg-transparent p-0 pb-0 lg:mb-4">
             <TabsTrigger
               value="profile"
+              disabled={TWOFAPending}
               className="!mb-0 cursor-pointer rounded-none !pb-0 text-sm font-normal text-[#b6b6b6] data-[state=active]:!border-b data-[state=active]:border-blue-600 data-[state=active]:font-medium data-[state=active]:text-blue-600 data-[state=active]:shadow-none md:text-base"
             >
               <User />
               Profile
             </TabsTrigger>
             <TabsTrigger
+              disabled={TWOFAPending}
               className="cursor-pointer rounded-none text-sm font-normal text-[#b6b6b6] data-[state=active]:!border-b data-[state=active]:border-blue-600 data-[state=active]:font-medium data-[state=active]:text-blue-600 data-[state=active]:shadow-none md:text-base"
               value="notifications-settings"
             >
@@ -205,6 +269,7 @@ export const CaregiverSettingsClientPage = () => {
             </TabsTrigger>
 
             <TabsTrigger
+              disabled={TWOFAPending}
               className="cursor-pointer rounded-none text-sm font-normal text-[#b6b6b6] data-[state=active]:!border-b data-[state=active]:border-blue-600 data-[state=active]:font-medium data-[state=active]:text-blue-600 data-[state=active]:shadow-none md:text-base"
               value="security"
             >
@@ -219,13 +284,24 @@ export const CaregiverSettingsClientPage = () => {
             <div className="space-y-6">
               <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
                 <div className="flex items-center gap-3">
-                  <Image
-                    src="https://res.cloudinary.com/davidleo/image/upload/v1744896654/aa876a7a2f9aac97c39f34649357f02b_eqqhqh.jpg"
-                    width={96}
-                    height={96}
-                    className="size-[70px] rounded-full object-cover md:size-[96px]"
-                    alt="mainImage"
-                  />
+                  {user?.image ? (
+                    <Image
+                      src={user.image}
+                      width={96}
+                      height={96}
+                      className="size-[70px] rounded-full object-cover md:size-[96px]"
+                      alt="mainImage"
+                    />
+                  ) : (
+                    <div className="flex size-[70px] items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-600 md:size-[96px]">
+                      {initialsFromName(
+                        [user?.first_name, user?.last_name]
+                          .filter(Boolean)
+                          .join(" ")
+                          .trim()
+                      )}
+                    </div>
+                  )}
                   <div className="space-y-1">
                     <h4 className="text-base font-semibold text-[#303030]">
                       {user?.email}
@@ -235,9 +311,13 @@ export const CaregiverSettingsClientPage = () => {
                     </p>
                   </div>
                 </div>
-                <Button className="!h-[38px] text-sm font-normal">
-                  Edit Profile Image
-                </Button>
+                <UpdateProfileImageDialog
+                  dialogTrigger={
+                    <Button className="!h-[38px] text-sm font-normal">
+                      Edit Profile Image
+                    </Button>
+                  }
+                />
               </div>
               <Separator className="bg-[#E8E8E8]" />
               {user && <UpdateAccountDataForm user={user} />}
@@ -336,13 +416,14 @@ export const CaregiverSettingsClientPage = () => {
                         id="email"
                         type="email"
                         value={email}
+                        disabled={true}
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full rounded-md border border-gray-300 p-3"
                         placeholder="Enter your email"
                         required
                       />
                       <Button
-                        disabled={InitiatePending}
+                        disabled={InitiatePending || TWOFAPending}
                         onClick={() => handlePasswordResetRequest(email)}
                         className="relative mt-4 ml-auto flex !h-[38px] text-sm font-normal"
                       >
@@ -366,11 +447,20 @@ export const CaregiverSettingsClientPage = () => {
                             to submit a code when using a new device to log in.
                           </p>
                         </div>
-                        <Switch
-                          checked={twoFactorEnabled}
-                          onCheckedChange={setTwoFactorEnabled}
-                          className="data-[state=checked]:bg-blue-600"
-                        />
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            checked={twoFactorEnabled}
+                            onCheckedChange={handle2FAToggle}
+                            disabled={TWOFAPending}
+                            className="data-[state=checked]:bg-blue-600"
+                          />
+                          {TWOFAPending && (
+                            <span className="flex items-center gap-1 text-sm text-gray-500">
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                              Updating...
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <Separator className="bg-[#E8E8E8]" />
@@ -403,6 +493,7 @@ export const CaregiverSettingsClientPage = () => {
                             variant="ghost"
                             type="button"
                             size="sm"
+                            disabled={TWOFAPending}
                             onClick={() => handleSignOut(device.id)}
                             className="text-sm font-medium text-gray-700 hover:text-gray-900"
                           >

@@ -49,7 +49,7 @@ export async function LoginSession(user: User, accessToken: string) {
     accessToken,
     email: user.email,
     firstName: user.first_name,
-    isLoggedIn: true,
+    isLoggedIn: false,
     userType: user.user_role,
     isBoarded: user.has_set_medical_history === "yes", // Default to false if not provided
     isVerified: user.user_status === "active",
@@ -86,7 +86,7 @@ export async function RegisterSession(
     accessToken,
     email: user_data.email,
     firstName: user_data.first_name,
-    isLoggedIn: true,
+    isLoggedIn: false,
     isVerified: false,
     isBoarded: false,
   });
@@ -123,6 +123,23 @@ export async function OnboardSession() {
   const session = await getSessionInstance();
   // Set some initial session data, e.g., user ID or token
   session.isBoarded = true; // Set isBoarded to true when onboarding is complete
+  await session.save();
+  // ✅ Return plain data
+  return {
+    user_id: session.user_id,
+    accessToken: session.accessToken,
+    email: session.email,
+    firstName: session.firstName,
+    isLoggedIn: session.isLoggedIn,
+    userType: session.userType,
+    isBoarded: session.isBoarded,
+    isVerified: session.isVerified,
+  } as SessionData;
+}
+export async function RegisterStepTwoSession() {
+  const session = await getSessionInstance();
+  // Set some initial session data, e.g., user ID or token
+  session.isLoggedIn = true; // Set isBoarded to true when onboarding is complete
   await session.save();
   // ✅ Return plain data
   return {

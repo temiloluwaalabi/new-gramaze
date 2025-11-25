@@ -138,7 +138,7 @@ export default function UpdateAccountDataForm({
               name="phoneNumber"
               label="Phone Number"
               fieldType={FormFieldTypes.PHONE_INPUT}
-              // disabled={true}
+              disabled={true}
               placeholder="Please enter your number"
             />
             <CustomFormField
@@ -147,7 +147,7 @@ export default function UpdateAccountDataForm({
               label="Email address"
               fieldType={FormFieldTypes.INPUT}
               inputType="email"
-              // disabled={true}
+              disabled={true}
               placeholder="deltapikin@aol.com"
             />
           </div>

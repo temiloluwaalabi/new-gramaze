@@ -5,18 +5,17 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";
+import { Button } from "react-day-picker";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
+import { CustomFormField } from "@/components/shared/custom-form-field";
+import { Form } from "@/components/ui/form";
 import { FormFieldTypes } from "@/config/enum";
 import { allRoutes } from "@/config/routes";
 import { usePasswordReset } from "@/lib/queries/use-auth-queries";
 import { ResetPasswordSchema } from "@/lib/schemas/user.schema";
-
-import { CustomFormField } from "../shared/custom-form-field";
-import { Button } from "../ui/button";
-import { Form } from "../ui/form";
 
 export default function ResetPasswordForm() {
   const searchParams = useSearchParams();

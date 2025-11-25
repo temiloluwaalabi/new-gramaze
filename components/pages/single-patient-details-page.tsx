@@ -676,7 +676,7 @@ export default function SinglePatientDetailsPage({
           <div className="h-fit space-y-4 rounded-[6px] border border-[#E8E8E8] bg-white p-4">
             <div className="flex items-center justify-between">
               <h6 className="text-sm font-medium text-[#787878]">
-                Health summary
+                Health Records
               </h6>
               <span className="flex cursor-pointer items-center gap-1 text-base font-medium text-[#333]">
                 See all <ChevronRight className="size-5 text-gray-500" />
@@ -714,7 +714,7 @@ export default function SinglePatientDetailsPage({
                       </span>
                       <div className="grid w-full grid-cols-12 gap-4">
                         <div className="col-span-12 w-full md:col-span-7">
-                          <h6 className="text-sm font-medium text-[#333]">
+                          <h6 className="line-clamp-1 max-w-prose text-sm font-medium text-ellipsis text-[#333]">
                             {record.title}
                           </h6>
                           <div className="flex items-center space-x-2 text-xs text-gray-500">
@@ -728,12 +728,12 @@ export default function SinglePatientDetailsPage({
                               </span>
                             </div>
                           </div>
+                          <Badge variant="secondary" className="text-xs">
+                            {config.label}
+                          </Badge>
                         </div>
                         <div className="col-span-12 flex w-full flex-col justify-center gap-2 md:col-span-5 md:items-end">
                           <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="text-xs">
-                              {config.label}
-                            </Badge>
                             {getStatusBadge(record.status)}
                           </div>
                           <div className="flex flex-wrap gap-2 text-xs text-gray-500">
@@ -805,7 +805,7 @@ export default function SinglePatientDetailsPage({
               {patientReports && patientReports.length > 0 ? (
                 <>
                   {/* Display first 3 reports as cards in grid */}
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {patientReports.slice(0, 3).map((report) => (
                       <div
                         key={report.id}
@@ -894,7 +894,7 @@ export default function SinglePatientDetailsPage({
               {/* Add Report Button */}
               <AddReportDialog
                 patient_id={patient.id || 0}
-                health_record_id={1}
+                // health_record_id={1}
                 dialogTrigger={
                   <Button className="ml-auto flex !h-[45px] w-fit text-sm font-normal">
                     <Plus className="mr-2 size-4" /> Add report

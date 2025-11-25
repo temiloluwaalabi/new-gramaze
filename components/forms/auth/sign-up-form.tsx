@@ -3,25 +3,24 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+import { CustomFormField } from "@/components/shared/custom-form-field";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import { FormFieldTypes } from "@/config/enum";
-import { allRoutes } from "@/config/routes";
 import useSafeToast from "@/hooks/useSafeToast";
 import { useRegisterStepOne } from "@/lib/queries/use-auth-queries";
 import { RegisterSchema } from "@/lib/schemas/user.schema";
+import { useRegisterStore } from "@/store/use-register-store";
 import { useUserStore } from "@/store/user-store";
 import { User } from "@/types";
 
-import { CustomFormField } from "../shared/custom-form-field";
-import { Button } from "../ui/button";
-import { Form } from "../ui/form";
-
 export default function SignUpForm() {
-  const router = useRouter();
+  const { currentStep, setCurrentStep } = useRegisterStore();
+
   const { setUser } = useUserStore();
   const { isPending, mutate: RegisterStepOne } = useRegisterStepOne();
   const SignUpForm = useForm<z.infer<typeof RegisterSchema>>({
@@ -83,8 +82,9 @@ export default function SignUpForm() {
           };
 
           setUser(userData);
+          setCurrentStep(currentStep + 1);
 
-          router.push(`${allRoutes.auth.onboarding.url}?step=plan`);
+          // router.push(`${allRoutes.auth.onboarding.url}?step=plan`);
         }
       },
       onError: (error) => {

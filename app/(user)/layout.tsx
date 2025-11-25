@@ -4,6 +4,7 @@ import React from "react";
 import DashboardHeader from "@/components/shared/layout/dashboard-header";
 import UserDashboardSidebar from "@/components/shared/layout/user-dashboard-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SearchableData } from "@/lib/search/search-types";
 
 import { getUserAppointments } from "../actions/services/appointment.actions";
 import { getCaregiverHistory } from "../actions/services/caregiver.actions";
@@ -13,7 +14,6 @@ import {
   getUserHealthNotes,
 } from "../actions/services/health.tracker.actions";
 
-import { SearchableData } from "@/lib/search/search-types";
 // import { ThemeProvider } from "@/providers/theme-provider";
 
 const UserDashboardLayout = async ({
