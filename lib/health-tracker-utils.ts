@@ -1,6 +1,17 @@
 /* eslint-disable no-unused-vars */
 // health-tracker-utils.ts
 
+import { Dumbbell, Thermometer, Wind, Activity } from "lucide-react";
+import React from "react";
+
+import {
+  LatestVitals,
+  Tracker,
+} from "@/components/pages/single-patient-details-page";
+import BloodPressureIcon from "@/icons/blood-pressure";
+import DropIcon from "@/icons/drop";
+import HeartbeatIcon from "@/icons/heartbeat";
+
 import { getMetricConfig, MetricCode } from "./health-tracker-config";
 export type { MetricCode } from "./health-tracker-config";
 
@@ -241,3 +252,154 @@ export function groupMetricsByDate(
 
   return grouped;
 }
+export const getMetricCodeFromName = (
+  metricName: string,
+  metrics: {
+    id: number;
+    name: string;
+    code: string;
+    created_at: string;
+    updated_at: string;
+  }[]
+) => {
+  const metric = metrics.find((m) => m.name === metricName);
+  return metric?.code;
+};
+
+type MetricConfig = {
+  displayName: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  iconColor: string;
+};
+
+export const getMetricDisplayConfig = (metricName: string): MetricConfig => {
+  const config: Record<string, MetricConfig> = {
+    // Cardiovascular
+    "Blood Pressure": {
+      displayName: "Blood Pressure",
+      icon: BloodPressureIcon,
+      iconColor: "text-[#BD17E5]",
+    },
+    "Heart Rate": {
+      displayName: "Heart Rate",
+      icon: HeartbeatIcon,
+      iconColor: "text-[#2563EB]",
+    },
+    Pulse: {
+      displayName: "Heart Rate",
+      icon: HeartbeatIcon,
+      iconColor: "text-[#2563EB]",
+    },
+
+    // Blood Sugar
+    "Blood Glucose (Fasting)": {
+      displayName: "Blood Glucose (Fasting)",
+      icon: DropIcon,
+      iconColor: "text-[#F83E30]",
+    },
+    "Blood Glucose (Random)": {
+      displayName: "Blood Glucose (Random)",
+      icon: DropIcon,
+      iconColor: "text-[#F83E30]",
+    },
+    HbA1c: {
+      displayName: "HbA1c",
+      icon: DropIcon,
+      iconColor: "text-[#F83E30]",
+    },
+
+    // Physical Measurements
+    Weight: {
+      displayName: "Weight",
+      icon: Dumbbell,
+      iconColor: "text-[#2563EB]",
+    },
+    BMI: {
+      displayName: "BMI",
+      icon: Dumbbell,
+      iconColor: "text-[#2563EB]",
+    },
+    Temperature: {
+      displayName: "Temperature",
+      icon: Thermometer,
+      iconColor: "text-[#F59E0B]",
+    },
+
+    // Respiratory
+    "Respiration Rate": {
+      displayName: "Respiration Rate",
+      icon: Wind,
+      iconColor: "text-[#10B981]",
+    },
+    "Oxygen Saturation": {
+      displayName: "Oxygen Saturation",
+      icon: Wind,
+      iconColor: "text-[#10B981]",
+    },
+    "Peak Flow": {
+      displayName: "Peak Flow",
+      icon: Wind,
+      iconColor: "text-[#10B981]",
+    },
+
+    // Cholesterol
+    "Total Cholesterol": {
+      displayName: "Total Cholesterol",
+      icon: DropIcon,
+      iconColor: "text-[#8B5CF6]",
+    },
+    "HDL Cholesterol": {
+      displayName: "HDL Cholesterol",
+      icon: DropIcon,
+      iconColor: "text-[#10B981]",
+    },
+    "LDL Cholesterol": {
+      displayName: "LDL Cholesterol",
+      icon: DropIcon,
+      iconColor: "text-[#EF4444]",
+    },
+    Triglycerides: {
+      displayName: "Triglycerides",
+      icon: DropIcon,
+      iconColor: "text-[#F59E0B]",
+    },
+
+    // Default fallback
+    default: {
+      displayName: metricName,
+      icon: Activity,
+      iconColor: "text-[#6B7280]",
+    },
+  };
+
+  return config[metricName] || config.default;
+};
+export const getLatestVitalsWithValues = (
+  trackers?: Tracker[]
+): LatestVitals | null => {
+  if (!trackers?.length) return null;
+
+  const sorted = [...trackers].sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  );
+
+  const latest: LatestVitals = {};
+
+  for (const tracker of sorted) {
+    // Process metrics array (using 'name' not 'code')
+    tracker.metrics?.forEach((metric) => {
+      if (metric.name && metric.value && !latest[metric.name]) {
+        latest[metric.name] = {
+          value: metric.value,
+          name: metric.name,
+          updated_at: tracker.updated_at,
+          status: tracker.status,
+          id: tracker.id,
+        };
+      }
+    });
+  }
+
+  return Object.keys(latest).length > 0 ? latest : null;
+};

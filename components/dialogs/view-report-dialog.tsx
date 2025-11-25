@@ -125,7 +125,7 @@ export function ViewReportDialog({
                 {report.report_name}
               </h3>
               <div className="flex flex-wrap items-center gap-2">
-                {getReportTypeBadge("prescription")}
+                {getReportTypeBadge(report.report_type || "prescription")}
                 <span className="text-sm text-gray-500">
                   Uploaded {formatDate(report.created_at)}
                 </span>

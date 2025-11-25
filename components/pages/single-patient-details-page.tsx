@@ -1,12 +1,10 @@
 "use client";
 import {
-  Activity,
   Book,
   Calendar,
   CalendarIcon,
   ChevronRight,
   Clock,
-  Dumbbell,
   Ellipsis,
   FileText,
   Mail,
@@ -15,22 +13,22 @@ import {
   Pencil,
   Plus,
   SquarePen,
-  Thermometer,
-  Wind,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
-import BloodPressureIcon from "@/icons/blood-pressure";
 import CalendarBlankIcon from "@/icons/calendar-blank";
-import DropIcon from "@/icons/drop";
-import HeartbeatIcon from "@/icons/heartbeat";
 import { REPORT_TYPE_CONFIGS } from "@/lib/health-record-types";
 import {
   getFileIcon,
   formatFileSize,
   getReportTypeBadge,
 } from "@/lib/health-report-notes-utils";
+import {
+  getLatestVitalsWithValues,
+  getMetricDisplayConfig,
+  getMetricCodeFromName,
+} from "@/lib/health-tracker-utils";
 import { useGetHealthTracker } from "@/lib/queries/use-caregiver-query";
 import {
   formatDate,
@@ -63,7 +61,7 @@ type Metric = {
   value: string;
 };
 
-type Tracker = {
+export type Tracker = {
   id: number;
   user_id: string;
   caregiver_id: string;
@@ -87,7 +85,7 @@ type Vital = {
   status: string;
 };
 
-type LatestVitals = {
+export type LatestVitals = {
   [metricCode: string]: Vital | null;
 };
 
@@ -126,159 +124,9 @@ export default function SinglePatientDetailsPage({
   const [viewNoteOpen, setViewNoteOpen] = React.useState(false);
 
   // Alternative version that only returns metrics that have values
-  const getLatestVitalsWithValues = (
-    trackers?: Tracker[]
-  ): LatestVitals | null => {
-    if (!trackers?.length) return null;
 
-    const sorted = [...trackers].sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
-
-    const latest: LatestVitals = {};
-
-    for (const tracker of sorted) {
-      // Process metrics array (using 'name' not 'code')
-      tracker.metrics?.forEach((metric) => {
-        if (metric.name && metric.value && !latest[metric.name]) {
-          latest[metric.name] = {
-            value: metric.value,
-            name: metric.name,
-            updated_at: tracker.updated_at,
-            status: tracker.status,
-            id: tracker.id,
-          };
-        }
-      });
-    }
-
-    return Object.keys(latest).length > 0 ? latest : null;
-  };
   const latestVitals = getLatestVitalsWithValues(HealthTracker?.tracker);
   // Helper function to get metric code from name (for editing)
-  const getMetricCodeFromName = (
-    metricName: string,
-    metrics: {
-      id: number;
-      name: string;
-      code: string;
-      created_at: string;
-      updated_at: string;
-    }[]
-  ) => {
-    const metric = metrics.find((m) => m.name === metricName);
-    return metric?.code;
-  };
-
-  type MetricConfig = {
-    displayName: string;
-    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-    iconColor: string;
-  };
-
-  const getMetricDisplayConfig = (metricName: string): MetricConfig => {
-    const config: Record<string, MetricConfig> = {
-      // Cardiovascular
-      "Blood Pressure": {
-        displayName: "Blood Pressure",
-        icon: BloodPressureIcon,
-        iconColor: "text-[#BD17E5]",
-      },
-      "Heart Rate": {
-        displayName: "Heart Rate",
-        icon: HeartbeatIcon,
-        iconColor: "text-[#2563EB]",
-      },
-      Pulse: {
-        displayName: "Heart Rate",
-        icon: HeartbeatIcon,
-        iconColor: "text-[#2563EB]",
-      },
-
-      // Blood Sugar
-      "Blood Glucose (Fasting)": {
-        displayName: "Blood Glucose (Fasting)",
-        icon: DropIcon,
-        iconColor: "text-[#F83E30]",
-      },
-      "Blood Glucose (Random)": {
-        displayName: "Blood Glucose (Random)",
-        icon: DropIcon,
-        iconColor: "text-[#F83E30]",
-      },
-      HbA1c: {
-        displayName: "HbA1c",
-        icon: DropIcon,
-        iconColor: "text-[#F83E30]",
-      },
-
-      // Physical Measurements
-      Weight: {
-        displayName: "Weight",
-        icon: Dumbbell,
-        iconColor: "text-[#2563EB]",
-      },
-      BMI: {
-        displayName: "BMI",
-        icon: Dumbbell,
-        iconColor: "text-[#2563EB]",
-      },
-      Temperature: {
-        displayName: "Temperature",
-        icon: Thermometer,
-        iconColor: "text-[#F59E0B]",
-      },
-
-      // Respiratory
-      "Respiration Rate": {
-        displayName: "Respiration Rate",
-        icon: Wind,
-        iconColor: "text-[#10B981]",
-      },
-      "Oxygen Saturation": {
-        displayName: "Oxygen Saturation",
-        icon: Wind,
-        iconColor: "text-[#10B981]",
-      },
-      "Peak Flow": {
-        displayName: "Peak Flow",
-        icon: Wind,
-        iconColor: "text-[#10B981]",
-      },
-
-      // Cholesterol
-      "Total Cholesterol": {
-        displayName: "Total Cholesterol",
-        icon: DropIcon,
-        iconColor: "text-[#8B5CF6]",
-      },
-      "HDL Cholesterol": {
-        displayName: "HDL Cholesterol",
-        icon: DropIcon,
-        iconColor: "text-[#10B981]",
-      },
-      "LDL Cholesterol": {
-        displayName: "LDL Cholesterol",
-        icon: DropIcon,
-        iconColor: "text-[#EF4444]",
-      },
-      Triglycerides: {
-        displayName: "Triglycerides",
-        icon: DropIcon,
-        iconColor: "text-[#F59E0B]",
-      },
-
-      // Default fallback
-      default: {
-        displayName: metricName,
-        icon: Activity,
-        iconColor: "text-[#6B7280]",
-      },
-    };
-
-    return config[metricName] || config.default;
-  };
 
   // Handle view/download report
   const handleViewReport = (report: HealthReport) => {
@@ -844,7 +692,9 @@ export default function SinglePatientDetailsPage({
                         </div>
 
                         <div className="flex items-center justify-between">
-                          {getReportTypeBadge("prescription")}
+                          {getReportTypeBadge(
+                            report.report_type || "prescription"
+                          )}
                           <p className="text-xs text-gray-400">
                             {formatDate(report.created_at)}
                           </p>
@@ -885,7 +735,9 @@ export default function SinglePatientDetailsPage({
                           </div>
 
                           <div className="flex items-center gap-3">
-                            {getReportTypeBadge("prescription")}
+                            {getReportTypeBadge(
+                              report.report_type || "prescription"
+                            )}
                             <ChevronRight className="size-4 text-gray-400 group-hover:text-blue-500" />
                           </div>
                         </div>

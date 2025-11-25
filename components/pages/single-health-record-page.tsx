@@ -59,6 +59,12 @@ import {
   getReportTypeBadge,
 } from "@/lib/health-report-notes-utils";
 import {
+  getMetricCodeFromName,
+  getMetricDisplayConfig,
+  HealthTracker,
+  Metric,
+} from "@/lib/health-tracker-utils";
+import {
   formatDate,
   getAppointmentLocation,
   getAppointmentTitle,
@@ -66,6 +72,7 @@ import {
 } from "@/lib/utils";
 import { HealthNote, HealthRecordRow, HealthReport, User } from "@/types";
 
+import { LatestVitals } from "./single-patient-details-page";
 import { getStatusBadge } from "../shared/health-record/health-record-list";
 
 type SingleHealthRecordPageProps = {
@@ -99,7 +106,9 @@ export default function SingleHealthRecordPage({
     healthRecord.description
   );
   const [isEditingRecordType, setIsEditingRecordType] = useState(false);
-  const [editedRecordType, setEditedRecordType] = useState("prescription");
+  const [editedRecordType, setEditedRecordType] = useState(
+    healthRecord.record_type || "prescription"
+  );
 
   const config =
     REPORT_TYPE_CONFIGS[editedRecordType as keyof typeof REPORT_TYPE_CONFIGS] ||
@@ -297,6 +306,40 @@ export default function SingleHealthRecordPage({
     getRecordPatient();
   }, [getRecordPatient]);
 
+  const getLatestVitalsWithValues = (
+    trackers?: HealthTracker[]
+  ): LatestVitals | null => {
+    console.log("VITAL TRACKERS", trackers);
+    if (!trackers?.length) return null;
+
+    const sorted = [...trackers].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
+    const latest: LatestVitals = {};
+
+    for (const tracker of sorted) {
+      // Process metrics array (using 'name' not 'code')
+      JSON.parse(tracker.metrics)?.forEach((metric: Metric) => {
+        console.log("METRIC", metric);
+        if (metric.code && metric.value && !latest[metric.code]) {
+          latest[metric.code] = {
+            value: metric.value,
+            name: metric.code,
+            updated_at: tracker.updated_at,
+            status: tracker.status,
+            id: tracker.id,
+          };
+        }
+      });
+    }
+
+    return Object.keys(latest).length > 0 ? latest : null;
+  };
+  const latestVitals = getLatestVitalsWithValues(healthRecord.trackers);
+
+  console.log("LATEST VITALS", latestVitals);
   return (
     <section className="h-full gap-6 space-y-6 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       {/* Header */}
@@ -313,8 +356,8 @@ export default function SingleHealthRecordPage({
           </Button>
         </div>
 
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div className="flex gap-4">
+        <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row">
             <div
               className={`flex size-16 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600`}
             >
@@ -460,7 +503,11 @@ export default function SingleHealthRecordPage({
               )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="absolute top-0 right-0 !size-10"
+                >
                   <MoreVertical className="size-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -688,27 +735,75 @@ export default function SingleHealthRecordPage({
             </div>
 
             {healthRecord.trackers && healthRecord.trackers.length > 0 ? (
-              <div className="space-y-4">
-                {healthRecord.trackers.map((tracker) => (
-                  <div
-                    key={tracker.id}
-                    className="rounded-lg border border-gray-200 bg-gray-50 p-4"
-                  >
-                    <div className="mb-3 flex items-center justify-between">
-                      <span className="text-xs text-gray-500">
-                        {formatDate(tracker.created_at)}
-                      </span>
-                      {tracker.status === "pending" && (
-                        <Badge
-                          variant="outline"
-                          className="border-yellow-200 bg-yellow-100 text-yellow-800"
+              <div className="space-y-3">
+                {/* Dynamic rendering of all available metrics */}
+                {latestVitals &&
+                  Object.entries(latestVitals).map(
+                    ([metricName, metricData]) => {
+                      if (!metricData) return null;
+
+                      const metricConfig = getMetricDisplayConfig(metricName);
+                      const metricCode = getMetricCodeFromName(
+                        metricName,
+                        metrics
+                      );
+
+                      return (
+                        <div
+                          key={metricName}
+                          className="flex items-center justify-between"
                         >
-                          Pending
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                          <div className="flex items-center gap-2">
+                            <div className="flex size-[42px] items-center justify-center rounded-full border border-[#d1d5db]">
+                              <metricConfig.icon
+                                className={`${metricConfig.iconColor} size-5`}
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <h4 className="text-sm font-medium text-gray-600">
+                                {metricConfig.displayName}
+                              </h4>
+                              {metricData.status === "pending" && (
+                                <span className="flex w-fit items-center gap-2 rounded-full border border-yellow-600 bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-600 capitalize">
+                                  <span className="size-2 rounded-full bg-yellow-600" />
+                                  {metricData.status}
+                                </span>
+                              )}
+                              <p className="text-xs font-normal text-gray-400">
+                                Last updated:{" "}
+                                {formatDate(metricData.updated_at)}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <AddHealthVitals
+                              metrics={metrics}
+                              data={{
+                                id: metricData.id,
+                                name:
+                                  metricCode ||
+                                  metricName.toLowerCase().replace(/\s+/g, "_"),
+                                value: metricData.value,
+                              }}
+                              edit={true}
+                              user_id={healthRecord.patient?.id || 0}
+                              caregiver_id={healthRecord.creator.id || 0}
+                              dialogTrigger={
+                                <Button
+                                  className="flex !h-[36px] w-[137px] cursor-pointer items-center justify-start border border-[#D1D5DB] text-sm font-medium text-[#1F2937]"
+                                  variant={"outline"}
+                                  disabled={metricData.status === "pending"}
+                                >
+                                  {metricData.value}
+                                  <Pencil className="ml-1 size-4 text-[#4B5563]" />
+                                </Button>
+                              }
+                            />
+                          </div>
+                        </div>
+                      );
+                    }
+                  )}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 py-8">
@@ -764,7 +859,7 @@ export default function SingleHealthRecordPage({
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      {getReportTypeBadge("prescription")}
+                      {getReportTypeBadge(report.report_type || "prescription")}
                       <Button
                         size="sm"
                         variant="ghost"
