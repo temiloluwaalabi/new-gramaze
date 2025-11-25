@@ -27,13 +27,10 @@ export default async function CaregiverMainDashboard() {
 
   const rawMessages = await fetchMessages(String(session.user_id));
 
-  console.log("PATIENTS", patients);
   const userMessages = rawMessages.messages
     .filter((msg) => {
       const isReceiver = String(msg.receiverId) === String(session.user_id);
-      if (isReceiver) {
-        console.log("Message received by user:", msg);
-      }
+
       return isReceiver;
     })
     .reverse()

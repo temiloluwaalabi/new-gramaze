@@ -19,7 +19,7 @@ import { SelectItem } from "../ui/select";
 
 export default function BiodataForm() {
   const { user, setUser } = useUserStore();
-  console.log("USER", user);
+
   const { goToNextStep, updateData, currentStep, markStepComplete, data } =
     useOnboarding();
   const { isPending, mutate: UpdateBiodata } = useUpdateBiodate();
@@ -40,8 +40,6 @@ export default function BiodataForm() {
   });
 
   const hasFilledBiodate = user?.has_set_bio_data === "yes";
-
-  console.log("BIODATE FORM", BiodataForm.watch());
 
   const handleSubmit = (values: z.infer<typeof BiodataSchema>) => {
     updateData("personalInfo", {

@@ -65,14 +65,12 @@ export default function RescheduleAppointmentForm(
   const handleSubmit = (
     values: z.infer<typeof RescheduleAppointmentSchema>
   ) => {
-    console.log(values);
     const JSONVALUES = {
       id: Number(props.appoinment),
       date: format(values.date, "yyyy-MM-dd"),
       time: values.time,
       additional_note: values.reason || "",
     };
-    console.log("JSON VALUES", JSONVALUES);
     RescheduleAppointment(JSONVALUES, {
       onSuccess: (data) => {
         props.setOpenSheet(false);

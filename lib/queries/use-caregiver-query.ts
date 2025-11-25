@@ -40,7 +40,6 @@ export const useUpdatePlan = () => {
       throw new Error(data.message || "Updating plan failed");
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // toast.success(data.message || "Plan updated successfully!");
 
       // Invalidate related queries
@@ -121,7 +120,6 @@ export const useRateCaregiver = () => {
       throw new Error(data.message || "Rating caregiver failed");
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       toast.success(data.message || "Caregiver rated successfully!");
 
       // Invalidate related queries
@@ -173,7 +171,6 @@ export const useAddHealthTracker = () => {
       };
       pathname: string;
     }) => {
-      console.log("VALUES", values);
       const data = await addHealthTracker(values.valued, values.pathname);
       if (data.success) {
         return data;
@@ -181,7 +178,6 @@ export const useAddHealthTracker = () => {
       throw new Error(data.message || "Adding health tracker failed");
     },
     onSuccess: (data, variables) => {
-      console.log("SUCCESS DATA", data);
       // toast.success(data.message || 'Health tracker added successfully!');
 
       // Invalidate related queries
@@ -227,7 +223,6 @@ export const useUpdateHealthTracker = () => {
       throw new Error(data.message || "Updating health tracker failed");
     },
     onSuccess: (data, variables) => {
-      console.log("SUCCESS DATA", data);
       // toast.success(data.message || 'Health tracker updated successfully!');
 
       // Invalidate related queries
@@ -254,7 +249,6 @@ export const useAddHealthReport = () => {
   return useMutation({
     mutationKey: ["health-report", "add"],
     mutationFn: async (values: FormData) => {
-      console.log("FORMDATA", FormData);
       const data = await AddHealthReport(values);
       if (!data.success) {
         throw data;
@@ -262,7 +256,6 @@ export const useAddHealthReport = () => {
       return data;
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       toast.success(data.message || "Health report added successfully!");
       return data;
     },
@@ -275,7 +268,6 @@ export const useAddHealthNote = () => {
   return useMutation({
     mutationKey: ["health-note", "add"],
     mutationFn: async (values: FormData) => {
-      console.log("FORMDATA", FormData);
       const data = await AddHealthNote(values);
       if (!data.success) {
         throw data;
@@ -283,7 +275,6 @@ export const useAddHealthNote = () => {
       return data;
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       toast.success(data.message || "Health note added successfully!");
       return data;
     },

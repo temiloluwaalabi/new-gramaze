@@ -70,7 +70,6 @@ export function GlobalSearchDialog({
   const [results, setResults] = useState<SearchResult[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
-  console.log("SEARCH data", searchData);
   // Load recent searches from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("recent-searches");
@@ -92,7 +91,6 @@ export function GlobalSearchDialog({
     const searchEngine = new SearchEngine(searchData);
     const searchResults = searchEngine.search(query, 10);
 
-    console.log("Search RESULT", searchResults);
     setResults(searchResults);
   }, [query, searchData]);
 

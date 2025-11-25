@@ -42,8 +42,6 @@ export class ApiError extends Error {
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, ApiError);
     }
-
-    console.log("✅ ApiError created successfully:", this);
   }
 
   toJSON() {
@@ -72,7 +70,6 @@ export class ApiError extends Error {
   }
 
   static markAsApiError(error: unknown): Record<string, unknown> {
-    console.log("ERROR MARKED AS ERROR", error);
     if (error instanceof ApiError) {
       // If it's already an ApiError, just make sure it has the isError property
       return {
@@ -195,8 +192,6 @@ const handleApiError = (error: AxiosError<unknown>) => {
   let rawErrors: Record<string, unknown> = {};
 
   if (data?.errors && typeof data.errors === "object") {
-    console.log("FOUND ERRORS FIELD:", data.errors);
-
     rawErrors = { errors: data.errors };
     Object.entries(data.errors).forEach(([field, messages]) => {
       if (Array.isArray(messages)) {

@@ -34,7 +34,6 @@ export default async function HealthTrackerDashboard() {
   });
   // const trackers = await getLastTrackers();
 
-  console.log("allNotes", allNotes);
   return (
     <HealthTrackerPageTwo
       reports={reports.reports}

@@ -21,7 +21,6 @@ export interface ErrorResponse {
 }
 
 export const handleApiBackendError = (error: unknown): ApiError => {
-  console.log("BACKEND ERROR", error);
   if (ApiError.isAPiError(error)) {
     return error as ApiError;
   }
@@ -273,8 +272,6 @@ export const makeApiRequest = async <T>(
     }
 
     const data = response.data;
-
-    console.log("RESPONSE DATA", data);
 
     if (data.success === false || data.status === false) {
       if (data.errors && typeof data.errors === "object") {

@@ -113,8 +113,6 @@ export default function AddHealthVitals({
         }
       );
     }
-    // Handle form submission logic here
-    console.log(dataValues);
   };
   // Helper function for vital sign details
   // Enhanced helper function for vital sign details
@@ -373,7 +371,6 @@ export default function AddHealthVitals({
   const selectedVitalType = form.watch("name");
   const vitalDetails = getVitalSignDetails(selectedVitalType);
 
-  console.log("for", form.watch());
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogTrigger className="">

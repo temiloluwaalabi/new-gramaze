@@ -21,11 +21,6 @@ export default async function SingleCaregiverDash({
     return notFound();
   }
 
-  console.log("CAREGIVERSA", patientCaregivers);
-
-  // if (!pageUser) {
-  //   return notFound();
-  // }
   return (
     <SingleCaregiverDetailsPage
       caregivers={patientCaregivers.caregivers.data.filter(

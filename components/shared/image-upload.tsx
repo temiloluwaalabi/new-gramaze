@@ -78,15 +78,12 @@ export const ImageUpload = ({
 }: ImageUploadProps) => {
   // const pathname = usePathname();
   const maxSizeBytes = maxSize * 1024 * 1024;
-  console.log("INITIAL FILES", initialFiles);
-  console.log("FORM FILES", form?.getValues(fieldName));
 
   const [files, setFiles] = useState<UploadedFile[]>(initialFiles);
   const [isPending, startTransition] = useTransition();
   const [opemImageDialog, setOpemImageDialog] = useState(false);
   // Generate a unique ID for each file
 
-  console.log("FILES", files);
   const generateId = () =>
     `file_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 

@@ -81,9 +81,6 @@ export const OnboardingClientPage = () => {
 
   const handleFinalSubmission = async () => {
     try {
-      // Here you would typically send all the data to your backend
-      console.log("Submitting onboarding data:", data);
-      // Redirect to dashboard or success page
       router.push("/dashboard");
     } catch (error) {
       console.error("Failed to submit onboarding:", error);

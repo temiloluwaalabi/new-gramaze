@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Table } from "@tanstack/react-table";
 import { Trash2, Loader2 } from "lucide-react";
 // import { usePathname } from "next/navigation";
@@ -53,16 +54,8 @@ export function BulkDelete<TData extends { id: string | number }>({
       failed: [] as { item: TData; error: unknown }[],
     };
 
-    console.log(
-      `🚀 Starting parallel deletion of ${selectedCount} ${entityName}s`
-    );
-
     const deletePromises = selectedRows.map(async (item, index) => {
       const itemId = typeof item.id === "string" ? Number(item.id) : item.id;
-
-      console.log(
-        `📋 [${index + 1}] Queuing deletion for ${entityName} ID: ${itemId}`
-      );
 
       try {
         // await deleteAppointment(
@@ -72,7 +65,6 @@ export function BulkDelete<TData extends { id: string | number }>({
         //   pathname
         // );
 
-        console.log(`✅ Deleted ${entityName} ID ${itemId}`);
         results.successful.push(item);
 
         // Update progress
@@ -169,18 +161,3 @@ export function BulkDelete<TData extends { id: string | number }>({
     </>
   );
 }
-
-// Usage example:
-// <BulkDelete
-//   table={table}
-//   entityName="appointment"
-//   onDelete={async (appointment) => {
-//     await deleteAppointment({
-//       appointment_id: appointment.id,
-//       pathname,
-//     });
-//   }}
-//   onSuccess={(deleted) => {
-//     console.log('Deleted:', deleted.length);
-//   }}
-// />

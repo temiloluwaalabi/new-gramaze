@@ -6,7 +6,6 @@ export const dynamic = "force-dynamic";
 
 export default async function CaregiverPatientDash() {
   const patients = await getCaregiverPatientHistory();
-  console.log("PATIENTS", patients);
   return (
     <CaregiverPatientsClientPage
       allPatients={

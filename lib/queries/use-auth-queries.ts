@@ -33,14 +33,12 @@ export const useRegisterStepOne = () => {
     mutationKey: ["auth", "registerStepOne"],
     mutationFn: async (values: RegisterSchemaType) => {
       const data = await RegisterStepOne(values);
-      console.log("DATA", data);
       if (!data.success) {
         throw data;
       }
       return data;
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       toast.success(
         "Registration successful! Please check your email for verification."
       );
@@ -63,7 +61,6 @@ export const useLoginMutation = () => {
       return data;
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       // toast.success(data.message || "Login successful!");
       return data;
@@ -85,7 +82,6 @@ export const useSetUserTypeMutation = () => {
       throw new Error(data.message || "Setting user type failed");
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       // toast.success(data.message || "User type set successfully!");
       return data;
@@ -107,7 +103,6 @@ export const useSetUserPlanMutation = () => {
       throw new Error(data.message || "Setting user plan failed");
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       // toast.success(data.message || "User plan set successfully!");
       return data;
@@ -129,7 +124,6 @@ export const useUpdateBiodate = () => {
       return data;
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       toast.success(data.message || "Login successful!");
       return data;
@@ -143,7 +137,6 @@ export const useUpdateMedicalReport = () => {
   return useMutation({
     mutationKey: ["onboard", "medicalReport"],
     mutationFn: async (values: FormData) => {
-      console.log("FORMDATA", FormData);
       const data = await UpdateMedicalReport(values);
       if (data.success) {
         return data;
@@ -152,7 +145,6 @@ export const useUpdateMedicalReport = () => {
       throw new Error(data.message);
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       toast.success(data.message || "Medical report updated successfully!");
       return data;
@@ -166,7 +158,6 @@ export const useUpdateProfileImage = () => {
   return useMutation({
     mutationKey: ["profile", "updateProfileImage"],
     mutationFn: async (values: FormData) => {
-      console.log("FORMDATA", FormData);
       const data = await UpdateProfileImage(values);
       if (!data.success) {
         throw data;
@@ -175,7 +166,6 @@ export const useUpdateProfileImage = () => {
       return data;
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       toast.success(data.message);
       return data;
@@ -206,7 +196,6 @@ export const useVirtualAppointment = () => {
       throw new Error(data.message);
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       toast.success(
         data.message || "Virtual appointment scheduled successfully!"
@@ -238,7 +227,6 @@ export const usePhysicalVirtualAppointment = () => {
       throw new Error(data.message);
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       toast.success(
         data.message || "Physical home appointment scheduled successfully!"
@@ -263,7 +251,6 @@ export const usePhysicalHospitalAppointment = () => {
       contact: string;
       additional_note: string;
     }) => {
-      console.log("VALUES IN HOOK", values);
       const data = await PhysicalHospitalAppointment(values);
       if (data.success) {
         return data;
@@ -272,7 +259,6 @@ export const usePhysicalHospitalAppointment = () => {
       throw new Error(data.message);
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       toast.success(
         data.message || "Physical hospital appointment scheduled successfully!"
@@ -296,7 +282,6 @@ export const useUpdateProfile = () => {
       throw new Error(data.message);
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       toast.success(data.message || "Login successful!");
       return data;
@@ -322,7 +307,6 @@ export const useUpdateNotificationSetting = () => {
       throw new Error(data.message);
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       // toast.success(data.message || "Login successful!");
       return data;
@@ -344,7 +328,6 @@ export const useUpdate2FA = () => {
       return data;
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       // toast.success(data.message || "Login successful!");
       return data;
@@ -371,7 +354,6 @@ export const usePasswordReset = () => {
       throw new Error(data.message);
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       // toast.success(data.message || "Login successful!");
       return data;
@@ -393,7 +375,6 @@ export const useInitiatePasswordReset = (authSide?: boolean) => {
       throw new Error(data.message);
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       // Show a success toast message
       // toast.success(data.message || "Login successful!");
       return data;

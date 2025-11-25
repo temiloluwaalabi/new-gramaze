@@ -126,10 +126,6 @@ export const authService = {
     values?: { email?: string },
     authSide?: boolean
   ) => {
-    console.log("ERR", {
-      frontend_url: process.env.NEXT_PUBLIC_CLIENT_URL,
-      email: values?.email,
-    });
     if (authSide) {
       return makeApiRequest<{
         status: true;
@@ -173,7 +169,6 @@ export const authService = {
         },
       });
 
-      console.log("RESPONSE TWO", response);
       return {
         status: response.data.status as boolean,
         message: response.data.message as string,
@@ -506,7 +501,6 @@ export const healthTrackerService = {
         },
       });
 
-      console.log("RESPONSE", response.data);
       return {
         status: response.data.status as boolean,
         message: response.data.message as string,
@@ -1299,8 +1293,6 @@ export const adminServices = {
             user_id: values.user_id,
           },
         });
-
-        console.log("HEALTH_TRACKER_RESPONSE", response.data);
 
         return {
           status: response.data.status as boolean,

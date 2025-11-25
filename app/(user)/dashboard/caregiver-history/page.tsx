@@ -7,7 +7,6 @@ export const dynamic = "force-dynamic";
 export default async function CaregiverHistoryPDashboard() {
   const patientCaregivers = await getCaregiverHistory();
 
-  console.log("PATIENTS CAREGIVERS", patientCaregivers);
   return (
     <CargiverHistoryDashboard
       caregivers={patientCaregivers.caregivers?.data || []}

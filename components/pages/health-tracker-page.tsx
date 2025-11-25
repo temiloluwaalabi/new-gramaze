@@ -167,7 +167,6 @@ export const HealthTrackerPage = ({
 
   const latestVitals = getLatestVitals(healthTrackers);
 
-  console.log("HEALTH TRACKER", HealthTracker);
   return (
     <section className="space-y-3 !bg-white px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <section>

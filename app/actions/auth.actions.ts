@@ -175,7 +175,6 @@ export const LoginAction = async (
 
     if (ApiError.isAPiError(response)) {
       const apiError = response as ApiError;
-      console.log("AYPGS", response);
 
       // Return the error with all its details
       return {
@@ -194,8 +193,6 @@ export const LoginAction = async (
       data: { status: true; message: string; token: string; user: User };
     };
 
-    console.log("RESPONSE", successResponse);
-
     await LoginSession(successResponse.data.user, successResponse.data.token);
 
     if (successResponse.data.user.user_role === "caregiver") {
@@ -203,14 +200,12 @@ export const LoginAction = async (
     }
 
     if (successResponse.data.user.factor_authentication === "yes") {
-      const token = await Resend2faOTP(
+      await Resend2faOTP(
         {
           email: successResponse.data.user.email,
         },
         "/sign-in"
       );
-
-      console.log("2FA TOken sent", token);
     }
     if (successResponse.data.user.factor_authentication !== "yes") {
       await RegisterStepTwoSession();
@@ -384,14 +379,10 @@ export const UpdateUserBiodate = async (
       };
     }
 
-    console.log("VALUES", values);
     const response = await authService.UpdateuserBiodata(validatedValues.data);
-
-    console.log("RESPONSE", response);
 
     if (ApiError.isAPiError(response)) {
       const apiError = response as ApiError;
-      console.log("AYPGS", response);
 
       // Return the error with all its details
       return {
@@ -462,10 +453,7 @@ export const UpdateUserProfile = async (values: BiodataSchemaType) => {
       });
     }
 
-    console.log("VALUES", values);
     const response = await authService.UpdateuserProfile(validatedValues.data);
-
-    console.log("RESPONSE", response);
 
     if (ApiError.isAPiError(response)) {
       throw response;
@@ -519,10 +507,7 @@ export const UpdateNotificationSettings = async (values: {
       });
     }
 
-    console.log("VALUES", values);
     const response = await authService.UpdateNotificationSettings(values);
-
-    console.log("RESPONSE", response);
 
     if (ApiError.isAPiError(response)) {
       throw response;
@@ -634,10 +619,7 @@ export const ResetPassword = async (values: {
       });
     }
 
-    console.log("VALUES", values);
     const response = await authService.ResetPassword(values);
-
-    console.log("RESPONSE", response);
 
     if (ApiError.isAPiError(response)) {
       throw response;
@@ -676,7 +658,6 @@ export const InitiatePasswordReset = async (
   authSide?: boolean
 ) => {
   try {
-    console.log("VALUES", values);
     const sessionToken = await getSession();
     if (!sessionToken) {
       throw new ApiError({
@@ -687,8 +668,6 @@ export const InitiatePasswordReset = async (
     }
 
     const response = await authService.InitiatePasswordReset(values, authSide);
-
-    console.log("RESPONSE", response);
 
     if (ApiError.isAPiError(response)) {
       throw response;
@@ -722,7 +701,6 @@ export const InitiatePasswordReset = async (
 };
 export const UpdateMedicalReport = async (values: FormData) => {
   try {
-    console.log("FORMDATA", values);
     const sessionToken = await getSession();
     if (!sessionToken) {
       throw new ApiError({
@@ -736,8 +714,6 @@ export const UpdateMedicalReport = async (values: FormData) => {
       values,
       "/onboarding"
     );
-
-    console.log("RESPONSE", response);
 
     if (ApiError.isAPiError(response)) {
       throw response;
@@ -792,7 +768,6 @@ export const VirtualAppointment = async (values: {
   proposed_hospital_area?: string;
 }) => {
   try {
-    console.log("VALUES", values);
     const sessionToken = await getSession();
     if (!sessionToken) {
       throw new ApiError({
@@ -806,8 +781,6 @@ export const VirtualAppointment = async (values: {
       values,
       "/onboarding"
     );
-
-    console.log("RESPONSE", response);
 
     if (ApiError.isAPiError(response)) {
       throw response;
@@ -879,8 +852,6 @@ export const PhysicalHomeAppointment = async (values: {
       "/onboarding"
     );
 
-    console.log("RESPONSE", response);
-
     if (ApiError.isAPiError(response)) {
       throw response;
     }
@@ -950,8 +921,6 @@ export const PhysicalHospitalAppointment = async (values: {
       values,
       "/onboarding"
     );
-
-    console.log("RESPONSE", response);
 
     if (ApiError.isAPiError(response)) {
       throw response;
@@ -1035,7 +1004,6 @@ export const getUserInfo = async () => {
 };
 export const getOtherUsersInfo = async (user_id: number) => {
   try {
-    console.log("GET USER CALLED", user_id);
     const response =
       await adminServices.user_management.getUserDetails(user_id);
     if (ApiError.isAPiError(response)) {
@@ -1110,7 +1078,6 @@ export const ResendOTP = async (
 
     if (ApiError.isAPiError(response)) {
       const apiError = response as ApiError;
-      console.log("AYPGS", response);
 
       // Return the error with all its details
       return {
@@ -1199,7 +1166,6 @@ export const VerifyOTP = async (
 
     if (ApiError.isAPiError(response)) {
       const apiError = response as ApiError;
-      console.log("AYPGS", response);
 
       // Return the error with all its details
       return {
@@ -1288,7 +1254,6 @@ export const Resend2faOTP = async (
 
     if (ApiError.isAPiError(response)) {
       const apiError = response as ApiError;
-      console.log("AYPGS", response);
 
       // Return the error with all its details
       return {
@@ -1377,7 +1342,6 @@ export const Verify2faOTP = async (
 
     if (ApiError.isAPiError(response)) {
       const apiError = response as ApiError;
-      console.log("AYPGS", response);
 
       // Return the error with all its details
       return {
@@ -1429,7 +1393,6 @@ export const Verify2faOTP = async (
 };
 export const UpdateProfileImage = async (values: FormData) => {
   try {
-    console.log("FORMDATA", values);
     const sessionToken = await getSession();
     if (!sessionToken) {
       return {
@@ -1442,11 +1405,8 @@ export const UpdateProfileImage = async (values: FormData) => {
 
     const response = await authService.UpdateProfileImage(values, "/settings");
 
-    console.log("RESPONSE", response);
-
     if (ApiError.isAPiError(response)) {
       const apiError = response as ApiError;
-      console.log("AYPGS", response);
 
       // Return the error with all its details
       return {

@@ -172,7 +172,6 @@ export const getLastThreeReports = async () => {
       throw response;
     }
 
-    console.log("RESPOnSE", response);
     const successResponse = response as {
       success: true;
       status: number;
@@ -337,8 +336,6 @@ export const getUserHealthNotes = async ({
     if (ApiError.isAPiError(response)) {
       throw response;
     }
-
-    console.log("NOTES REPONSE", response);
 
     const successResponse = response as {
       success: true;

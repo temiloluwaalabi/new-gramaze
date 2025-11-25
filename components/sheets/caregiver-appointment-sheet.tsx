@@ -78,7 +78,6 @@ export const CaregiverAppointmentSheet = (props: Props) => {
     },
   });
 
-  console.log("FORM", AppointmentFOrm.watch());
   const handleConfirmArrival = async (
     values: MarkAppointmentAsArrivedSchemaType
   ) => {

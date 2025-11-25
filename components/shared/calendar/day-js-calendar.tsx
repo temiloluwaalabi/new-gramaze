@@ -102,9 +102,7 @@ export default function DayjsCalendar() {
   const [screenSize, setScreenSize] = useState("large");
   const [sortBy, setSortBy] = useState<"date" | "name" | "status">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  console.log("TABLE APPOINTMENT", events);
 
-  console.log("EVENTS", events);
   useEffect(() => {
     // Function to update screen size state
     const handleResize = () => {
@@ -140,7 +138,6 @@ export default function DayjsCalendar() {
     try {
       const data = await getOtherUsersInfo(Number(userId));
 
-      console.log("DATA", data);
       if (data.success) {
         return data.user;
       }
@@ -152,12 +149,10 @@ export default function DayjsCalendar() {
 
   const enrichAppointment = React.useCallback(
     async (appointment: Appointment): Promise<EnrichedAppointment> => {
-      console.log("EnrichedAppointmentAPP", appointment);
       const caregiverDetailsResult = await fetchCaregiverDetails(
         Number(appointment.caregiver?.id)
       );
 
-      console.log("CAREGVER DETAILS", caregiverDetailsResult);
       return {
         ...appointment,
         client: user ?? undefined,

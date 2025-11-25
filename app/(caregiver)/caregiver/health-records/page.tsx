@@ -6,7 +6,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default async function HealthRecordArchive() {
   const records = await getCaregiverhealthRecords();
-  console.log("RECORDS", records);
 
   // Loading skeleton component
   function HealthRecordsLoadingSkeleton() {

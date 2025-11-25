@@ -21,7 +21,7 @@ export default async function UserDashboard() {
     trackers,
     userCaregivers,
     session,
-    { conversations }
+    { conversations },
   ] = await Promise.all([
     getUserAppointments(),
     getUserPaymentNotifications(),
@@ -44,9 +44,7 @@ export default async function UserDashboard() {
   const userMessages = rawMessages.messages
     .filter((msg) => {
       const isReceiver = String(msg.receiverId) === String(session.user_id);
-      if (isReceiver) {
-        console.log("Message received by user:", msg);
-      }
+
       return isReceiver;
     })
     .reverse()
@@ -59,7 +57,6 @@ export default async function UserDashboard() {
         timestamp: formatDate(new Date(msg.timestamp)),
         unreadCount: msg.isRead ? 0 : 1,
       };
-      console.log("Mapped Message:", formatted);
       return formatted;
     });
 

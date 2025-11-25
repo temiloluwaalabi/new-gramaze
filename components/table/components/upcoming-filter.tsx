@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { Table } from '@tanstack/react-table';
-import { Download, ExternalLink, Plus } from 'lucide-react';
-import { useCallback, useState } from 'react';
-import { toast } from 'sonner';
+import { Table } from "@tanstack/react-table";
+import { Download, ExternalLink, Plus } from "lucide-react";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Component for filtering upcoming appointments
 interface UpcomingFilterProps<TData> {
@@ -14,7 +14,10 @@ interface UpcomingFilterProps<TData> {
   columnKey: string; // The date column to filter
 }
 
-export function UpcomingFilter<TData>({ table, columnKey }: UpcomingFilterProps<TData>) {
+export function UpcomingFilter<TData>({
+  table,
+  columnKey,
+}: UpcomingFilterProps<TData>) {
   const [showUpcoming, setShowUpcoming] = useState(false);
   const column = table.getColumn(columnKey);
 
@@ -36,9 +39,16 @@ export function UpcomingFilter<TData>({ table, columnKey }: UpcomingFilterProps<
   );
 
   return (
-    <div className="space-x-2 border rounded-[6px] !h-[45px] w-[131px] px-4 flex items-center justify-center">
-      <Checkbox id="upcoming" checked={showUpcoming} onCheckedChange={handleUpcomingToggle} />
-      <label htmlFor="upcoming" className="text-base text-[#4B5563] font-medium cursor-pointer">
+    <div className="flex !h-[45px] w-[131px] items-center justify-center space-x-2 rounded-[6px] border px-4">
+      <Checkbox
+        id="upcoming"
+        checked={showUpcoming}
+        onCheckedChange={handleUpcomingToggle}
+      />
+      <label
+        htmlFor="upcoming"
+        className="cursor-pointer text-base font-medium text-[#4B5563]"
+      >
         Upcoming
       </label>
     </div>
@@ -51,30 +61,33 @@ interface ExportButtonProps<TData> {
   exportFunction?: (data: TData[]) => void;
 }
 
-export function ExportButton<TData>({ table, exportFunction }: ExportButtonProps<TData>) {
+export function ExportButton<TData>({
+  table,
+  exportFunction,
+}: ExportButtonProps<TData>) {
   const handleExport = useCallback(() => {
     // Get the filtered rows data
-    const filteredData = table.getFilteredRowModel().rows.map((row) => row.original);
+    const filteredData = table
+      .getFilteredRowModel()
+      .rows.map((row) => row.original);
 
     if (exportFunction) {
       exportFunction(filteredData);
     } else {
-      // Default export - can be CSV, Excel, etc.
-      console.log('Exporting data:', filteredData);
-
       // Example: Download as JSON
       const dataStr = JSON.stringify(filteredData, null, 2);
-      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+      const dataUri =
+        "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
 
-      const exportFileDefaultName = 'export.json';
+      const exportFileDefaultName = "export.json";
 
-      const linkElement = document.createElement('a');
-      linkElement.setAttribute('href', dataUri);
-      linkElement.setAttribute('download', exportFileDefaultName);
+      const linkElement = document.createElement("a");
+      linkElement.setAttribute("href", dataUri);
+      linkElement.setAttribute("download", exportFileDefaultName);
       linkElement.click();
       linkElement.remove();
 
-      toast('Exported successfully');
+      toast("Exported successfully");
     }
   }, [table, exportFunction]);
 
@@ -98,10 +111,14 @@ interface AddNewButtonProps {
   text?: string;
 }
 
-export function AddNewButton({ href, onClick, text = 'Add New' }: AddNewButtonProps) {
+export function AddNewButton({
+  href,
+  onClick,
+  text = "Add New",
+}: AddNewButtonProps) {
   if (href) {
     return (
-      <Button asChild className="flex items-center gap-2 !h-[45px] text-sm">
+      <Button asChild className="flex !h-[45px] items-center gap-2 text-sm">
         <a href={href} className="text-sm">
           <Plus className="h-4 w-4" />
           {text}

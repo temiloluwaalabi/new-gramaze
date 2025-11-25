@@ -75,7 +75,6 @@ export const PlanSelectionStep: React.FC<Partial<OnboardingStepsI>> = () => {
   const { isPending: userPlanPending, mutate: SetUserPlan } =
     useSetUserPlanMutation();
   const forWhom = data.forWhom;
-  console.log("FORMWHOL", forWhom);
   const [internalStep, setInternalStep] = React.useState<1 | 2>(1);
   const [selectedPlan, setSelectedPlan] = React.useState<string>(
     data.plan || ""

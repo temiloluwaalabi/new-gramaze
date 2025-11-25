@@ -67,11 +67,10 @@ export default function UpdatePaymentForm() {
   };
 
   // Handle form submission
-  function onSubmit(data: PaymentFormValues) {
+  function onSubmit() {
     setIsSubmitting(true);
 
     // In a real app, you would process the payment here
-    console.log("Payment form data:", data);
 
     // Simulate API call
     setTimeout(() => {

@@ -34,7 +34,6 @@ export default function SignUpForm() {
   });
   const { safeSuccess, safeError } = useSafeToast();
 
-  console.log("REGISTER STEP 1 FORM", SignUpForm.watch());
   const handleSubmit = (values: z.infer<typeof RegisterSchema>) => {
     RegisterStepOne(values, {
       onSuccess: (data) => {

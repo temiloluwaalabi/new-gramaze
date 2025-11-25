@@ -56,31 +56,6 @@ export default function CaregiverHealthRecordsPage({
     };
   }, [healthRecords]);
 
-  // Action handlers
-  const handleView = (recordId: number) => {
-    // Navigate to detail page or open modal
-    console.log("View record:", recordId);
-  };
-
-  const handleEdit = (recordId: number) => {
-    console.log("Edit record:", recordId);
-  };
-
-  const handleApprove = async (recordId: number) => {
-    console.log("Approve record:", recordId);
-    // Implement approval logic
-  };
-
-  const handleReject = async (recordId: number) => {
-    console.log("Reject record:", recordId);
-    // Implement rejection logic
-  };
-
-  const handleArchive = async (recordId: number) => {
-    console.log("Archive record:", recordId);
-    // Implement archive logic
-  };
-
   return (
     <section className="h-full gap-6 space-y-6 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       {/* Header Section */}
@@ -237,11 +212,11 @@ export default function CaregiverHealthRecordsPage({
         {viewMode === "grid" ? (
           <HealthRecordsGridView
             records={filteredRecords}
-            onView={handleView}
-            onEdit={handleEdit}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            onArchive={handleArchive}
+            onView={() => {}}
+            onEdit={() => {}}
+            onApprove={() => {}}
+            onReject={() => {}}
+            onArchive={() => {}}
           />
         ) : (
           <DataTable

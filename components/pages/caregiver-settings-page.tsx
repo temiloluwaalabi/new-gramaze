@@ -96,8 +96,6 @@ export const CaregiverSettingsClientPage = () => {
   ]);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle password reset logic here
-    console.log("Password reset requested for:", email);
   };
   const handlePasswordResetRequest = async (submittedEmail: string) => {
     setEmail(submittedEmail);
@@ -115,9 +113,6 @@ export const CaregiverSettingsClientPage = () => {
     );
   };
   const handleCheckEmail = () => {
-    // In a real app, this might redirect to email provider or back to login
-    console.log("Redirecting to email client...");
-    // For demo purposes, we'll go back to the form
     setFlowStep("form");
   };
   const handleSignOut = (deviceId: string) => {
@@ -177,8 +172,6 @@ export const CaregiverSettingsClientPage = () => {
       activities_notification: getNotificationType(activity),
       reminder_notification: getNotificationType(reminder),
     };
-
-    console.log("JSON_VALUE", JSON_VALUE);
 
     try {
       UpdateNotification(JSON_VALUE, {

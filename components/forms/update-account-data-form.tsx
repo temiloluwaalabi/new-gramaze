@@ -26,7 +26,7 @@ export default function UpdateAccountDataForm({
   user,
 }: UpdateAccountDataFormProps) {
   const { setUser } = useUserStore();
-  console.log("USER", user);
+
   const BiodataForm = useForm<z.infer<typeof BiodataSchema>>({
     resolver: zodResolver(BiodataSchema),
     defaultValues: {
@@ -47,10 +47,8 @@ export default function UpdateAccountDataForm({
 
   const { isPending, mutate: UpdateProfile } = useUpdateProfile();
   const handleSubmit = (values: z.infer<typeof BiodataSchema>) => {
-    console.log(values);
     UpdateProfile(values, {
       onSuccess: (data) => {
-        console.log("DATA", data);
         setUser(data.user);
         toast.success(data.message);
       },

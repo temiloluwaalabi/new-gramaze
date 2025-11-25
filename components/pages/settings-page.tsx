@@ -204,7 +204,6 @@ export const SettingsClientPage = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Password reset requested for:", email);
   };
 
   const handlePasswordResetRequest = async (submittedEmail: string) => {
@@ -223,10 +222,7 @@ export const SettingsClientPage = ({
     );
   };
 
-  console.log("MEDICAL FILES", user);
-
   const handleCheckEmail = () => {
-    console.log("Redirecting to email client...");
     setFlowStep("form");
   };
 
@@ -288,8 +284,6 @@ export const SettingsClientPage = ({
       reminder_notification: getNotificationType(reminder),
     };
 
-    console.log("JSON_VALUE", JSON_VALUE);
-
     try {
       UpdateNotification(JSON_VALUE, {
         onSuccess: (data) => {
@@ -307,7 +301,6 @@ export const SettingsClientPage = ({
     }
   };
 
-  console.log("CATEGO", categories);
   const handle2FAToggle = async (checked: boolean) => {
     setTwoFactorEnabled(checked);
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/app/route-showcase/page.tsx
@@ -165,8 +166,6 @@ export default function RouteShowcase() {
     "all" | "completed" | "coming-soon"
   >("all");
 
-  console.log("ACTIVE", activeFilter);
-  // Count completed and coming soon items
   const counts = Object.entries(routes).reduce(
     (acc, [_, section]) => {
       const countStatus = (obj: any) => {

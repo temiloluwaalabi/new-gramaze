@@ -32,7 +32,6 @@ export default function UpdateMedicalRecordForm(props: Props) {
   });
   const { isPending, mutate: UpdateMedicalReport } = useUpdateMedicalReport();
 
-  console.log(MedicalForm.watch());
   const handleSubmit = (values: z.infer<typeof MedicalHistorySchema>) => {
     const formData = new FormData();
     formData.append("medical_history", values.history);
@@ -41,7 +40,6 @@ export default function UpdateMedicalRecordForm(props: Props) {
         formData.append(`medical_file[${index}]`, file);
       });
     }
-    console.log("FORMDATA", formData);
     UpdateMedicalReport(formData, {
       onSuccess: (data) => {
         setUser(data.user);

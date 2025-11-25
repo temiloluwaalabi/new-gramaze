@@ -35,8 +35,6 @@ export default function useSession() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
-  console.log("Server Session", serverSession);
-
   useEffect(() => {
     if (!serverSession?.isLoggedIn) {
       return;

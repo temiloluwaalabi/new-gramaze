@@ -81,7 +81,6 @@ export const getAllUsers = async () => {
       throw response;
     }
 
-    console.log("SUCES RESPONSE", response);
     const successResponse = response as {
       success: true;
       status: number;

@@ -40,7 +40,6 @@ export const useUserStore = create<UserState>()(
           isAutheticated: true,
         })),
       logout: () => {
-        console.log("🚪 Logging out - clearing user");
         console.trace(); // This will show you the call stack
         set(() => ({
           user: null,

@@ -309,7 +309,6 @@ export default function SingleHealthRecordPage({
   const getLatestVitalsWithValues = (
     trackers?: HealthTracker[]
   ): LatestVitals | null => {
-    console.log("VITAL TRACKERS", trackers);
     if (!trackers?.length) return null;
 
     const sorted = [...trackers].sort(
@@ -322,7 +321,6 @@ export default function SingleHealthRecordPage({
     for (const tracker of sorted) {
       // Process metrics array (using 'name' not 'code')
       JSON.parse(tracker.metrics)?.forEach((metric: Metric) => {
-        console.log("METRIC", metric);
         if (metric.code && metric.value && !latest[metric.code]) {
           latest[metric.code] = {
             value: metric.value,
@@ -339,7 +337,6 @@ export default function SingleHealthRecordPage({
   };
   const latestVitals = getLatestVitalsWithValues(healthRecord.trackers);
 
-  console.log("LATEST VITALS", latestVitals);
   return (
     <section className="h-full gap-6 space-y-6 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       {/* Header */}

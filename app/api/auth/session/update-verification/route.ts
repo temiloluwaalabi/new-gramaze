@@ -7,7 +7,6 @@ export async function POST(request: Request) {
   try {
     const { isVerified } = await request.json();
 
-    console.log("ISVERIFIED", isVerified);
     await UpdateVerificationStatus(isVerified);
 
     return NextResponse.json({ success: true });

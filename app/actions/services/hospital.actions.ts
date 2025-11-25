@@ -19,7 +19,6 @@ export const getAllStates = async () => {
 
     const response = await hospitalServices.getAllStates();
 
-    console.log("RESPONSE", response);
     if (ApiError.isAPiError(response)) {
       throw response;
     }

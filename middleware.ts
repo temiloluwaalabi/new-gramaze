@@ -33,14 +33,11 @@ export default async function middleware(req: NextRequest) {
     "/dashboard/appointment",
     "/booked",
   ];
-  console.log("PATHNAME", pathname);
   const session = await getSession();
   const hasAccessToken = !!session?.accessToken;
   const isLoggedIn = session?.isLoggedIn || false;
   const isOnboarded = session?.isBoarded || false;
   const isVerified = session?.isVerified || false;
-
-  console.log("MIDDLEWARE SESSION", session);
 
   const isApiAuthRoute = pathname.startsWith(apiAuthPrefix);
   const isAuthRoute = authRoutes.includes(pathname);
@@ -49,8 +46,6 @@ export default async function middleware(req: NextRequest) {
     pathname.endsWith(route)
   );
 
-  console.log("isUneve", isUnverifiedRoute);
-
   const userType = session.userType;
   const isOnboardingRoute = pathname === DEFAULT_ONBOARDING_REDIRECT;
   const privateRoute = !isGuestRoute;
@@ -58,8 +53,6 @@ export default async function middleware(req: NextRequest) {
   // Role-based route checks
   const isCaregiverRoute = pathname.startsWith("/caregiver");
   const isDashboardRoute = pathname.startsWith("/dashboard");
-
-  console.log("IS PRIVATE ROUTE", privateRoute);
 
   if (isApiAuthRoute) return NextResponse.next();
 
@@ -87,7 +80,6 @@ export default async function middleware(req: NextRequest) {
   // Allow access to onboarding if accessToken is present (even if not logged in)
   // Onboarding flow logic
   if (isOnboardingRoute) {
-    console.log("IS ONBOARDING ROUTE", isOnboardingRoute);
     // If user is logged in and already onboarded, redirect to appropriate dashboard
     if (isLoggedIn && isOnboarded) {
       if (userType === "caregiver") {

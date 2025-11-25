@@ -15,7 +15,6 @@ import { CalendarEvent, EnrichedAppointment } from "./day-js-calendar";
 export const transformToTableAppointment = (
   enrichedAppointment: EnrichedAppointment
 ): TableAppointment => {
-  console.log("EnrichedAppointment", enrichedAppointment);
   const clientName = enrichedAppointment.client
     ? getFullName(enrichedAppointment.client)
     : `Client ${enrichedAppointment.user_id}`;

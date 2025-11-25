@@ -102,7 +102,6 @@ export const TwoFactorStep = ({
     }
   };
 
-  console.log("VALUES", registerForm.watch());
   const handleSubmit = async (values: RegisterVerifyEmailStepType) => {
     setisVerifyingOTP(true);
     setAuthError(null);

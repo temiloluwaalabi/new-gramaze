@@ -143,8 +143,6 @@ export default function HospitalVisitForm(props: HospitalVisitFormProps) {
     markStepComplete(currentStep);
   };
 
-  console.log("FORM", BiodataForm.watch());
-
   return (
     <>
       <Form {...BiodataForm}>

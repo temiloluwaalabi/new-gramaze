@@ -133,7 +133,6 @@ export const fetchHealthTracker = async (values: { user_id: number }) => {
     const response =
       await adminServices.patient_management.fetchHealthTracker(values);
 
-    console.log("RESPONSE", response);
     if (ApiError.isAPiError(response)) {
       throw response;
     }
@@ -232,7 +231,7 @@ export const getCaregiverPatientHistory = async ({
     // Check for API error properly
     if (ApiError.isAPiError(response)) {
       const apiError = response as ApiError;
-      console.log("AYPGS", response);
+
       return {
         success: false,
         message: apiError.message,
@@ -242,7 +241,6 @@ export const getCaregiverPatientHistory = async ({
       };
     }
 
-    console.log("RESPONSE  HIS", response);
     const successResponse = response as {
       success: true;
       status: number;
@@ -456,7 +454,6 @@ export const AddHealthReport = async (
   }>
 > => {
   try {
-    console.log("FORMDATA", values);
     const sessionToken = await getSession();
     if (!sessionToken) {
       return {
@@ -468,8 +465,6 @@ export const AddHealthReport = async (
     }
 
     const response = await caregiverServices.healthReport.addReport(values);
-
-    console.log("RESPONSE", response);
 
     if (ApiError.isAPiError(response)) {
       const apiError = response as ApiError;
@@ -605,7 +600,6 @@ export const AddHealthNote = async (
   values: FormData
 ): Promise<ServerActionResponse<HealthNote>> => {
   try {
-    console.log("FORMDATA", values);
     const sessionToken = await getSession();
     if (!sessionToken) {
       return {
@@ -617,8 +611,6 @@ export const AddHealthNote = async (
     }
 
     const response = await caregiverServices.patientNotes.addNote(values);
-
-    console.log("RESPONSE", response);
 
     if (ApiError.isAPiError(response)) {
       const apiError = response as ApiError;
@@ -763,7 +755,7 @@ export const getCaregiverhealthRecords = async ({
     // Check for API error properly
     if (ApiError.isAPiError(response)) {
       const apiError = response as ApiError;
-      console.log("AYPGS", response);
+
       return {
         success: false,
         message: apiError.message,
@@ -773,7 +765,6 @@ export const getCaregiverhealthRecords = async ({
       };
     }
 
-    console.log("RESPONSE  HIS", response);
     const successResponse = response as {
       success: true;
       status: number;

@@ -15,7 +15,6 @@ export const InitiatePayment = async (
   },
   pathname: string
 ) => {
-  console.log("VALUES", values);
   try {
     if (!values.payment_notification_id || !values.callback_url) {
       return {
@@ -64,7 +63,6 @@ export const InitiatePayment = async (
       }>;
     };
 
-    
     revalidatePath(pathname);
     return {
       success: true,
@@ -108,7 +106,6 @@ export const VerifyPayment = async (pathname: string, reference: string) => {
       };
     }
 
-    console.log("RESPONSE", response);
     const successResponse = response as {
       success: true;
       status: number;
@@ -124,7 +121,7 @@ export const VerifyPayment = async (pathname: string, reference: string) => {
     };
 
     revalidatePath(pathname);
-    
+
     return {
       success: true,
       message: successResponse.message,
@@ -155,7 +152,6 @@ export const getUserPaymentNotifications = async () => {
 
     const response = await notificationServices.getUserPaymentNotifications();
 
-    console.log("RESPONSE", response);
     if (ApiError.isAPiError(response)) {
       throw response;
     }

@@ -135,7 +135,6 @@ export const AppointmentStep: React.FC<Partial<OnboardingStepsI>> = () => {
     } = data.appointment;
 
     if (data.appointment.type === "virtual") {
-      console.log("VIRTUAL APPOINTMRNT");
       const JSONVALUES = {
         appointment_type: "virtual",
         date: format(parsedDate, "yyyy-MM-dd"),
@@ -159,7 +158,6 @@ export const AppointmentStep: React.FC<Partial<OnboardingStepsI>> = () => {
       });
     } else {
       if (physicalType === "at-home-visit") {
-        console.log("AT GOME VISIT PHYSICAL APPPOINTMENT");
         const JSONVALUES = {
           appointment_type: "physical",
           date: format(parsedDate, "yyyy-MM-dd"),
@@ -182,7 +180,6 @@ export const AppointmentStep: React.FC<Partial<OnboardingStepsI>> = () => {
           },
         });
       } else {
-        console.log("HOSPITAL VISIT PHYSICAL APPPOINTMENT");
         const JSONVALUES = {
           appointment_type: "physical",
           visit_type: "hospital",

@@ -75,7 +75,6 @@ export const useRescheduleAppointment = () => {
       return data;
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       toast.success(data.message || "Appointment rescheduled successfully!");
 
       // Invalidate related queries
@@ -147,8 +146,6 @@ export const useMarkAppointmentAsArrived = (pathname: string) => {
   return useMutation({
     mutationKey: ["appointments", "markArrived"],
     mutationFn: async (values: FormData) => {
-      console.log("FORMDATA", values);
-
       const data = await markAppointmentAsArrived(values, pathname);
       if (data.success) {
         return data;
@@ -156,7 +153,6 @@ export const useMarkAppointmentAsArrived = (pathname: string) => {
       throw new Error(data.message || "Marking appointment as arrived failed");
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       toast.success(
         data.message || "Appointment marked as arrived successfully!"
       );
@@ -192,7 +188,6 @@ export const useConfirmAppointmentArrival = () => {
       throw new Error(data.message || "Confirming appointment arrival failed");
     },
     onSuccess: (data) => {
-      console.log("SUCCESS DATA", data);
       toast.success(
         data.message || "Appointment arrival confirmed successfully!"
       );

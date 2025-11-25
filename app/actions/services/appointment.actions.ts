@@ -198,7 +198,7 @@ export const rescheduleAppointment = async ({
 
     if (ApiError.isAPiError(response)) {
       const apiError = response as ApiError;
-      console.log("AYPGS", response);
+
       return {
         success: false,
         message: apiError.message,
@@ -413,7 +413,6 @@ export const markAppointmentAsArrived = async (
     //     errorType: "ValidationError",
     //   });
     // }
-    console.log("FORMDATA", values);
 
     const sessionToken = await getSession();
     if (!sessionToken) {

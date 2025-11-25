@@ -186,11 +186,7 @@ export const convertTo24Hour = (hour: number, period: string): number => {
     return hour === 12 ? 12 : hour + 12;
   }
 };
-// Example usage:
-// const dateStr = "19 Aug, 2025 1:00AM";
-// const parsedDate = parseAppointmentDate(dateStr);
-// console.log(parsedDate); // Returns a Date object or null if inval
-// Utility function for date formatting
+
 export const formatDate = (
   date: Date | string,
   includeTime: boolean = false

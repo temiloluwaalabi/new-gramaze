@@ -611,7 +611,6 @@ const RenderInput = <TFormValues extends FieldValues>({
     }
     case FormFieldTypes.SWITCH: {
       const switchProps = props as SwitchProps<typeof field.value>;
-      console.log(field.value);
       return (
         <div className="flex items-center space-x-2">
           <FormControl>

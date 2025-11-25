@@ -20,7 +20,6 @@ export function useCurrentUser() {
   const { session, isLoading: sessionLoading } = useSession();
   const { user: storedUser, setUser, logout } = useUserStore();
   const [isLoading, setIsLoading] = useState(true);
-  const hasInitializedRef = useRef(false);
   const hasSeenSessionRef = useRef(false);
   const router = useRouter();
 
@@ -28,20 +27,6 @@ export function useCurrentUser() {
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollAttemptsRef = useRef(0);
   const isPollingRef = useRef(false);
-
-  console.log("🔍 User Store Debug:", {
-    session: session?.email,
-    storedUser: storedUser?.email,
-    sessionLoading,
-    hasInitialized: hasInitializedRef.current,
-    hasSeenSession: hasSeenSessionRef.current,
-    userStatus: storedUser?.user_status,
-    isPolling: isPollingRef.current,
-    timestamp: new Date().toISOString(),
-  });
-
-  console.log("SESSION", session);
-  console.log("HOOK USER", storedUser);
 
   // ✅ Helper function to map API response to User object
   const mapUserData = (apiUser: any): User => ({
@@ -94,12 +79,6 @@ export function useCurrentUser() {
       const userData = mapUserData(res.data.user);
       setUser(userData);
 
-      console.log("✅ User data updated:", {
-        email: userData.email,
-        status: userData.user_status,
-        timestamp: new Date().toISOString(),
-      });
-
       return userData;
     } catch (err: any) {
       console.error("Failed to load user", err);
@@ -118,7 +97,6 @@ export function useCurrentUser() {
       pollIntervalRef.current = null;
       isPollingRef.current = false;
       pollAttemptsRef.current = 0;
-      console.log("🛑 Stopped polling for user verification");
     }
   };
 
@@ -126,27 +104,19 @@ export function useCurrentUser() {
   const startPolling = () => {
     // Prevent multiple polling instances
     if (isPollingRef.current) {
-      console.log("⚠️ Polling already active, skipping...");
       return;
     }
 
     isPollingRef.current = true;
     pollAttemptsRef.current = 0;
 
-    console.log("🔄 Starting verification polling...");
-
     pollIntervalRef.current = setInterval(async () => {
       pollAttemptsRef.current += 1;
-
-      console.log(
-        `🔍 Polling attempt ${pollAttemptsRef.current}/${MAX_POLL_ATTEMPTS}`
-      );
 
       const updatedUser = await fetchAndUpdateUser();
 
       // ✅ Stop polling if user is now active
       if (updatedUser?.user_status === "active") {
-        console.log("✅ User verified! Stopping poll.");
         stopPolling();
 
         // ✅ Update session with verified status
@@ -168,7 +138,6 @@ export function useCurrentUser() {
 
       // ✅ Stop after max attempts to prevent infinite polling
       if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
-        console.log("⏰ Max polling attempts reached, stopping...");
         stopPolling();
       }
     }, VERIFICATION_POLL_INTERVAL);
@@ -196,7 +165,6 @@ export function useCurrentUser() {
 
       // ✅ Start polling if user is not active
       if (userData && userData.user_status !== "active") {
-        console.log("👤 User not verified, starting polling...");
         startPolling();
       }
     };
@@ -210,13 +178,11 @@ export function useCurrentUser() {
 
     // Start polling if user becomes inactive
     if (storedUser.user_status !== "active" && !isPollingRef.current) {
-      console.log("👤 User status changed to inactive, starting polling...");
       startPolling();
     }
 
     // Stop polling if user becomes active
     if (storedUser.user_status === "active" && isPollingRef.current) {
-      console.log("✅ User status changed to active, stopping polling...");
       stopPolling();
     }
   }, [storedUser?.user_status]);
