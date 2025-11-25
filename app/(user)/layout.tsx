@@ -21,6 +21,9 @@ const UserDashboardLayout = async ({
 }: {
   children: React.ReactNode;
 }) => {
+  const cookieStore = await cookies();
+
+  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
   const [appointments, trackers, userCaregivers, allReports, allNotes] =
     await Promise.all([
       getUserAppointments(),
@@ -29,9 +32,6 @@ const UserDashboardLayout = async ({
       getUserHealthReports(),
       getUserHealthNotes(),
     ]);
-  const cookieStore = await cookies();
-
-  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true";
 
   const searchData: SearchableData = {
     appointments: appointments.appointments.data || [],

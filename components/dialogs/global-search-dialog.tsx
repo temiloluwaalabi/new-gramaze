@@ -25,13 +25,12 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { SearchEngine } from "@/lib/search/search-engine";
-import { cn } from "@/lib/utils";
-
 import {
   SearchResult,
   SearchResultType,
   SearchableData,
 } from "@/lib/search/search-types";
+import { cn } from "@/lib/utils";
 
 type GlobalSearchDialogProps = {
   searchData: SearchableData;
