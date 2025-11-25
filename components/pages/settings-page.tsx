@@ -1,6 +1,7 @@
 "use client";
 import {
   Bell,
+  FileText,
   Laptop,
   Loader2,
   Paperclip,
@@ -15,6 +16,7 @@ import { toast } from "sonner";
 import HeartbeatIcon from "@/icons/heartbeat";
 import SecurityIcon from "@/icons/security-icon";
 import UserThreeIcon from "@/icons/user-three-icon";
+import { REPORT_TYPE_CONFIGS } from "@/lib/health-record-types";
 import {
   useInitiatePasswordReset,
   useUpdate2FA,
@@ -22,13 +24,16 @@ import {
 } from "@/lib/queries/use-auth-queries";
 import { formatDate, initialsFromName } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
+import { HealthRecordRow } from "@/types";
 
 import MedicalFilesDisplay from "./medical-files";
 import UpdateProfileImageDialog from "../dialogs/update-profile-image-dialog";
 import UpdateAccountDataForm from "../forms/update-account-data-form";
+import { getStatusBadge } from "../shared/health-record/health-record-list";
 import PasswordResetConfirmation from "../shared/password-reset-confirmation";
 import { PageTitleHeader } from "../shared/widget/page-title-header";
 import { UpdateMedicalRecordSheet } from "../sheets/update-medical-record-sheet";
+import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -129,7 +134,13 @@ export const SettingsLoadingSkeleton = () => {
   );
 };
 
-export const SettingsClientPage = () => {
+interface SettingsClientPageProps {
+  healthRecords: HealthRecordRow[];
+}
+
+export const SettingsClientPage = ({
+  healthRecords,
+}: SettingsClientPageProps) => {
   const { user, setUser } = useUserStore();
   const [categories, setCategories] = React.useState<NotificationCategory[]>([
     {
@@ -535,35 +546,75 @@ export const SettingsClientPage = () => {
               <h4 className="text-lg font-semibold text-[#333]">
                 Health Records
               </h4>
-              {user?.dependents ? (
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                  <div className="flex items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4">
-                    <span className="flex size-[42px] items-center justify-center rounded-full bg-[#F5F5F5]">
-                      <SquarePen className="size-5" />
-                    </span>
-                    <div>
-                      <h6 className="text-sm font-medium text-[#333] md:text-base">
-                        Medical Record
-                      </h6>
-                      <p className="text-xs font-normal text-[#66666b] md:text-sm">
-                        Uplaoded 10 Dec, 2024
-                      </p>
+              {healthRecords.length > 0 ? (
+                healthRecords.slice(0, 6).map((record) => {
+                  const config = REPORT_TYPE_CONFIGS[
+                    record.record_type as keyof typeof REPORT_TYPE_CONFIGS
+                  ] ?? { label: String(record.record_type || "Unknown") };
+                  return (
+                    <div
+                      key={record.id}
+                      className="group relative flex cursor-pointer items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4 transition-all hover:border-blue-500 hover:bg-blue-50"
+                    >
+                      {/* <Link
+                        href={`/caregiver/health-records/${record.id}`}
+                        className="absolute top-0 left-0 size-full"
+                      /> */}
+                      <span className="hidden size-[42px] items-center justify-center rounded-full bg-[#F5F5F5] group-hover:bg-blue-500 group-hover:text-white md:flex">
+                        <SquarePen className="size-5" />
+                      </span>
+                      <div className="grid w-full grid-cols-12 gap-4">
+                        <div className="col-span-12 w-full space-y-1 md:col-span-7">
+                          <h6 className="line-clamp-1 max-w-prose text-sm font-medium text-ellipsis text-[#333]">
+                            {record.title}
+                          </h6>
+                          <div className="flex items-center space-x-2 text-xs text-gray-500">
+                            <p className="text-xs font-normal text-[#66666b] md:text-sm">
+                              Uploaded{" "}
+                              <span>{formatDate(record.created_at)}</span>
+                            </p>
+                            <div className="flex items-center gap-1">
+                              <span>
+                                By {record.creator.first_name || "Unknown"}
+                              </span>
+                            </div>
+                          </div>
+                          <Badge variant="secondary" className="text-xs">
+                            {config.label}
+                          </Badge>
+                        </div>
+                        <div className="col-span-12 flex w-full flex-col justify-center gap-2 md:col-span-5 md:items-end">
+                          <div className="flex items-center gap-2">
+                            {getStatusBadge(record.status)}
+                          </div>
+                          <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+                            <div className="flex items-center gap-1">
+                              <FileText className="size-3" />
+                              <span>{record.reports.length} report(s)</span>
+                            </div>
+
+                            {record.notes.length > 0 && (
+                              <div className="flex items-center gap-1">
+                                <FileText className="size-3" />
+                                <span>{record.notes.length} note(s)</span>
+                              </div>
+                            )}
+
+                            {record.health_tracker_ids &&
+                              record.health_tracker_ids.length > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <FileText className="size-3" />
+                                  <span>
+                                    {record.health_tracker_ids.length} vital(s)
+                                  </span>
+                                </div>
+                              )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4">
-                    <span className="flex size-[42px] items-center justify-center rounded-full bg-[#F5F5F5]">
-                      <SquarePen className="size-5" />
-                    </span>
-                    <div>
-                      <h6 className="text-sm font-medium text-[#333] md:text-base">
-                        Medical Record
-                      </h6>
-                      <p className="text-xs font-normal text-[#66666b] md:text-sm">
-                        Uplaoded 15 Dec, 2024
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })
               ) : (
                 <div className="flex flex-col items-center justify-center gap-4 rounded-[6px] border border-dashed border-[#E8E8E8] bg-[#FAFCFF] p-6 text-center">
                   <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">

@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from "date-fns";
 
+import { UpdateHealthRecordPayload } from "@/app/actions/caregiver-patient.actions";
 import { getSession } from "@/app/actions/session.actions";
 import { gramazeEndpoints } from "@/config/routes";
 import {
@@ -826,6 +827,17 @@ export const caregiverServices = {
         `/health/user/records/by/userid?${patient_id}`,
         "GET"
       );
+    },
+    updateRecord: async (values: UpdateHealthRecordPayload) => {
+      return makeApiRequest<{
+        id: number;
+        title: string;
+        description: string;
+        record_type: string;
+        updated_at: string;
+      }>(`/admin/update/health-record`, "POST", {
+        body: values,
+      });
     },
   },
 };

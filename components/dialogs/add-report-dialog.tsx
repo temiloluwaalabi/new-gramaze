@@ -35,14 +35,18 @@ type Props = {
   health_record_id?: number; // Optional - only if adding within a health record
 };
 
-const REPORT_TYPES = [
-  { id: "lab", label: "Lab Results" },
-  { id: "imaging", label: "Imaging (X-ray, MRI, CT)" },
+export const REPORT_TYPES = [
+  { id: "clinical_note", label: "Clinical Note" },
+  { id: "diagnosis", label: "Diagnosis" },
   { id: "prescription", label: "Prescription" },
-  { id: "consultation", label: "Consultation Notes" },
-  { id: "discharge", label: "Discharge Summary" },
-  { id: "progress", label: "Progress Notes" },
-  { id: "other", label: "Other" },
+  { id: "lab_report", label: "Lab Report" },
+  { id: "imaging_report", label: "Imaging Report" },
+  { id: "procedure_report", label: "Procedure Report" },
+  { id: "discharge_summary", label: "Discharge Summary" },
+  { id: "immunization_record", label: "Immunization Record" },
+  { id: "allergy_record", label: "Allergy Record" },
+  { id: "appointment", label: "Appointment" },
+  { id: "progress_report", label: "Progress Report" },
 ];
 
 export default function AddReportDialog({

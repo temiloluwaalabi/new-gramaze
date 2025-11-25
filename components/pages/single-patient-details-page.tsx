@@ -1,6 +1,7 @@
 "use client";
 import {
   Activity,
+  Book,
   Calendar,
   CalendarIcon,
   ChevronRight,
@@ -17,14 +18,14 @@ import {
   Thermometer,
   Wind,
 } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
-import { healthRecords } from "@/config/constants";
 import BloodPressureIcon from "@/icons/blood-pressure";
 import CalendarBlankIcon from "@/icons/calendar-blank";
 import DropIcon from "@/icons/drop";
 import HeartbeatIcon from "@/icons/heartbeat";
-import { HealthRecord, REPORT_TYPE_CONFIGS } from "@/lib/health-record-types";
+import { REPORT_TYPE_CONFIGS } from "@/lib/health-record-types";
 import {
   getFileIcon,
   formatFileSize,
@@ -49,7 +50,6 @@ import {
 import AddHealthVitals from "../dialogs/add-health-vitals";
 import AddNoteDialog from "../dialogs/add-note-dialog";
 import AddReportDialog from "../dialogs/add-report-dialog";
-import { ViewHealthRecordDialog } from "../dialogs/view-health-record-dialog";
 import { ViewNoteDialog } from "../dialogs/view-note-dialog";
 import { ViewReportDialog } from "../dialogs/view-report-dialog";
 import { getStatusBadge } from "../shared/health-record/health-record-list";
@@ -111,14 +111,12 @@ export default function SinglePatientDetailsPage({
   appointments,
   patientReports,
   metrics,
+  healthRecords,
   patientNotes,
 }: SinglePatientDetailsPageProps) {
   const { user } = useUserStore();
   const { isPending, data: HealthTracker } = useGetHealthTracker(patient.id);
-  // In your component
-  const [selectedRecord, setSelectedRecord] =
-    React.useState<HealthRecord | null>(null);
-  const [viewRecordOpen, setViewRecordOpen] = React.useState(false);
+
   const [selectedReport, setSelectedReport] =
     React.useState<HealthReport | null>(null);
   const [viewReportOpen, setViewReportOpen] = React.useState(false);
@@ -324,47 +322,47 @@ export default function SinglePatientDetailsPage({
   // };
 
   // Handle viewing a record
-  const handleViewRecord = (recordId: number) => {
-    // Fetch the full record details
-    const record = healthRecords.find((r) => r.id === recordId);
-    setSelectedRecord(record || null);
-    setViewRecordOpen(true);
-  };
+  // const handleViewRecord = (recordId: number) => {
+  //   // Fetch the full record details
+  //   const record = healthRecords.find((r) => r.id === recordId);
+  //   setSelectedRecord(record || null);
+  //   setViewRecordOpen(true);
+  // };
 
   // Handle approval (admin only)
-  const handleApprove = async (recordId: number) => {
-    try {
-      await fetch(`/api/health-records/${recordId}/approve`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ approved_by_id: user?.id }),
-      });
+  // const handleApprove = async (recordId: number) => {
+  //   try {
+  //     await fetch(`/api/health-records/${recordId}/approve`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ approved_by_id: user?.id }),
+  //     });
 
-      // Refresh
-      window.location.reload();
-    } catch (error) {
-      console.error("Error approving record:", error);
-    }
-  };
+  //     // Refresh
+  //     window.location.reload();
+  //   } catch (error) {
+  //     console.error("Error approving record:", error);
+  //   }
+  // };
 
   // Handle rejection (admin only)
-  const handleReject = async (recordId: number, reason: string) => {
-    try {
-      await fetch(`/api/health-records/${recordId}/reject`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rejected_by_id: user?.id,
-          rejection_reason: reason,
-        }),
-      });
+  // const handleReject = async (recordId: number, reason: string) => {
+  //   try {
+  //     await fetch(`/api/health-records/${recordId}/reject`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         rejected_by_id: user?.id,
+  //         rejection_reason: reason,
+  //       }),
+  //     });
 
-      // Refresh
-      window.location.reload();
-    } catch (error) {
-      console.error("Error rejecting record:", error);
-    }
-  };
+  //     // Refresh
+  //     window.location.reload();
+  //   } catch (error) {
+  //     console.error("Error rejecting record:", error);
+  //   }
+  // };
   return (
     <section className="h-full gap-6 space-y-3 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -542,6 +540,17 @@ export default function SinglePatientDetailsPage({
                       </div>
                     </div>
                   </div>
+                  {appointment.health_record_id !== null && (
+                    <Link
+                      href={`/caregiver/health-records/${appointment.health_record_id}`}
+                      className="flex w-fit items-center gap-2 rounded-md bg-blue-600 px-2 py-2 !text-white"
+                    >
+                      <Book className="size-4 flex-shrink-0 text-white sm:size-5" />
+                      <span className="text-xs font-normal text-white capitalize sm:text-sm">
+                        View Health Record
+                      </span>
+                    </Link>
+                  )}
                 </div>
               </div>
             ))
@@ -685,9 +694,12 @@ export default function SinglePatientDetailsPage({
               <h6 className="text-sm font-medium text-[#787878]">
                 Health Records
               </h6>
-              <span className="flex cursor-pointer items-center gap-1 text-base font-medium text-[#333]">
+              <Link
+                href={"/caregiver/health-records"}
+                className="flex cursor-pointer items-center gap-1 text-base font-medium text-[#333]"
+              >
                 See all <ChevronRight className="size-5 text-gray-500" />
-              </span>
+              </Link>
             </div>
             {/* Create new health record button */}
             {/* <CreateHealthRecordDialog
@@ -708,19 +720,24 @@ export default function SinglePatientDetailsPage({
             /> */}
             <div className="mt-4 flex flex-col gap-4">
               {healthRecords.length > 0 ? (
-                healthRecords.map((record) => {
-                  const config = REPORT_TYPE_CONFIGS[record.record_type];
+                healthRecords.slice(0, 6).map((record) => {
+                  const config = REPORT_TYPE_CONFIGS[
+                    record.record_type as keyof typeof REPORT_TYPE_CONFIGS
+                  ] ?? { label: String(record.record_type || "Unknown") };
                   return (
                     <div
                       key={record.id}
-                      onClick={() => handleViewRecord(record.id)}
-                      className="group flex cursor-pointer items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4 transition-all hover:border-blue-500 hover:bg-blue-50"
+                      className="group relative flex cursor-pointer items-center gap-4 rounded-[6px] border border-[#E8E8E8] p-4 transition-all hover:border-blue-500 hover:bg-blue-50"
                     >
+                      <Link
+                        href={`/caregiver/health-records/${record.id}`}
+                        className="absolute top-0 left-0 size-full"
+                      />
                       <span className="hidden size-[42px] items-center justify-center rounded-full bg-[#F5F5F5] group-hover:bg-blue-500 group-hover:text-white md:flex">
                         <SquarePen className="size-5" />
                       </span>
                       <div className="grid w-full grid-cols-12 gap-4">
-                        <div className="col-span-12 w-full md:col-span-7">
+                        <div className="col-span-12 w-full space-y-1 md:col-span-7">
                           <h6 className="line-clamp-1 max-w-prose text-sm font-medium text-ellipsis text-[#333]">
                             {record.title}
                           </h6>
@@ -731,7 +748,7 @@ export default function SinglePatientDetailsPage({
                             </p>
                             <div className="flex items-center gap-1">
                               <span>
-                                By {record.created_by_name || "Unknown"}
+                                By {record.creator.first_name || "Unknown"}
                               </span>
                             </div>
                           </div>
@@ -756,14 +773,15 @@ export default function SinglePatientDetailsPage({
                               </div>
                             )}
 
-                            {record.health_tracker_ids.length > 0 && (
-                              <div className="flex items-center gap-1">
-                                <FileText className="size-3" />
-                                <span>
-                                  {record.health_tracker_ids.length} vital(s)
-                                </span>
-                              </div>
-                            )}
+                            {record.health_tracker_ids &&
+                              record.health_tracker_ids.length > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <FileText className="size-3" />
+                                  <span>
+                                    {record.health_tracker_ids.length} vital(s)
+                                  </span>
+                                </div>
+                              )}
                           </div>
                         </div>
                       </div>
@@ -787,17 +805,7 @@ export default function SinglePatientDetailsPage({
               </Button>
             </div>
           </div>
-          {/* View Record Dialog */}
-          <ViewHealthRecordDialog
-            record={selectedRecord}
-            open={viewRecordOpen}
-            onOpenChange={setViewRecordOpen}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            currentUserRole={
-              user?.user_role === "admin" ? "admin" : "caregiver"
-            }
-          />
+
           <div className="h-fit rounded-[6px] border border-[#E8E8E8] bg-white p-4">
             <div className="flex items-center justify-between">
               <h6 className="text-sm font-medium text-[#787878]">

@@ -19,13 +19,16 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { getOtherUsersInfo } from "@/app/actions/auth.actions";
+import { UpdateHealthRecordWithFormData } from "@/app/actions/caregiver-patient.actions";
 import AddHealthVitals from "@/components/dialogs/add-health-vitals";
 import AddNoteDialog from "@/components/dialogs/add-note-dialog";
-import AddReportDialog from "@/components/dialogs/add-report-dialog";
+import AddReportDialog, {
+  REPORT_TYPES,
+} from "@/components/dialogs/add-report-dialog";
 import { ViewNoteDialog } from "@/components/dialogs/view-note-dialog";
 import { ViewReportDialog } from "@/components/dialogs/view-report-dialog";
 import { Badge } from "@/components/ui/badge";
@@ -86,6 +89,7 @@ export default function SingleHealthRecordPage({
 }: SingleHealthRecordPageProps) {
   const [recordPatient, setRecordPatient] = useState<User>();
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   // Editable states
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -96,11 +100,12 @@ export default function SingleHealthRecordPage({
   );
   const [isEditingRecordType, setIsEditingRecordType] = useState(false);
   const [editedRecordType, setEditedRecordType] = useState("prescription");
-  const [isUpdating, setIsUpdating] = useState(false);
 
   const config =
     REPORT_TYPE_CONFIGS[editedRecordType as keyof typeof REPORT_TYPE_CONFIGS] ||
-    REPORT_TYPE_CONFIGS["imaging_report" as keyof typeof REPORT_TYPE_CONFIGS];
+    REPORT_TYPE_CONFIGS[
+      healthRecord.record_type as keyof typeof REPORT_TYPE_CONFIGS
+    ];
 
   const [selectedReport, setSelectedReport] =
     React.useState<HealthReport | null>(null);
@@ -110,50 +115,77 @@ export default function SingleHealthRecordPage({
   );
   const [viewNoteOpen, setViewNoteOpen] = React.useState(false);
 
-  // Update health record field
+  // Update health record field using server action
   const updateHealthRecordField = async (
     field: "title" | "description" | "record_type",
     value: string
   ) => {
-    setIsUpdating(true);
-    try {
-      const response = await fetch(
-        `/api/health-records/${healthRecord.id}/update`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ [field]: value }),
+    startTransition(async () => {
+      try {
+        // Build the payload
+        const payload: {
+          id: number;
+          title?: string;
+          description?: string;
+          record_type?: string;
+          auto_generate_title?: boolean;
+          auto_generate_description?: boolean;
+        } = {
+          id: healthRecord.id,
+        };
+
+        // Add the specific field being updated
+        if (field === "title") {
+          payload.title = value;
+        } else if (field === "description") {
+          payload.description = value;
+        } else if (field === "record_type") {
+          payload.record_type = value;
         }
-      );
 
-      if (!response.ok) {
-        throw new Error("Failed to update health record");
+        // Call server action
+        const result = await UpdateHealthRecordWithFormData(payload);
+
+        if (result.success) {
+          toast.success(result.message);
+
+          // Close editing mode
+          if (field === "title") setIsEditingTitle(false);
+          if (field === "description") setIsEditingDescription(false);
+          if (field === "record_type") setIsEditingRecordType(false);
+
+          // Router will automatically refresh with revalidatePath
+          router.refresh();
+        } else {
+          // Handle API errors
+          if (result.errors) {
+            // Show validation errors
+            Object.entries(result.errors).forEach(([key, messages]) => {
+              messages.forEach((message) => toast.error(`${key}: ${message}`));
+            });
+          } else {
+            toast.error(result.message || `Failed to update ${field}`);
+          }
+
+          // Revert changes
+          if (field === "title") setEditedTitle(healthRecord.title);
+          if (field === "description")
+            setEditedDescription(healthRecord.description);
+          if (field === "record_type")
+            setEditedRecordType(healthRecord.record_type);
+        }
+      } catch (error) {
+        console.error(`Error updating ${field}:`, error);
+        toast.error(`Failed to update ${field}`);
+
+        // Revert changes
+        if (field === "title") setEditedTitle(healthRecord.title);
+        if (field === "description")
+          setEditedDescription(healthRecord.description);
+        if (field === "record_type")
+          setEditedRecordType(healthRecord.record_type);
       }
-
-      toast.success(
-        `${field.charAt(0).toUpperCase() + field.slice(1)} updated successfully`
-      );
-
-      // Close editing mode
-      if (field === "title") setIsEditingTitle(false);
-      if (field === "description") setIsEditingDescription(false);
-      if (field === "record_type") setIsEditingRecordType(false);
-
-      // Optionally refresh the page or update local state
-      // router.refresh();
-    } catch (error) {
-      console.error(`Error updating ${field}:`, error);
-      toast.error(`Failed to update ${field}`);
-
-      // Revert changes
-      if (field === "title") setEditedTitle(healthRecord.title);
-      if (field === "description")
-        setEditedDescription(healthRecord.description);
-      if (field === "record_type")
-        setEditedRecordType(healthRecord.record_type);
-    } finally {
-      setIsUpdating(false);
-    }
+    });
   };
 
   // Handle title save
@@ -301,12 +333,12 @@ export default function SingleHealthRecordPage({
                     }}
                     className="cursor-pointer text-2xl font-bold"
                     autoFocus
-                    disabled={isUpdating}
+                    disabled={isPending}
                   />
                   <Button
                     size="sm"
                     onClick={handleTitleSave}
-                    disabled={isUpdating}
+                    disabled={isPending}
                     className="!size-8 cursor-pointer p-0"
                   >
                     <Check className="size-4" />
@@ -315,7 +347,7 @@ export default function SingleHealthRecordPage({
                     size="sm"
                     variant="outline"
                     onClick={handleCancelTitleEdit}
-                    disabled={isUpdating}
+                    disabled={isPending}
                     className="!size-8 cursor-pointer p-0"
                   >
                     <X className="size-4" />
@@ -338,78 +370,27 @@ export default function SingleHealthRecordPage({
                     <Select
                       value={editedRecordType}
                       onValueChange={setEditedRecordType}
-                      disabled={isUpdating}
+                      disabled={isPending}
                     >
                       <SelectTrigger className="w-[200px] cursor-pointer">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem
-                          className="cursor-pointer"
-                          value="appointment"
-                        >
-                          Appointment
-                        </SelectItem>
-                        <SelectItem
-                          className="cursor-pointer"
-                          value="consultation"
-                        >
-                          Consultation
-                        </SelectItem>
-                        <SelectItem
-                          className="cursor-pointer"
-                          value="diagnosis"
-                        >
-                          Diagnosis
-                        </SelectItem>
-                        <SelectItem
-                          className="cursor-pointer"
-                          value="treatment"
-                        >
-                          Treatment
-                        </SelectItem>
-                        <SelectItem
-                          className="cursor-pointer"
-                          value="prescription"
-                        >
-                          Prescription
-                        </SelectItem>
-                        <SelectItem
-                          className="cursor-pointer"
-                          value="lab_result"
-                        >
-                          Lab Result
-                        </SelectItem>
-                        <SelectItem className="cursor-pointer" value="imaging">
-                          Imaging
-                        </SelectItem>
-                        <SelectItem
-                          className="cursor-pointer"
-                          value="procedure"
-                        >
-                          Procedure
-                        </SelectItem>
-                        <SelectItem
-                          className="cursor-pointer"
-                          value="vaccination"
-                        >
-                          Vaccination
-                        </SelectItem>
-                        <SelectItem
-                          className="cursor-pointer"
-                          value="imaging_report"
-                        >
-                          Imaging Report
-                        </SelectItem>
-                        <SelectItem className="cursor-pointer" value="other">
-                          Other
-                        </SelectItem>
+                        {REPORT_TYPES.map((report) => (
+                          <SelectItem
+                            key={report.id}
+                            className="cursor-pointer"
+                            value={report.id}
+                          >
+                            {report.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <Button
                       size="sm"
                       onClick={handleRecordTypeSave}
-                      disabled={isUpdating}
+                      disabled={isPending}
                       className="!size-8 cursor-pointer p-0"
                     >
                       <Check className="size-4" />
@@ -418,7 +399,7 @@ export default function SingleHealthRecordPage({
                       size="sm"
                       variant="outline"
                       onClick={handleCancelRecordTypeEdit}
-                      disabled={isUpdating}
+                      disabled={isPending}
                       className="!size-8 cursor-pointer p-0"
                     >
                       <X className="size-4" />
@@ -546,14 +527,14 @@ export default function SingleHealthRecordPage({
                   onChange={(e) => setEditedDescription(e.target.value)}
                   className="min-h-[120px]"
                   placeholder="Enter description..."
-                  disabled={isUpdating}
+                  disabled={isPending}
                 />
                 <div className="flex justify-end gap-2">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={handleCancelDescriptionEdit}
-                    disabled={isUpdating}
+                    disabled={isPending}
                   >
                     <X className="mr-2 size-4" />
                     Cancel
@@ -561,7 +542,7 @@ export default function SingleHealthRecordPage({
                   <Button
                     size="sm"
                     onClick={handleDescriptionSave}
-                    disabled={isUpdating}
+                    disabled={isPending}
                   >
                     <Check className="mr-2 size-4" />
                     Save

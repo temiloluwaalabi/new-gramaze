@@ -1,4 +1,4 @@
-import type { NextConfig } from 'next';
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // headers: async () => {
@@ -23,36 +23,40 @@ const nextConfig: NextConfig = {
   //     },
   //   ]);
   // },
-  serverExternalPackages: ['pino', 'pino-pretty'],
+  serverExternalPackages: ["pino", "pino-pretty"],
   experimental: {
     authInterrupts: true,
 
     serverActions: {
-      bodySizeLimit: '20mb',
+      bodySizeLimit: "20mb",
     },
   },
   /* config options here */
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '*',
+        protocol: "https",
+        hostname: "*",
       },
       {
-        protocol: 'http',
-        hostname: '*',
+        protocol: "http",
+        hostname: "*",
       },
       {
-        protocol: 'https',
-        hostname: 'https://borderpay-backend-t0h4.onrender.com',
+        protocol: "https",
+        hostname: "https://borderpay-backend-t0h4.onrender.com",
       },
       {
-        protocol: 'https',
-        hostname: 'https://flagcdn.com',
+        protocol: "https",
+        hostname: "https://gramaze.diklota.ng",
       },
       {
-        protocol: 'https',
-        hostname: 'https://res.cloudinary.com',
+        protocol: "https",
+        hostname: "https://flagcdn.com",
+      },
+      {
+        protocol: "https",
+        hostname: "https://res.cloudinary.com",
       },
     ],
   },

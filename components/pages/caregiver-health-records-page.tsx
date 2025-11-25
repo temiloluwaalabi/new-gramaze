@@ -25,6 +25,12 @@ type CaregiverHealthRecordsPageProps = {
 export default function CaregiverHealthRecordsPage({
   healthRecords,
 }: CaregiverHealthRecordsPageProps) {
+  const uniqueAppointmentStatus = [
+    ...new Set(healthRecords.map((item) => item.status)),
+  ].map((type) => ({
+    name: type || "",
+    value: type || "",
+  }));
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [recordTypeFilter, setRecordTypeFilter] = useState<string>("all");
@@ -210,7 +216,7 @@ export default function CaregiverHealthRecordsPage({
               variant={viewMode === "grid" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("grid")}
-              className="gap-2"
+              className="!h-fit gap-2 !py-2"
             >
               <Grid3x3 className="size-4" />
               <span className="hidden sm:inline">Grid</span>
@@ -219,7 +225,7 @@ export default function CaregiverHealthRecordsPage({
               variant={viewMode === "table" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("table")}
-              className="gap-2"
+              className="!h-fit gap-2 !py-2"
             >
               <List className="size-4" />
               <span className="hidden sm:inline">Table</span>
@@ -246,8 +252,15 @@ export default function CaregiverHealthRecordsPage({
               tableTitle: "Health Records",
               search: [
                 {
-                  columnKey: "title",
-                  placeholder: "Search records...",
+                  columnKey: "patient",
+                  placeholder: "Search Patient...",
+                },
+              ],
+              filters: [
+                {
+                  columnKey: "status",
+                  title: "Status",
+                  options: uniqueAppointmentStatus,
                 },
               ],
             }}

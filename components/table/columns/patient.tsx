@@ -1,10 +1,18 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { EllipsisVertical } from "lucide-react";
+import { EllipsisVertical, View } from "lucide-react";
 import Link from "next/link";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 // import { DEFAULT_IMAGE_URL } from "@/config/constants";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { User } from "@/types";
 
 // Helper function to calculate age from date of birth
@@ -177,14 +185,39 @@ export const PatientsColumn: ColumnDef<{
   {
     id: "actions",
     header: "Action",
-    cell: () => {
+    cell: ({ row }) => {
+      const patient = row.original;
       return (
-        <button
-          className="rounded p-1 transition-colors hover:bg-gray-100"
-          aria-label="More options"
-        >
-          <EllipsisVertical className="h-4 w-4 text-gray-500" />
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="cursor-pointer rounded p-1 transition-colors hover:bg-gray-100"
+              aria-label="More options"
+            >
+              <EllipsisVertical className="h-4 w-4 text-gray-500" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm leading-none font-medium">Actions</p>
+                <p className="text-muted-foreground text-xs leading-none">
+                  {patient.patient.email}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link
+                href={`/caregiver/patients/${patient.user_id}`}
+                className="flex cursor-pointer items-center"
+              >
+                <View className="mr-2 h-4 w-4" />
+                <span>View Patient</span>
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       );
     },
   },

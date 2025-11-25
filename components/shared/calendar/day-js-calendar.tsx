@@ -3,11 +3,14 @@ import {
   addDays,
   addMonths,
   endOfMonth,
+  endOfWeek,
   format,
   getDay,
   isSameDay,
+  isSameMonth,
   isToday,
   startOfMonth,
+  startOfWeek,
   subDays,
   subMonths,
 } from "date-fns";
@@ -23,7 +26,7 @@ import {
   CalendarIcon,
   SortDesc,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 // Add any necessary Day.js plugins
 
 import { getOtherUsersInfo } from "@/app/actions/auth.actions";
@@ -36,6 +39,13 @@ import { DataTable } from "@/components/table/data-table";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -90,6 +100,8 @@ export default function DayjsCalendar() {
   const [isGridView, setIsGridView] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [screenSize, setScreenSize] = useState("large");
+  const [sortBy, setSortBy] = useState<"date" | "name" | "status">("date");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   console.log("TABLE APPOINTMENT", events);
 
   console.log("EVENTS", events);
@@ -664,6 +676,87 @@ export default function DayjsCalendar() {
       </div>
     </div>
   );
+  const filteredData = useMemo(() => {
+    let filtered = AppointmentsData?.appointments?.data || [];
+
+    // Filter by date range based on current view
+    filtered = filtered.filter((appointment) => {
+      const appointmentDate = new Date(appointment.date);
+
+      if (viewType === "day") {
+        // Check if appointment is on the current day
+        return isSameDay(appointmentDate, currentDate);
+      } else if (viewType === "week") {
+        // Check if appointment is within the current week
+        const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 }); // Sunday
+        const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
+        return appointmentDate >= weekStart && appointmentDate <= weekEnd;
+      } else if (viewType === "month") {
+        // Check if appointment is within the current month
+        return isSameMonth(appointmentDate, currentDate);
+      }
+
+      return true;
+    });
+
+    // Filter by search query (search in caregiver name, patient name, or contact)
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter((appointment) => {
+        const caregiverName = appointment.caregiver
+          ? `${appointment.caregiver.first_name} ${appointment.caregiver.last_name}`.toLowerCase()
+          : "";
+        const patientName = appointment.patient
+          ? `${appointment.patient.first_name} ${appointment.patient.last_name}`.toLowerCase()
+          : "";
+        const contact = appointment.contact?.toLowerCase() || "";
+        const location = appointment.location?.toLowerCase() || "";
+        const hospitalName =
+          appointment.hospital_info?.name?.toLowerCase() || "";
+
+        return (
+          caregiverName.includes(query) ||
+          patientName.includes(query) ||
+          contact.includes(query) ||
+          location.includes(query) ||
+          hospitalName.includes(query)
+        );
+      });
+    }
+
+    // Sort the filtered data
+    filtered.sort((a, b) => {
+      if (sortBy === "date") {
+        const dateA = new Date(`${a.date} ${a.time}`).getTime();
+        const dateB = new Date(`${b.date} ${b.time}`).getTime();
+        return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+      } else if (sortBy === "name") {
+        const nameA = a.caregiver
+          ? `${a.caregiver.first_name} ${a.caregiver.last_name}`
+          : "";
+        const nameB = b.caregiver
+          ? `${b.caregiver.first_name} ${b.caregiver.last_name}`
+          : "";
+        return sortOrder === "asc"
+          ? nameA.localeCompare(nameB)
+          : nameB.localeCompare(nameA);
+      } else if (sortBy === "status") {
+        return sortOrder === "asc"
+          ? a.status.localeCompare(b.status)
+          : b.status.localeCompare(a.status);
+      }
+      return 0;
+    });
+
+    return filtered;
+  }, [
+    AppointmentsData?.appointments?.data,
+    searchQuery,
+    viewType,
+    currentDate,
+    sortBy,
+    sortOrder,
+  ]);
   return isGridView ? (
     <Card className="w-full border-none bg-transparent !p-0 shadow-none">
       <div className="">
@@ -800,13 +893,46 @@ export default function DayjsCalendar() {
           </div>
 
           <div className="flex w-full items-center justify-end space-x-2">
-            <Button className="!h-[40px] bg-transparent" variant="outline">
-              <SortDesc /> Sort by
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="!h-[40px] bg-transparent" variant="outline">
+                  <SortDesc /> Sort by
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => setSortBy("date")}
+                >
+                  Date {sortBy === "date" && `(${sortOrder})`}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => setSortBy("name")}
+                >
+                  Name {sortBy === "name" && `(${sortOrder})`}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => setSortBy("status")}
+                >
+                  Status {sortBy === "status" && `(${sortOrder})`}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() =>
+                    setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                  }
+                >
+                  Toggle Order ({sortOrder})
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <div className="relative w-full lg:w-fit">
               <Search className="absolute top-2.5 left-2 size-4 text-gray-400" />
               <Input
-                placeholder="Search client..."
+                placeholder="Search caregiver..."
                 className="h-[40px] w-full pl-8 lg:w-[296px]"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -840,7 +966,7 @@ export default function DayjsCalendar() {
           isLoading={isEnriching}
           columns={AppointmentColumn}
           tableClassname="bg-white border border-[#E7EBED] !rounded-lg"
-          data={AppointmentsData?.appointments?.data || []}
+          data={filteredData}
         />
       </div>
     </Card>

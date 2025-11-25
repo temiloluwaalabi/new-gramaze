@@ -10,6 +10,7 @@ export type ReportType =
   | "discharge_summary"
   | "immunization_record"
   | "allergy_record"
+  | "appointment"
   | "progress_report";
 
 export type NoteType = "caregiver_note" | "admin_note";
@@ -185,6 +186,43 @@ export const REPORT_TYPE_CONFIGS: Record<ReportType, ReportTypeConfig> = {
     ],
   },
 
+  appointment: {
+    type: "appointment",
+    label: "Appointment",
+    description: "Appointment documentation and details",
+    icon: "Calendar",
+    color: "cyan",
+    fields: [
+      {
+        name: "title",
+        label: "Appointment Title",
+        type: "text",
+        required: true,
+        placeholder: "e.g., Follow-up Consultation",
+      },
+      {
+        name: "content",
+        label: "Appointment Details",
+        type: "textarea",
+        required: true,
+        placeholder: "Document appointment details, reason for visit...",
+      },
+      {
+        name: "findings",
+        label: "Assessment",
+        type: "textarea",
+        required: false,
+        placeholder: "Clinical assessment during appointment...",
+      },
+      {
+        name: "recommendations",
+        label: "Plan",
+        type: "textarea",
+        required: false,
+        placeholder: "Treatment plan or next steps...",
+      },
+    ],
+  },
   diagnosis: {
     type: "diagnosis",
     label: "Diagnosis",

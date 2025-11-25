@@ -803,3 +803,91 @@ export const getCaregiverhealthRecords = async ({
     });
   }
 };
+export type UpdateHealthRecordPayload = {
+  id: number;
+  title?: string;
+  description?: string;
+  record_type?: string;
+  auto_generate_title?: boolean;
+  auto_generate_description?: boolean;
+};
+// Alternative version if you prefer to pass FormData directly
+export const UpdateHealthRecordWithFormData = async (
+  payload: UpdateHealthRecordPayload
+): Promise<
+  ServerActionResponse<{
+    id: number;
+    title: string;
+    description: string;
+    record_type: string;
+    updated_at: string;
+  }>
+> => {
+  try {
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      return {
+        success: false,
+        message: "No active session found",
+        statusCode: 401,
+        errorType: "AUTH_ERROR",
+      };
+    }
+
+    const response =
+      await caregiverServices.healthRecords.updateRecord(payload);
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+
+    const successResponse = response as unknown as {
+      success: true;
+      status: true;
+      message: string;
+      data: {
+        id: number;
+        title: string;
+        description: string;
+        record_type: string;
+        updated_at: string;
+      };
+    };
+
+    revalidatePath("/caregiver/health-records");
+    revalidatePath(`/caregiver/health-records/${payload.id}`);
+
+    return {
+      success: true,
+      message: successResponse.message,
+      data: successResponse.data,
+    };
+  } catch (error) {
+    console.error("Update Health Record ERROR:", error);
+
+    if (error instanceof ApiError) {
+      return {
+        success: false,
+        message: error.message,
+        errors: error.rawErrors as Record<string, string[]>,
+        statusCode: error.statusCode,
+        errorType: error.errorType,
+      };
+    }
+
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      statusCode: 500,
+      errorType: "UnknownError",
+    };
+  }
+};

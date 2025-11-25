@@ -15,11 +15,11 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   SortingState,
+  Table as TableT,
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -39,8 +39,11 @@ import { DataTablePagination } from "./components/pagination-comp";
 import { NewDataTableToolbar } from "./toolbars/new-table-toolbar";
 import { DataTableToolbar } from "./toolbars/transaction-table-toolbar";
 
-interface DataTableProps<TData, TValue, T extends FilterValue> {
-  isLoading?: boolean;
+interface DataTableProps<
+  TData,
+  TValue extends FilterValue,
+  T extends FilterValue,
+> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   newToolbar?: {
@@ -51,6 +54,25 @@ interface DataTableProps<TData, TValue, T extends FilterValue> {
       columnKey: string;
       placeholder: string;
     }[];
+    filters?: {
+      columnKey: string;
+      title: string;
+      options?: FilterOption<FilterValue>[];
+    }[];
+    // Custom elements to render in the toolbar
+    customElements?: ReactNode | ((table: TableT<TData>) => ReactNode);
+    // Action buttons (like export, add new, etc.)
+    actionButtons?: ReactNode | ((table: TableT<TData>) => ReactNode);
+    showUpcoming?: boolean;
+    showExport?: boolean;
+    upcomingKey?: string;
+    showDateRange?: boolean;
+    dateRangeKey?: string;
+    showBulkDelete?: boolean; // Add this line
+    bulkDeleteConfig?: {
+      onDeleteSuccess?: () => void;
+      confirmMessage?: string;
+    };
   };
   // Toolbar configuration
   toolbar?: {
@@ -93,9 +115,12 @@ interface DataTableProps<TData, TValue, T extends FilterValue> {
   };
 }
 
-export function DataTable<TData, TValue, T extends FilterValue>({
+export function DataTable<
+  TData extends { id: string | number },
+  TValue extends FilterValue,
+  T extends FilterValue,
+>({
   columns,
-  isLoading,
   data,
   tableClassname,
   bodyCellClassname,
@@ -158,7 +183,11 @@ export function DataTable<TData, TValue, T extends FilterValue>({
       columnFilters,
       rowSelection,
       sorting,
-      columnVisibility,
+      columnVisibility: {
+        ...columnVisibility,
+        assignedCaregiver: false, // Hide from display
+        role: false,
+      },
     },
 
     debugTable: debug.table,
@@ -167,9 +196,7 @@ export function DataTable<TData, TValue, T extends FilterValue>({
   });
 
   return (
-    <div className="w-full space-y-4">
-      {" "}
-      {/* Add w-full here */}
+    <div className="space-y-4 !pt-0">
       {toolbar.show && (
         <DataTableToolbar
           table={table}
@@ -179,108 +206,120 @@ export function DataTable<TData, TValue, T extends FilterValue>({
         />
       )}
       {newToolbar.show && (
-        <NewDataTableToolbar
+        <NewDataTableToolbar<TData, TValue>
           tableTitle={newToolbar.tableTitle || ""}
           tableDescription={newToolbar.tableDescription}
           table={table}
           searches={newToolbar.search}
-          // filters={newToolbar.filters}
+          filters={
+            newToolbar.filters as {
+              columnKey: string;
+              title: string;
+              options?: FilterOption<TValue>[];
+            }[]
+          }
+          customElements={newToolbar.customElements}
+          actionButtons={newToolbar.actionButtons}
+          showUpcoming={newToolbar.showUpcoming}
+          showExport={newToolbar.showExport}
+          upcomingKey={newToolbar.upcomingKey}
+          showDateRange={newToolbar.showDateRange}
+          dateRangeKey={newToolbar.dateRangeKey}
           // showResetButton={newToolbar.showResetButton}
         />
       )}
-      <Table
-        className={cn(
-          "!custom-scrollbar !custom-scrollbar-x !rounded-md",
-          tableClassname
-        )}
-        // style={{ width: table.getCenterTotalSize() }}
-      >
-        <TableHeader className="bg-blue-500 hover:bg-blue-300">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="text-white">
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead
-                    key={header.id}
-                    className={cn(
-                      "border px-4 py-3 text-white",
-                      {
-                        "cursor-pointer select-none":
-                          enableSorting && header.column.getCanSort(),
-                        "resize-handle": enableColumnResizing,
-                      },
-                      headerCellClassName
-                    )}
-                    style={
-                      enableColumnResizing
-                        ? { width: header.getSize() }
-                        : undefined
-                    }
-                    colSpan={header.colSpan}
-                    // style={{ width: header.getSize() }}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                className={cn(
-                  "group hover:bg-muted/50 bg- cursor-pointer",
-                  {
-                    "bg-muted/50": row.getIsSelected(),
-                  },
-                  bodyRowClassname
-                )}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className={cn(
-                      "px-4 py-4 text-xs md:text-sm lg:text-base",
-                      bodyCellClassname
-                    )}
-                    style={
-                      enableColumnResizing
-                        ? { width: cell.column.getSize() }
-                        : undefined
-                    }
-                    // style={{ width: cell.column.getSize() }}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : isLoading ? (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                <div className="flex items-center justify-center">
-                  <Loader2 className="me-2 size-4 animate-spin" />
-                  <span>fetching data..</span>
-                </div>
-              </TableCell>
-            </TableRow>
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No Results
-              </TableCell>
-            </TableRow>
+      <div className="!custom-scrollbar">
+        <Table
+          className={cn(
+            "!custom-scrollbar !rounded-lg !border",
+            tableClassname
           )}
-        </TableBody>
-      </Table>
+          // style={{ width: table.getCenterTotalSize() }}
+        >
+          <TableHeader className="bg-[#F3F4F6] text-black">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id} className="text-white">
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead
+                      key={header.id}
+                      className={cn(
+                        "border px-4 py-3 font-semibold text-[#1F2937]",
+                        {
+                          "cursor-pointer select-none":
+                            enableSorting && header.column.getCanSort(),
+                          "resize-handle": enableColumnResizing,
+                        },
+                        headerCellClassName
+                      )}
+                      style={
+                        enableColumnResizing
+                          ? { width: header.getSize() }
+                          : undefined
+                      }
+                      colSpan={header.colSpan}
+                      // style={{ width: header.getSize() }}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  className={cn(
+                    "group hover:bg-muted/50 bg- cursor-pointer",
+                    {
+                      "bg-muted/50": row.getIsSelected(),
+                    },
+                    bodyRowClassname
+                  )}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        "px-4 py-4 text-xs md:text-sm lg:text-base",
+                        bodyCellClassname
+                      )}
+                      style={
+                        enableColumnResizing
+                          ? { width: cell.column.getSize() }
+                          : undefined
+                      }
+                      // style={{ width: cell.column.getSize() }}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No Results
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
       {pagination.show && <DataTablePagination table={table} />}
     </div>
   );

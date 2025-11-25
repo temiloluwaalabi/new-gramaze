@@ -1,3 +1,16 @@
+import { ColumnDef } from "@tanstack/react-table";
+import {
+  MoreHorizontal,
+  FileText,
+  ShipWheelIcon,
+  Pencil,
+  Archive,
+} from "lucide-react";
+import Link from "next/link";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -5,14 +18,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "@radix-ui/react-dropdown-menu";
-import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, FileText, ShipWheelIcon } from "lucide-react";
-import Link from "next/link";
-
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+} from "@/components/ui/dropdown-menu";
 import { REPORT_TYPE_CONFIGS } from "@/lib/health-record-types";
 import { formatDate, initialsFromName } from "@/lib/utils";
 import { HealthRecordRow } from "@/types";
@@ -101,6 +107,8 @@ export const HealthRecordsColumn: ColumnDef<HealthRecordRow>[] = [
   },
   {
     id: "patient",
+    accessorKey: "patient",
+    accessorFn: (row) => row.patient?.first_name,
     header: "Patient",
     cell: ({ row }) => {
       const record = row.original;
@@ -129,6 +137,13 @@ export const HealthRecordsColumn: ColumnDef<HealthRecordRow>[] = [
             <span className="text-xs text-gray-500">{patient.email}</span>
           </div>
         </div>
+      );
+    },
+    filterFn: (row, columnId, filterValue) => {
+      const cellValue = row.getValue(columnId);
+      return (
+        typeof cellValue === "string" &&
+        cellValue.toLowerCase().includes(filterValue.toLowerCase())
       );
     },
   },
@@ -216,44 +231,57 @@ export const HealthRecordsColumn: ColumnDef<HealthRecordRow>[] = [
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => {
-                /* Handle view */
-              }}
-            >
-              <FileText className="mr-2 h-4 w-4" />
-              View Details
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                /* Handle edit */
-              }}
-            >
-              Edit Record
-            </DropdownMenuItem>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm leading-none font-medium">Actions</p>
+              </div>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {record.status === "pending" && (
+
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={(e) => e.preventDefault()}
+            >
+              <Link
+                href={`/caregiver/health-records/${record.id}`}
+                className="flex cursor-pointer items-center"
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                <span>View Details</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={(e) => {
+                /* Handle edit */
+                e.preventDefault();
+              }}
+              className="cursor-pointer"
+            >
+              <Link
+                href={`/caregiver/health-records/${record.id}`}
+                className="flex cursor-pointer items-center"
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                <span>Edit Record</span>
+              </Link>
+            </DropdownMenuItem>
+            {/* {record.status === "pending" && (
               <>
                 <DropdownMenuItem
-                  onClick={() => {
-                    /* Handle approve */
-                  }}
+                
                   className="text-green-600"
                 >
                   Approve Record
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => {
-                    /* Handle reject */
-                  }}
+                
                   className="text-red-600"
                 >
                   Reject Record
                 </DropdownMenuItem>
               </>
-            )}
+            )} */}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
@@ -261,7 +289,8 @@ export const HealthRecordsColumn: ColumnDef<HealthRecordRow>[] = [
               }}
               className="text-orange-600"
             >
-              Archive Record
+              <Archive className="mr-2 h-4 w-4" />
+              <span>Archive Record</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
