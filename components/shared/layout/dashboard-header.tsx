@@ -18,12 +18,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { SearchableData } from "@/lib/search/search-types";
 import { initialsFromName } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 
 import PageTitleHeader from "../page-title-header";
-
-import { SearchableData } from "@/lib/search/search-types";
 
 type Props = {
   isCare?: boolean;
