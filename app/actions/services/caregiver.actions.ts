@@ -559,3 +559,63 @@ export const getSingleHealthRecord = async (
     };
   }
 };
+export const getHealthRecordsByUserId = async (
+  health_record_id: string
+): Promise<ServerActionResult<HealthRecordRow[]>> => {
+  try {
+    if (!health_record_id || typeof health_record_id !== "string") {
+      return {
+        success: false,
+        message: "Caregiver ID is required",
+        errors: ["Caregiver ID is required"],
+      };
+    }
+
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      return {
+        success: false,
+        message: "Authentication required",
+        errors: ["Please log in to continue"],
+      };
+    }
+
+    const response =
+      await caregiverServices.healthRecords.getHealthRecordByUSERID(
+        health_record_id
+      );
+
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      return {
+        success: false,
+        message: apiError.message,
+      };
+    }
+
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: HealthRecordRow[];
+    };
+
+    return {
+      success: true,
+      message:
+        successResponse.message || "Patient details retrieved successfully",
+      data: successResponse.data,
+    };
+  } catch (error) {
+    console.error("Get patient History Details Error:", error);
+
+    // Handle unexpected errors
+    return {
+      success: false,
+      message: "An unexpected error occurred",
+      errors: [
+        error instanceof Error ? error.message : "An unknown error occurred",
+      ],
+    };
+  }
+};

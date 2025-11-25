@@ -145,7 +145,7 @@ export function ViewReportDialog({
                 <div className="flex items-center justify-between rounded-[6px] bg-[#F9FAFB] p-3">
                   <span className="text-sm text-[#66666B]">File Name</span>
                   <span className="text-sm font-medium text-[#303030]">
-                    {report.report_file}
+                    {report.report_name}
                   </span>
                 </div>
                 <div className="flex items-center justify-between rounded-[6px] bg-[#F9FAFB] p-3">
@@ -157,10 +157,9 @@ export function ViewReportDialog({
                 <div className="flex items-center justify-between rounded-[6px] bg-[#F9FAFB] p-3">
                   <span className="text-sm text-[#66666B]">Uploaded By</span>
                   <span className="text-sm font-medium text-[#303030]">
-                    {/* {report.caregiver
+                    {report.caregiver
                       ? `${report.caregiver.first_name} ${report.caregiver.last_name}`
-                      : 'Dr. Sarah Johnson'} */}
-                    Dr. Sarah Johnson
+                      : "Dr. Sarah Johnson"}
                   </span>
                 </div>
                 {report.health_record_id && (

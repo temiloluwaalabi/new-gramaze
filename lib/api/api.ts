@@ -821,6 +821,12 @@ export const caregiverServices = {
         "GET"
       );
     },
+    getHealthRecordByUSERID: async (patient_id: string) => {
+      return makeApiRequest<HealthRecordRow[]>(
+        `/health/user/records/by/userid?${patient_id}`,
+        "GET"
+      );
+    },
   },
 };
 export const billingService = {

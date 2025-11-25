@@ -330,6 +330,12 @@ export type HealthReport = {
     last_name: string;
     email: string;
   };
+  caregiver: {
+    user_id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
 };
 export type HealthNote = {
   health_record_id: number;

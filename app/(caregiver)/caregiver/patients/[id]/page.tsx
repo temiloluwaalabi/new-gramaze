@@ -6,7 +6,10 @@ import {
   getPatientHealthNotes,
   getPatientHealthReports,
 } from "@/app/actions/caregiver-patient.actions";
-import { getPatientHistoryDetails } from "@/app/actions/services/caregiver.actions";
+import {
+  getHealthRecordsByUserId,
+  getPatientHistoryDetails,
+} from "@/app/actions/services/caregiver.actions";
 import { getAllHealthMetrics } from "@/app/actions/services/health.tracker.actions";
 import { getSession } from "@/app/actions/session.actions";
 import SinglePatientDetailsPage from "@/components/pages/single-patient-details-page";
@@ -20,6 +23,8 @@ export default async function CaregiverPatientDash({
   const id = (await params).id;
 
   const patient = await getPatientHistoryDetails(id.toString());
+
+  const patientRecords = await getHealthRecordsByUserId(id.toString());
 
   const patientReport = await getPatientHealthReports(id.toString());
   const patientNotes = await getPatientHealthNotes(id.toString());
@@ -63,6 +68,7 @@ export default async function CaregiverPatientDash({
       appointments={upcomingAppointments}
       patientReports={patientReport.data || []}
       patientNotes={patientNotes.data || []}
+      healthRecords={patientRecords.data || []}
     />
   );
 }

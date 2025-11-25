@@ -38,7 +38,13 @@ import {
   initialsFromName,
 } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
-import { Appointment, HealthNote, HealthReport, User } from "@/types";
+import {
+  Appointment,
+  HealthNote,
+  HealthRecordRow,
+  HealthReport,
+  User,
+} from "@/types";
 
 import AddHealthVitals from "../dialogs/add-health-vitals";
 import AddNoteDialog from "../dialogs/add-note-dialog";
@@ -97,6 +103,7 @@ type SinglePatientDetailsPageProps = {
   }[];
   patientReports: HealthReport[];
   patientNotes: HealthNote[];
+  healthRecords: HealthRecordRow[];
 };
 
 export default function SinglePatientDetailsPage({
@@ -929,6 +936,11 @@ export default function SinglePatientDetailsPage({
                       <div className="flex-1">
                         <div className="mb-2 flex items-start justify-between">
                           <div className="flex-1">
+                            {note.title && (
+                              <h2 className="mb-2 text-base font-medium">
+                                {note.title}
+                              </h2>
+                            )}
                             <QuillPreview
                               value={note.notes}
                               className="prose prose-sm dark:text-light-200/80 dark:[&_p]:text-light-400 dark:[&_span]:!text-light-400 -mt-2 line-clamp-2 max-w-none text-sm text-[#303030] group-hover:text-blue-600 [&_.ql-editor]:flex [&_.ql-editor]:flex-col [&_.ql-editor]:gap-2 [&_.ql-editor]:!p-0 [&_.ql-editor]:px-0 [&_.ql-editor]:text-sm [&_h2]:hidden [&_h4]:text-sm [&_li]:text-sm [&_p]:text-sm [&_p]:leading-[25px] [&_p]:font-normal [&_p]:tracking-wide [&_p]:!text-black [&_p_br]:hidden [&_p:first-of-type]:line-clamp-2 [&_p:not(:first-of-type)]:hidden [&_span]:!bg-transparent [&_span]:!text-black [&_ul]:space-y-3"
@@ -972,7 +984,6 @@ export default function SinglePatientDetailsPage({
               {/* Add Note Button */}
               <AddNoteDialog
                 patient_id={patient.id || 0}
-                health_record_id={1}
                 dialogTrigger={
                   <Button className="ml-auto flex !h-[45px] w-fit text-sm font-normal">
                     <Plus className="mr-2 size-4" /> Add note
