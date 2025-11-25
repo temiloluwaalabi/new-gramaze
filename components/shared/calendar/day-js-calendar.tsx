@@ -963,7 +963,6 @@ export default function DayjsCalendar() {
         </div>
 
         <DataTable
-          isLoading={isEnriching}
           columns={AppointmentColumn}
           tableClassname="bg-white border border-[#E7EBED] !rounded-lg"
           data={filteredData}
