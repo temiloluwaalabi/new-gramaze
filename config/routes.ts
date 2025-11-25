@@ -16,6 +16,7 @@ export const allRoutes = {
     dashboard: {
       home: { url: "/dashboard" },
       appointment: { url: "/dashboard/appointment" },
+
       scheduleAppointment: {
         url: "/dashboard/appointment/schedule",
       },
@@ -35,6 +36,9 @@ export const allRoutes = {
   caregiver: {
     home: { url: "/caregiver" },
     appointments: { url: "/caregiver/appointments" },
+    healthRecord: {
+      url: "/caregiver/health-records",
+    },
     helpCenter: { url: "/caregiver/help-center" },
     messages: { url: "/caregiver/messages" },
     messageChat: { url: "/caregiver/messages/chat" },

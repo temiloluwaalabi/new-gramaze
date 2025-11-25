@@ -197,6 +197,11 @@ export const LoginAction = async (
     console.log("RESPONSE", successResponse);
 
     await LoginSession(successResponse.data.user, successResponse.data.token);
+
+    if (successResponse.data.user.user_role === "caregiver") {
+      await RegisterStepTwoSession();
+    }
+
     if (successResponse.data.user.factor_authentication === "yes") {
       const token = await Resend2faOTP(
         {

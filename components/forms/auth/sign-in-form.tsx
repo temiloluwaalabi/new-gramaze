@@ -41,7 +41,10 @@ export default function SignInForm() {
         if (data.data?.status) {
           login(data.data.user);
 
-          if (data.data.user.factor_authentication === "yes") {
+          if (
+            data.data.user.factor_authentication === "yes" &&
+            data.data.user.user_role !== "caregiver"
+          ) {
             setCurrentStep(currentStep + 1);
           } else {
             toast.success("Login successful! Redirecting to Dashboard");

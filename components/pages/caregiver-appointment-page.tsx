@@ -1,20 +1,20 @@
 "use client";
-import { Calendar, CalendarIcon, List, Search } from "lucide-react";
-import React, { useState } from "react";
+import { Calendar } from "lucide-react";
+import React from "react";
 import { Button } from "react-day-picker";
 
-import { cn, transformAppointmentData } from "@/lib/utils";
+import { transformAppointmentData } from "@/lib/utils";
 import { Appointment } from "@/types";
 
 import { CaregiverAppointmentWidget } from "../shared/widget/caregiver-appointment-widget";
-import { Input } from "../ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+// import { Input } from "../ui/input";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "../ui/select";
 
 type CaregiverAppointmentClientPageProps = {
   appointments: Appointment[];
@@ -23,15 +23,15 @@ type CaregiverAppointmentClientPageProps = {
 export default function CaregiverAppointmentClientPage({
   appointments,
 }: CaregiverAppointmentClientPageProps) {
-  const [isGridView, setIsGridView] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  // const [isGridView, setIsGridView] = useState(false);
+  // const [searchQuery, setSearchQuery] = useState("");
   const transformedData =
     appointments.length > 0 ? transformAppointmentData(appointments) : [];
 
   // Toggle between Grid and List view
-  const toggleGridView = () => {
-    setIsGridView(!isGridView);
-  };
+  // const toggleGridView = () => {
+  //   setIsGridView(!isGridView);
+  // };
   return (
     <section className="h-full gap-6 space-y-3 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
       <div className="rounded-[6px] bg-white p-6">
@@ -44,7 +44,7 @@ export default function CaregiverAppointmentClientPage({
             </div>
           </div>
 
-          <div className="flex w-full items-center justify-between space-x-2 lg:justify-end">
+          {/* <div className="flex w-full items-center justify-between space-x-2 lg:justify-end">
             <div className="flex overflow-hidden rounded-md border">
               <Select>
                 <SelectTrigger className="cursor-pointer">
@@ -96,7 +96,7 @@ export default function CaregiverAppointmentClientPage({
                 <List className="size-4" />
               </span>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Appointments Section with Empty State */}

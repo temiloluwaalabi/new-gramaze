@@ -20,6 +20,7 @@ import {
   lgas,
   HealthReport,
   HealthNote,
+  HealthRecordRow,
 } from "@/types";
 
 import { ApiError, backendAPiClient } from "./api-client";
@@ -795,6 +796,32 @@ export const caregiverServices = {
       );
     },
   },
+  healthRecords: {
+    getAllHealthRecords: async ({
+      per_page,
+      page,
+    }: {
+      per_page?: number;
+      page?: number;
+    } = {}) => {
+      return makeApiRequest<HealthRecordRow[]>(
+        `/health/caregiver/records/all`,
+        "GET",
+        {
+          params: {
+            ...(per_page && { per_page }),
+            ...(page && { page }),
+          },
+        }
+      );
+    },
+    getHealthRecordByID: async (patient_id: string) => {
+      return makeApiRequest<HealthRecordRow>(
+        `/admin/health-record/${patient_id}`,
+        "GET"
+      );
+    },
+  },
 };
 export const billingService = {
   getAvailablePlans: async () => {
@@ -1033,11 +1060,10 @@ export const adminServices = {
         status: true;
         message: string;
         user: User;
-      }>(`${gramazeEndpoints.admin.user.actions.view}`, "GET", {
-        params: {
-          user_id: userId,
-        },
-      });
+      }>(
+        `${gramazeEndpoints.admin.user.actions.view}?user_id=${userId}`,
+        "GET"
+      );
     },
     getAllUsers: async () => {
       return makeApiRequest<{

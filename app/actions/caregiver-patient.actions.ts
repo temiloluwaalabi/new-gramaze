@@ -4,7 +4,13 @@ import { revalidatePath } from "next/cache";
 
 import { adminServices, caregiverServices } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
-import { HealthNote, HealthReport, ServerActionResponse, User } from "@/types";
+import {
+  HealthNote,
+  HealthRecordRow,
+  HealthReport,
+  ServerActionResponse,
+  User,
+} from "@/types";
 
 import { getSession } from "./session.actions";
 
@@ -732,5 +738,67 @@ export const getPatientHealthNotes = async (
       statusCode: 500,
       errorType: "UnknownError",
     };
+  }
+};
+export const getCaregiverhealthRecords = async ({
+  per_page,
+}: {
+  per_page?: number;
+} = {}): Promise<ServerActionResponse<HealthRecordRow[]>> => {
+  try {
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      return {
+        success: false,
+        message: "No active session found",
+        statusCode: 401,
+        errorType: "AUTH_ERROR",
+      };
+    }
+    const response = await caregiverServices.healthRecords.getAllHealthRecords({
+      per_page,
+    });
+
+    // Check for API error properly
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+      console.log("AYPGS", response);
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+
+    console.log("RESPONSE  HIS", response);
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: HealthRecordRow[];
+    };
+    return {
+      success: true,
+      message: successResponse.message,
+      data: successResponse.data,
+      // patients: successResponse.data.data.map((history) => history.patient), // For backward compatibility
+    };
+  } catch (error) {
+    console.error("Get Caregiver History Error:", error);
+
+    // If it's already an ApiError, re-throw it
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    // For other errors, wrap in ApiError
+    throw new ApiError({
+      statusCode: 500,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      errorType: "UnknownError",
+    });
   }
 };

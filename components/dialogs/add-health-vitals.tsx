@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Pencil, PlusIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -46,6 +47,7 @@ type Props = {
     created_at: string;
     updated_at: string;
   }[];
+  health_record_id?: number;
 };
 
 export default function AddHealthVitals({
@@ -53,6 +55,7 @@ export default function AddHealthVitals({
   edit,
   data,
   caregiver_id,
+  health_record_id,
   user_id,
   metrics,
 }: Props) {

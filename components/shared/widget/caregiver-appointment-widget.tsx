@@ -1,5 +1,14 @@
 // @flow
-import { Calendar, Clock, Ellipsis, MapPin, Video, View } from "lucide-react";
+import {
+  Book,
+  Calendar,
+  Clock,
+  Ellipsis,
+  MapPin,
+  Video,
+  View,
+} from "lucide-react";
+import Link from "next/link";
 import * as React from "react";
 
 import { CaregiverAppointmentSheet } from "@/components/sheets/caregiver-appointment-sheet";
@@ -102,6 +111,17 @@ export const CaregiverAppointmentWidget = ({ appointment, isHori }: Props) => {
                   </DropdownMenuItem>
                 }
               />
+              {appointment.health_record_id !== null && (
+                <DropdownMenuItem className="cursor-pointer">
+                  <Link
+                    href={`/caregiver/health-records/${appointment.health_record_id}`}
+                    className="flex cursor-pointer items-center"
+                  >
+                    <View className="mr-2 h-4 w-4" />
+                    <span>View Health Record</span>
+                  </Link>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -125,12 +145,6 @@ export const CaregiverAppointmentWidget = ({ appointment, isHori }: Props) => {
             <Clock className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
             <span className="text-xs font-normal text-[#66666B] sm:text-sm">
               {appointment.startTime} - {appointment.endTime}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="size-4 flex-shrink-0 text-gray-500 sm:size-5" />
-            <span className="text-xs font-normal text-[#66666B] capitalize sm:text-sm">
-              {appointment.appointment_type} Appointment
             </span>
           </div>
 
@@ -161,6 +175,18 @@ export const CaregiverAppointmentWidget = ({ appointment, isHori }: Props) => {
               </div>
             </div>
           ) : null}
+
+          {appointment.health_record_id !== null && (
+            <Link
+              href={`/caregiver/health-records/${appointment.health_record_id}`}
+              className="flex w-fit items-center gap-2 rounded-md bg-blue-600 px-2 py-2 !text-white"
+            >
+              <Book className="size-4 flex-shrink-0 text-white sm:size-5" />
+              <span className="text-xs font-normal text-white capitalize sm:text-sm">
+                View Health Record
+              </span>
+            </Link>
+          )}
         </div>
       </div>
     </div>

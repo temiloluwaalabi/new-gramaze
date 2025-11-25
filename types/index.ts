@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { HealthTracker } from "@/lib/health-tracker-utils";
+
 // Common types
 type Status = "Completed" | "Cancelled" | "Pending";
 // type ActionOptions = 'view' | 'edit' | 'delete';
@@ -109,6 +112,7 @@ export interface Appointment {
   id: number;
   user_id: string;
   caregiver_id: string | number;
+  health_record_id: number | null;
   appointment_type: "virtual" | "physical";
   visit_type: "home" | "hospital" | null;
   date: string;
@@ -341,3 +345,35 @@ export type HealthNote = {
   id: number;
   caregiver: User;
 };
+
+export interface HealthRecordRow {
+  id: number;
+  patient_id: number;
+  appointment_id: number | null;
+  title: string;
+  record_type: string;
+  description: string;
+  status: "pending" | "approved" | "rejected";
+  created_by_id: number;
+  created_by_name: string | null;
+  health_tracker_ids: number[] | null;
+  health_noted_id: number | null;
+  health_report_id: number | null;
+  created_at: string;
+  updated_at: string;
+  patient: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+  } | null;
+  appointment: Appointment;
+  trackers: HealthTracker[];
+  notes: HealthNote[];
+  reports: HealthReport[];
+  creator: {
+    id: number;
+    first_name: string;
+    last_name: string;
+  };
+}

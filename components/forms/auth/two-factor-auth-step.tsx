@@ -117,6 +117,7 @@ export const TwoFactorStep = ({
       );
 
       if (data.success) {
+        registerForm.reset();
         toast.success("Login successful! Redirecting to Dashboard");
         router.push(`${allRoutes.user.dashboard.home.url}`);
         // setCurrentStep(1);

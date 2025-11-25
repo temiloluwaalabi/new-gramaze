@@ -97,6 +97,11 @@ export const CAREGIVER_SIDEBAR_ITEMS: SidebarItem[] = [
     icon: CalendarBlankIcon,
   },
   {
+    name: "Health Records",
+    href: allRoutes.caregiver.healthRecord.url,
+    icon: HeartbeatIcon,
+  },
+  {
     name: "Patients",
     href: allRoutes.caregiver.patients.url,
     icon: UserThreeIcon,
