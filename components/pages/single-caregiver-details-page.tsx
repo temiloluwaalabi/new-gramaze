@@ -1,9 +1,8 @@
 "use client";
 import { Mail, Star } from "lucide-react";
-import Image from "next/image";
 import React from "react";
 
-import { formatDate } from "@/lib/utils";
+import { formatDate, initialsFromName } from "@/lib/utils";
 
 import { RatingWidget } from "../shared/rating-widget";
 import { CaregiverHistory } from "../table/columns/caregiver-history";
@@ -49,25 +48,33 @@ export default function SingleCaregiverDetailsPage({
 }: SingleCaregiverDetailsPageProps) {
   return (
     <section className="space-y-3 px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
-      <div className="flex flex-col gap-1">
+      {/* <div className="flex flex-col gap-1">
         <span className="text-lg font-medium text-black"> Adanma Pepple</span>{" "}
         <span className="text-sm font-normal text-[#66666b]">
           Supporting Nurse
         </span>
-      </div>
+      </div> */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="space-y-4 rounded-md border border-[#E8E8E8] bg-white p-6">
           <h6 className="text-base font-medium text-[#333]">
             Caregiver Profile
           </h6>
           <div className="flex items-center gap-3">
-            <Image
+            {/* <Image
               src="https://res.cloudinary.com/davidleo/image/upload/v1744896654/aa876a7a2f9aac97c39f34649357f02b_eqqhqh.jpg"
               width={90}
               height={90}
               className="size-[90px] rounded-[8px] object-cover"
               alt="mainImage"
-            />
+            /> */}
+            <div className="flex size-[90px] items-center justify-center rounded-[8px] bg-blue-100 text-sm font-medium text-blue-600">
+              {initialsFromName(
+                [caregiver?.first_name, caregiver?.last_name]
+                  .filter(Boolean)
+                  .join(" ")
+                  .trim()
+              )}
+            </div>
             <div className="space-y-1">
               <h4 className="text-base font-semibold text-[#303030]">
                 {caregiver.first_name} {caregiver.last_name}

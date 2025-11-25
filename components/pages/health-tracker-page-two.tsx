@@ -324,6 +324,9 @@ export const HealthTrackerPageTwo = ({
                           <div className="flex-1">
                             <div className="mb-2 flex items-start justify-between">
                               <div className="flex-1">
+                                <h2 className="mb-2 text-base font-medium">
+                                  {note.title}
+                                </h2>
                                 <QuillPreview
                                   value={note.notes}
                                   className="prose prose-sm dark:text-light-200/80 dark:[&_p]:text-light-400 dark:[&_span]:!text-light-400 -mt-2 line-clamp-2 max-w-none text-sm text-[#303030] group-hover:text-blue-600 [&_.ql-editor]:flex [&_.ql-editor]:flex-col [&_.ql-editor]:gap-2 [&_.ql-editor]:!p-0 [&_.ql-editor]:px-0 [&_.ql-editor]:text-sm [&_h2]:hidden [&_h4]:text-sm [&_li]:text-sm [&_p]:text-sm [&_p]:leading-[25px] [&_p]:font-normal [&_p]:tracking-wide [&_p]:!text-black [&_p_br]:hidden [&_p:first-of-type]:line-clamp-2 [&_p:not(:first-of-type)]:hidden [&_span]:!bg-transparent [&_span]:!text-black [&_ul]:space-y-3"
@@ -336,7 +339,10 @@ export const HealthTrackerPageTwo = ({
                                 )}
                             </div>
                             <div className="flex items-center gap-2 text-xs text-gray-500">
-                              <span>By {note.created_by_name}</span>
+                              <span>
+                                By {note.caregiver.first_name}{" "}
+                                {note.caregiver.last_name}
+                              </span>
                               <span>•</span>
                               <span>{formatDate(note.created_at)}</span>
                               {typeof note.attachments === "string" &&
@@ -544,7 +550,7 @@ export const HealthTrackerPageTwo = ({
                         <div className="group cursor-pointer space-y-4 rounded-md border border-[#E8E8E8] p-4 hover:border-blue-500 hover:bg-blue-100">
                           <div className="flex flex-col gap-1 border-b border-b-[#E8E8E8] pb-[12px] group-hover:border-b-blue-500">
                             <h2 className="text-left text-base font-semibold text-[#333] group-hover:text-blue-500">
-                              {note.title} Title
+                              {note.title}
                             </h2>
                             <QuillPreview
                               value={note.notes}

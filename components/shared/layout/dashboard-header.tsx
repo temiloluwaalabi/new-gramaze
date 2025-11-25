@@ -6,7 +6,7 @@ import React, { useState } from "react";
 
 import { GlobalSearchDialog } from "@/components/dialogs/global-search-dialog";
 import { LogoutModal } from "@/components/dialogs/logout-modal";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -110,7 +110,7 @@ export default function DashboardHeader(props: Props) {
           {/* Avatar Dropdown Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar className="cursor-pointer">
+              <Avatar className="size-10 cursor-pointer">
                 <AvatarFallback className="bg-blue-100 text-blue-600">
                   {initialsFromName(
                     [user?.first_name, user?.last_name]
@@ -119,6 +119,7 @@ export default function DashboardHeader(props: Props) {
                       .trim()
                   )}
                 </AvatarFallback>
+                {user?.image && <AvatarImage src={user.image} />}
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">

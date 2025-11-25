@@ -96,10 +96,14 @@ export function ViewNoteDialog({
               📝
             </div>
             <div className="flex-1 space-y-2">
+              {note.title && <h2>{note.title}</h2>}
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <span>Added {formatDate(note.created_at)}</span>
                 <span>•</span>
-                <span>By {note.created_by_name || "Unknown"}</span>
+                <span>
+                  By {note.caregiver.first_name || "Unknown"}{" "}
+                  {note.caregiver.last_name}
+                </span>
               </div>
               {note.health_record_id && (
                 <div className="flex items-center gap-2">

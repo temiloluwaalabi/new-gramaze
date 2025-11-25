@@ -9,6 +9,7 @@ import {
   List,
   Loader2,
 } from "lucide-react";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 import { toast } from "sonner";
@@ -377,21 +378,24 @@ export const MainUserDashboard = ({
               Basic Information
             </h4>
             <div className="flex items-center gap-3">
-              <div className="flex size-[90px] items-center justify-center rounded-[8px] bg-blue-100 text-sm font-medium text-blue-600">
-                {initialsFromName(
-                  [user?.first_name, user?.last_name]
-                    .filter(Boolean)
-                    .join(" ")
-                    .trim()
-                )}
-              </div>
-              {/* <Image
-                src="https://res.cloudinary.com/davidleo/image/upload/v1744896654/aa876a7a2f9aac97c39f34649357f02b_eqqhqh.jpg"
-                width={90}
-                height={90}
-                className="size-[90px] rounded-[8px] object-cover"
-                alt="mainImage"
-              /> */}
+              {user?.image ? (
+                <Image
+                  src={user.image}
+                  width={90}
+                  height={90}
+                  className="size-[90px] rounded-[8px] object-cover"
+                  alt="mainImage"
+                />
+              ) : (
+                <div className="flex size-[90px] items-center justify-center rounded-[8px] bg-blue-100 text-sm font-medium text-blue-600">
+                  {initialsFromName(
+                    [user?.first_name, user?.last_name]
+                      .filter(Boolean)
+                      .join(" ")
+                      .trim()
+                  )}
+                </div>
+              )}
               <div className="space-y-1">
                 <h4 className="text-base font-semibold text-[#303030]">
                   {user?.first_name} {user?.last_name}
