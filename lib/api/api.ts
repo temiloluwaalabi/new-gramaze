@@ -1173,10 +1173,12 @@ export const adminServices = {
         [metricCode: string]: string | number; // Dynamic metric values
         user_id: number;
         caregiver_id: number;
+        health_record_id: number;
       },
       pathname: string
     ) => {
-      const { user_id, caregiver_id, ...metricValues } = values;
+      const { user_id, caregiver_id, health_record_id, ...metricValues } =
+        values;
       // Build metrics array without any formatting
       const metrics = Object.entries(metricValues)
         .filter(
@@ -1191,6 +1193,7 @@ export const adminServices = {
       const body = {
         user_id,
         caregiver_id,
+        health_record_id,
         metrics,
       };
 
@@ -1216,14 +1219,15 @@ export const adminServices = {
     updateHealthTracker: async (
       values: {
         [metricCode: string]: string | number; // Dynamic metric values
-
         user_id: number;
         caregiver_id: number;
+        health_record_id: number;
         id: number;
       },
       pathname: string
     ) => {
-      const { user_id, caregiver_id, id, ...metricValues } = values;
+      const { user_id, caregiver_id, id, health_record_id, ...metricValues } =
+        values;
       // Build metrics array without any formatting
       const metrics = Object.entries(metricValues)
         .filter(
@@ -1239,6 +1243,7 @@ export const adminServices = {
         id,
         user_id,
         caregiver_id,
+        health_record_id,
         metrics,
       };
 

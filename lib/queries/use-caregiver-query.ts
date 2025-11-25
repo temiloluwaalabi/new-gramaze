@@ -169,6 +169,7 @@ export const useAddHealthTracker = () => {
         [metricCode: string]: string | number; // Dynamic metric values
         user_id: number;
         caregiver_id: number;
+        health_record_id: number;
       };
       pathname: string;
     }) => {
@@ -215,6 +216,7 @@ export const useUpdateHealthTracker = () => {
         user_id: number;
         caregiver_id: number;
         id: number;
+        health_record_id: number;
       };
       pathname: string;
     }) => {

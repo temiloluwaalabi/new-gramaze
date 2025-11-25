@@ -285,6 +285,7 @@ export const addHealthTracker = async (
   values: {
     [metricCode: string]: string | number; // Dynamic metric values
     user_id: number;
+    health_record_id: number;
     caregiver_id: number;
   },
   pathname: string
@@ -362,10 +363,10 @@ export const addHealthTracker = async (
 export const updateHealthTracker = async (
   values: {
     [metricCode: string]: string | number; // Dynamic metric values
-
     user_id: number;
     caregiver_id: number;
     id: number;
+    health_record_id: number;
   },
   pathname: string
 ) => {

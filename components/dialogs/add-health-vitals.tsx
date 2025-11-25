@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Pencil, PlusIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -83,6 +82,7 @@ export default function AddHealthVitals({
             caregiver_id,
             user_id,
             id: data?.id ?? 0,
+            health_record_id: health_record_id || 0,
           },
           pathname,
         },
@@ -100,6 +100,7 @@ export default function AddHealthVitals({
           valued: {
             [dataValues.name]: dataValues.value,
             caregiver_id,
+            health_record_id: health_record_id || 0,
             user_id,
           },
           pathname,
