@@ -26,6 +26,7 @@ import {
 
 import { ApiError, backendAPiClient } from "./api-client";
 import { handleApiBackendError, makeApiRequest } from "./api-request-setup";
+import { HealthTracker2 } from "../health-tracker-utils";
 import {
   BiodataSchemaType,
   LoginSchemaType,
@@ -1339,6 +1340,17 @@ export const adminServices = {
         pathname,
         body: values,
       });
+    },
+    fetchHealthTrackers: async (values: { user_id: number }) => {
+      return makeApiRequest<HealthTracker2[]>(
+        `${gramazeEndpoints.admin.healthTracker.fetch}`,
+        "GET",
+        {
+          params: {
+            user_id: values.user_id,
+          },
+        }
+      );
     },
     fetchUserHealthReports: async (
       values: {

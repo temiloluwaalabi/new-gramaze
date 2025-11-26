@@ -29,6 +29,19 @@ export type HealthTracker = {
   status: string;
   reason: string | null;
   created_at: string;
+  health_record_id: string | null;
+
+  updated_at: string;
+};
+export type HealthTracker2 = {
+  id: number;
+  metrics: Metric[]; // JSON string from API
+  user_id: number;
+  caregiver_id: number;
+  status: string;
+  reason: string | null;
+  created_at: string;
+  health_record_id: string | null;
   updated_at: string;
 };
 

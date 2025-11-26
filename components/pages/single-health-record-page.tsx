@@ -3,16 +3,19 @@ import {
   ArrowLeft,
   Calendar,
   Check,
+  CheckCircle2,
   Clock,
   Download,
   Eye,
   FileText,
-  LucideShipWheel,
+  Info,
+  Lock,
   MapPin,
   MoreVertical,
   Paperclip,
   Pencil,
   Plus,
+  Stethoscope,
   Trash2,
   User as UserIcon,
   X,
@@ -62,6 +65,7 @@ import {
   getMetricCodeFromName,
   getMetricDisplayConfig,
   HealthTracker,
+  HealthTracker2,
   Metric,
 } from "@/lib/health-tracker-utils";
 import {
@@ -74,6 +78,9 @@ import { HealthNote, HealthRecordRow, HealthReport, User } from "@/types";
 
 import { LatestVitals } from "./single-patient-details-page";
 import { getStatusBadge } from "../shared/health-record/health-record-list";
+import { CaregiverAppointmentSheet } from "../sheets/caregiver-appointment-sheet";
+import HealthTrackerHistorySheet from "../sheets/health-tracker-history-sheet";
+import { Alert, AlertDescription } from "../ui/alert";
 
 type SingleHealthRecordPageProps = {
   healthRecord: HealthRecordRow;
@@ -86,6 +93,7 @@ type SingleHealthRecordPageProps = {
   }[];
   currentUserId: number;
   currentUserRole: "admin" | "caregiver";
+  allPatientTrackers: HealthTracker2[];
 };
 
 export default function SingleHealthRecordPage({
@@ -93,6 +101,7 @@ export default function SingleHealthRecordPage({
   metrics,
   currentUserId,
   currentUserRole,
+  allPatientTrackers,
 }: SingleHealthRecordPageProps) {
   const [recordPatient, setRecordPatient] = useState<User>();
   const router = useRouter();
@@ -124,14 +133,25 @@ export default function SingleHealthRecordPage({
   );
   const [viewNoteOpen, setViewNoteOpen] = React.useState(false);
 
+  // Check if appointment has arrived status
+  const hasPatientArrived = healthRecord.appointment?.status === "arrived";
+  const isAppointmentPending = healthRecord.appointment?.status === "pending";
+
+  // Master lock for all editing actions
+  const isRecordLocked = !hasPatientArrived;
+
   // Update health record field using server action
   const updateHealthRecordField = async (
     field: "title" | "description" | "record_type",
     value: string
   ) => {
+    if (isRecordLocked) {
+      toast.error("Cannot edit record until patient arrives");
+      return;
+    }
+
     startTransition(async () => {
       try {
-        // Build the payload
         const payload: {
           id: number;
           title?: string;
@@ -143,7 +163,6 @@ export default function SingleHealthRecordPage({
           id: healthRecord.id,
         };
 
-        // Add the specific field being updated
         if (field === "title") {
           payload.title = value;
         } else if (field === "description") {
@@ -152,23 +171,18 @@ export default function SingleHealthRecordPage({
           payload.record_type = value;
         }
 
-        // Call server action
         const result = await UpdateHealthRecordWithFormData(payload);
 
         if (result.success) {
           toast.success(result.message);
 
-          // Close editing mode
           if (field === "title") setIsEditingTitle(false);
           if (field === "description") setIsEditingDescription(false);
           if (field === "record_type") setIsEditingRecordType(false);
 
-          // Router will automatically refresh with revalidatePath
           router.refresh();
         } else {
-          // Handle API errors
           if (result.errors) {
-            // Show validation errors
             Object.entries(result.errors).forEach(([key, messages]) => {
               messages.forEach((message) => toast.error(`${key}: ${message}`));
             });
@@ -176,7 +190,6 @@ export default function SingleHealthRecordPage({
             toast.error(result.message || `Failed to update ${field}`);
           }
 
-          // Revert changes
           if (field === "title") setEditedTitle(healthRecord.title);
           if (field === "description")
             setEditedDescription(healthRecord.description);
@@ -187,7 +200,6 @@ export default function SingleHealthRecordPage({
         console.error(`Error updating ${field}:`, error);
         toast.error(`Failed to update ${field}`);
 
-        // Revert changes
         if (field === "title") setEditedTitle(healthRecord.title);
         if (field === "description")
           setEditedDescription(healthRecord.description);
@@ -247,13 +259,13 @@ export default function SingleHealthRecordPage({
     setIsEditingRecordType(false);
   };
 
-  // Handle viewing a report
+  // Handle viewing a report (viewing is allowed even when locked)
   const handleViewReport = (report: HealthReport) => {
     setSelectedReport(report);
     setViewReportOpen(true);
   };
 
-  // Handle viewing a note
+  // Handle viewing a note (viewing is allowed even when locked)
   const handleViewNote = (note: HealthNote) => {
     setSelectedNote(note);
     setViewNoteOpen(true);
@@ -319,7 +331,6 @@ export default function SingleHealthRecordPage({
     const latest: LatestVitals = {};
 
     for (const tracker of sorted) {
-      // Process metrics array (using 'name' not 'code')
       JSON.parse(tracker.metrics)?.forEach((metric: Metric) => {
         if (metric.code && metric.value && !latest[metric.code]) {
           latest[metric.code] = {
@@ -339,8 +350,94 @@ export default function SingleHealthRecordPage({
 
   return (
     <section className="h-full gap-6 space-y-6 bg-[#F2F2F2] px-[15px] py-[14px] lg:px-[15px] 2xl:px-[20px]">
+      {/* Locked Record Warning - Most Prominent */}
+      {isRecordLocked && !isAppointmentPending && (
+        <Alert className="border-amber-500 bg-amber-50">
+          <Lock className="size-5 text-amber-600" />
+          <AlertDescription className="flex items-center justify-between">
+            <div className="flex-1">
+              <p className="font-semibold text-amber-900">
+                Health Record Locked
+              </p>
+              <p className="text-sm text-amber-800">
+                This health record is locked until the patient arrives for their
+                appointment. Mark the patient as arrived to begin documentation.
+              </p>
+            </div>
+            {healthRecord.appointment && (
+              <CaregiverAppointmentSheet
+                appointment={healthRecord.appointment}
+                sheetTrigger={
+                  <Button
+                    size="sm"
+                    className="ml-4 bg-amber-600 hover:bg-amber-700"
+                  >
+                    <CheckCircle2 className="mr-2 size-4" />
+                    Mark as Arrived
+                  </Button>
+                }
+              />
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Pending Appointment Warning */}
+      {isAppointmentPending && (
+        <Alert className="border-gray-400 bg-gray-50">
+          <Clock className="size-5 text-gray-600" />
+          <AlertDescription>
+            <p className="font-semibold text-gray-900">
+              Appointment Pending Confirmation
+            </p>
+            <p className="text-sm text-gray-700">
+              This appointment is still pending admin review and caregiver
+              assignment.
+            </p>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Info Banner - What is this page for */}
+      <Alert className="border-blue-200 bg-blue-50">
+        <Info className="size-4 text-blue-600" />
+        <AlertDescription className="text-sm text-blue-900">
+          <strong>Health Record Overview:</strong> This page contains all
+          medical documentation for a specific appointment. You can track
+          vitals, add reports, create notes, and manage the complete care
+          journey for this patient visit.
+        </AlertDescription>
+      </Alert>
+
       {/* Header */}
-      <div className="rounded-lg bg-white p-6">
+      <div className="relative rounded-lg bg-white p-6">
+        {/* Overlay for locked state */}
+        {isRecordLocked && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-gray-100/60 backdrop-blur-[2px]">
+            <div className="max-w-md rounded-lg bg-white p-6 text-center shadow-lg">
+              <Lock className="mx-auto mb-3 size-12 text-amber-600" />
+              <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                Record Locked
+              </h3>
+              <p className="mb-4 text-sm text-gray-600">
+                Mark the patient as arrived to unlock this health record and
+                begin documentation.
+              </p>
+              {healthRecord.appointment && (
+                <CaregiverAppointmentSheet
+                  appointment={healthRecord.appointment}
+                  sheetTrigger={
+                    <Button className="w-full">
+                      <CheckCircle2 className="mr-2 size-4" />
+                      Mark Patient as Arrived
+                    </Button>
+                  }
+                />
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="mb-4 flex items-center gap-2">
           <Button
             variant="ghost"
@@ -356,13 +453,17 @@ export default function SingleHealthRecordPage({
         <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div className="flex flex-col gap-4 lg:flex-row">
             <div
-              className={`flex size-16 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600`}
+              className={`flex size-16 flex-shrink-0 items-center justify-center rounded-xl ${
+                isRecordLocked
+                  ? "bg-gray-200 text-gray-400"
+                  : "bg-blue-50 text-blue-600"
+              }`}
             >
-              <LucideShipWheel />
+              <Stethoscope className="size-8" />
             </div>
             <div className="flex-1">
               {/* Editable Title */}
-              {isEditingTitle ? (
+              {isEditingTitle && !isRecordLocked ? (
                 <div className="flex items-center gap-2">
                   <Input
                     value={editedTitle}
@@ -373,12 +474,12 @@ export default function SingleHealthRecordPage({
                     }}
                     className="cursor-pointer text-2xl font-bold"
                     autoFocus
-                    disabled={isPending}
+                    disabled={isPending || isRecordLocked}
                   />
                   <Button
                     size="sm"
                     onClick={handleTitleSave}
-                    disabled={isPending}
+                    disabled={isPending || isRecordLocked}
                     className="!size-8 cursor-pointer p-0"
                   >
                     <Check className="size-4" />
@@ -387,7 +488,7 @@ export default function SingleHealthRecordPage({
                     size="sm"
                     variant="outline"
                     onClick={handleCancelTitleEdit}
-                    disabled={isPending}
+                    disabled={isPending || isRecordLocked}
                     className="!size-8 cursor-pointer p-0"
                   >
                     <X className="size-4" />
@@ -395,22 +496,31 @@ export default function SingleHealthRecordPage({
                 </div>
               ) : (
                 <h1
-                  className="group cursor-pointer text-2xl font-bold text-gray-900 transition-colors hover:text-blue-600"
-                  onClick={() => setIsEditingTitle(true)}
+                  className={`group text-lg font-bold lg:text-2xl ${
+                    isRecordLocked
+                      ? "cursor-not-allowed text-gray-400"
+                      : "cursor-pointer text-gray-900 transition-colors hover:text-blue-600"
+                  }`}
+                  onClick={() => !isRecordLocked && setIsEditingTitle(true)}
                 >
                   {editedTitle}
-                  <Pencil className="ml-2 inline size-4 opacity-0 transition-opacity group-hover:opacity-100" />
+                  {!isRecordLocked && (
+                    <Pencil className="ml-2 inline size-4 opacity-0 transition-opacity group-hover:opacity-100" />
+                  )}
+                  {isRecordLocked && (
+                    <Lock className="ml-2 inline size-4 text-amber-600" />
+                  )}
                 </h1>
               )}
 
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {/* Editable Record Type */}
-                {isEditingRecordType ? (
+                {isEditingRecordType && !isRecordLocked ? (
                   <div className="flex items-center gap-2">
                     <Select
                       value={editedRecordType}
                       onValueChange={setEditedRecordType}
-                      disabled={isPending}
+                      disabled={isPending || isRecordLocked}
                     >
                       <SelectTrigger className="w-[200px] cursor-pointer">
                         <SelectValue />
@@ -430,7 +540,7 @@ export default function SingleHealthRecordPage({
                     <Button
                       size="sm"
                       onClick={handleRecordTypeSave}
-                      disabled={isPending}
+                      disabled={isPending || isRecordLocked}
                       className="!size-8 cursor-pointer p-0"
                     >
                       <Check className="size-4" />
@@ -439,7 +549,7 @@ export default function SingleHealthRecordPage({
                       size="sm"
                       variant="outline"
                       onClick={handleCancelRecordTypeEdit}
-                      disabled={isPending}
+                      disabled={isPending || isRecordLocked}
                       className="!size-8 cursor-pointer p-0"
                     >
                       <X className="size-4" />
@@ -448,15 +558,35 @@ export default function SingleHealthRecordPage({
                 ) : (
                   <Badge
                     variant="secondary"
-                    className="group cursor-pointer transition-colors hover:bg-blue-100"
-                    onClick={() => setIsEditingRecordType(true)}
+                    className={`group ${
+                      isRecordLocked
+                        ? "cursor-not-allowed opacity-60"
+                        : "cursor-pointer transition-colors hover:bg-blue-100"
+                    }`}
+                    onClick={() =>
+                      !isRecordLocked && setIsEditingRecordType(true)
+                    }
                   >
                     {config.label}
-                    <Pencil className="ml-1 inline size-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                    {!isRecordLocked && (
+                      <Pencil className="ml-1 inline size-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                    )}
                   </Badge>
                 )}
 
                 {getStatusBadge(healthRecord.status)}
+                {hasPatientArrived && (
+                  <Badge variant="default" className="bg-green-600">
+                    <CheckCircle2 className="mr-1 size-3" />
+                    Patient Arrived
+                  </Badge>
+                )}
+                {isRecordLocked && (
+                  <Badge variant="default" className="bg-amber-600">
+                    <Lock className="mr-1 size-3" />
+                    Locked
+                  </Badge>
+                )}
                 <span className="text-sm text-gray-500">
                   ID: {healthRecord.id}
                 </span>
@@ -486,6 +616,7 @@ export default function SingleHealthRecordPage({
                     variant="outline"
                     className="text-green-600 hover:bg-green-50"
                     onClick={handleApprove}
+                    disabled={isRecordLocked}
                   >
                     Approve
                   </Button>
@@ -493,6 +624,7 @@ export default function SingleHealthRecordPage({
                     variant="outline"
                     className="text-red-600 hover:bg-red-50"
                     onClick={() => handleReject("Rejected by admin")}
+                    disabled={isRecordLocked}
                   >
                     Reject
                   </Button>
@@ -504,6 +636,7 @@ export default function SingleHealthRecordPage({
                   variant="outline"
                   size="icon"
                   className="absolute top-0 right-0 !size-10"
+                  disabled={isRecordLocked}
                 >
                   <MoreVertical className="size-4" />
                 </Button>
@@ -513,6 +646,7 @@ export default function SingleHealthRecordPage({
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onClick={() => setIsEditingTitle(true)}
+                  disabled={isRecordLocked}
                 >
                   <Pencil className="mr-2 h-4 w-4" />
                   Edit Title
@@ -520,6 +654,7 @@ export default function SingleHealthRecordPage({
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onClick={() => setIsEditingDescription(true)}
+                  disabled={isRecordLocked}
                 >
                   <Pencil className="mr-2 h-4 w-4" />
                   Edit Description
@@ -527,17 +662,24 @@ export default function SingleHealthRecordPage({
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onClick={() => setIsEditingRecordType(true)}
+                  disabled={isRecordLocked}
                 >
                   <Pencil className="mr-2 h-4 w-4" />
                   Change Record Type
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  disabled={isRecordLocked}
+                >
                   <Download className="mr-2 h-4 w-4" />
                   Export Record
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer text-red-600">
+                <DropdownMenuItem
+                  className="cursor-pointer text-red-600"
+                  disabled={isRecordLocked}
+                >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete Record
                 </DropdownMenuItem>
@@ -548,10 +690,12 @@ export default function SingleHealthRecordPage({
 
         {/* Editable Description */}
         {healthRecord.description || isEditingDescription ? (
-          <div className="mt-6 rounded-lg bg-gray-50 p-4">
+          <div
+            className={`mt-6 rounded-lg p-4 ${isRecordLocked ? "bg-gray-100" : "bg-gray-50"}`}
+          >
             <div className="mb-2 flex items-center justify-between">
               <h3 className="text-sm font-medium text-gray-700">Description</h3>
-              {!isEditingDescription && (
+              {!isEditingDescription && !isRecordLocked && (
                 <Button
                   size="sm"
                   variant="ghost"
@@ -564,21 +708,21 @@ export default function SingleHealthRecordPage({
               )}
             </div>
 
-            {isEditingDescription ? (
+            {isEditingDescription && !isRecordLocked ? (
               <div className="space-y-2">
                 <Textarea
                   value={editedDescription}
                   onChange={(e) => setEditedDescription(e.target.value)}
                   className="min-h-[120px]"
                   placeholder="Enter description..."
-                  disabled={isPending}
+                  disabled={isPending || isRecordLocked}
                 />
                 <div className="flex justify-end gap-2">
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={handleCancelDescriptionEdit}
-                    disabled={isPending}
+                    disabled={isPending || isRecordLocked}
                   >
                     <X className="mr-2 size-4" />
                     Cancel
@@ -586,7 +730,7 @@ export default function SingleHealthRecordPage({
                   <Button
                     size="sm"
                     onClick={handleDescriptionSave}
-                    disabled={isPending}
+                    disabled={isPending || isRecordLocked}
                   >
                     <Check className="mr-2 size-4" />
                     Save
@@ -594,29 +738,71 @@ export default function SingleHealthRecordPage({
                 </div>
               </div>
             ) : (
-              <p className="cursor-pointer text-sm whitespace-pre-wrap text-gray-600 transition-colors hover:text-gray-900">
+              <p
+                className={`text-sm whitespace-pre-wrap ${isRecordLocked ? "text-gray-400" : "cursor-pointer text-gray-600 transition-colors hover:text-gray-900"}`}
+              >
                 {editedDescription || "No description provided"}
               </p>
             )}
           </div>
         ) : (
-          <div className="mt-6">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsEditingDescription(true)}
-              className="gap-2"
-            >
-              <Plus className="size-4" />
-              Add Description
-            </Button>
-          </div>
+          !isRecordLocked && (
+            <div className="mt-6">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditingDescription(true)}
+                className="gap-2"
+                disabled={isRecordLocked}
+              >
+                <Plus className="size-4" />
+                Add Description
+              </Button>
+            </div>
+          )
         )}
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left Column - Patient & Appointment Info */}
         <div className="space-y-6 lg:col-span-1">
+          {/* Quick Actions Info Widget */}
+          <div
+            className={`rounded-lg border p-4 ${isRecordLocked ? "border-amber-200 bg-amber-50" : "border-blue-200 bg-blue-50"}`}
+          >
+            <div className="mb-3 flex items-center gap-2">
+              {isRecordLocked ? (
+                <Lock className="size-4 text-amber-600" />
+              ) : (
+                <Info className="size-4 text-blue-600" />
+              )}
+              <h3
+                className={`text-sm font-semibold ${isRecordLocked ? "text-amber-900" : "text-blue-900"}`}
+              >
+                {isRecordLocked ? "Unlock to Access" : "Quick Actions"}
+              </h3>
+            </div>
+            <div
+              className={`space-y-2 text-xs ${isRecordLocked ? "text-amber-800" : "text-blue-800"}`}
+            >
+              {isRecordLocked ? (
+                <>
+                  <p>🔒 Record is locked until patient arrives</p>
+                  <p>📝 All editing features are disabled</p>
+                  <p>✅ Mark patient as arrived to unlock</p>
+                  <p>👁️ You can still view existing data</p>
+                </>
+              ) : (
+                <>
+                  <p>• Add health vitals to track patient metrics</p>
+                  <p>• Upload medical reports and test results</p>
+                  <p>• Document consultation notes</p>
+                  <p>• Edit record details as needed</p>
+                </>
+              )}
+            </div>
+          </div>
+
           {/* Patient Information */}
           {healthRecord.patient && (
             <div className="rounded-lg border border-[#E8E8E8] bg-white p-6">
@@ -683,13 +869,32 @@ export default function SingleHealthRecordPage({
           {/* Appointment Information */}
           {healthRecord.appointment && (
             <div className="rounded-lg border border-[#E8E8E8] bg-white p-6">
-              <h3 className="mb-4 text-base font-semibold text-gray-900">
-                Related Appointment
-              </h3>
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-base font-semibold text-gray-900">
+                  Related Appointment
+                </h3>
+                {!hasPatientArrived && !isAppointmentPending && (
+                  <CaregiverAppointmentSheet
+                    appointment={healthRecord.appointment}
+                    sheetTrigger={
+                      <Button size="sm" variant="outline">
+                        <CheckCircle2 className="mr-2 size-4" />
+                        Mark Arrived
+                      </Button>
+                    }
+                  />
+                )}
+              </div>
               <div className="space-y-3">
                 <h4 className="text-sm font-medium text-gray-900">
                   {getAppointmentTitle(healthRecord.appointment)}
                 </h4>
+                {hasPatientArrived && (
+                  <Badge variant="default" className="bg-green-600">
+                    <CheckCircle2 className="mr-1 size-3" />
+                    Patient Arrived
+                  </Badge>
+                )}
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Calendar className="size-4" />
                   <span>{formatDate(healthRecord.appointment.date)}</span>
@@ -713,27 +918,53 @@ export default function SingleHealthRecordPage({
         <div className="space-y-6 lg:col-span-2">
           {/* Health Vitals/Trackers */}
           <div className="rounded-lg border border-[#E8E8E8] bg-white p-6">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex flex-col items-start justify-between gap-2 lg:flex-row lg:items-center">
               <h3 className="text-base font-semibold text-gray-900">
                 Health Vitals ({healthRecord.trackers?.length || 0})
               </h3>
-              <AddHealthVitals
-                metrics={metrics}
-                user_id={healthRecord.patient_id}
-                caregiver_id={currentUserId}
-                health_record_id={healthRecord.id}
-                dialogTrigger={
-                  <Button size="sm" variant="outline">
-                    <Plus className="mr-2 size-4" />
-                    Add Vital
-                  </Button>
-                }
-              />
+              <div className="flex items-center gap-2">
+                {/* History Button - Always visible */}
+                {allPatientTrackers.length > 0 && (
+                  <HealthTrackerHistorySheet
+                    trackers={allPatientTrackers}
+                    metrics={metrics}
+                    patientName={`${healthRecord.patient?.first_name} ${healthRecord.patient?.last_name}`}
+                  />
+                )}
+
+                <AddHealthVitals
+                  metrics={metrics}
+                  user_id={healthRecord.patient_id}
+                  caregiver_id={currentUserId}
+                  health_record_id={healthRecord.id}
+                  dialogTrigger={
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={isRecordLocked}
+                    >
+                      {isRecordLocked && <Lock className="mr-2 size-4" />}
+                      <Plus className="mr-2 size-4" />
+                      Add Vital
+                    </Button>
+                  }
+                />
+              </div>
             </div>
 
+            {/* Info about historical data */}
+            {allPatientTrackers.length > healthRecord.trackers?.length && (
+              <Alert className="mb-4 border-blue-200 bg-blue-50">
+                <Info className="size-4 text-blue-600" />
+                <AlertDescription className="text-xs text-blue-900">
+                  This patient has {allPatientTrackers.length} total vital sign
+                  records. Click &quot;View History&quot; to see patterns and
+                  trends over time.
+                </AlertDescription>
+              </Alert>
+            )}
             {healthRecord.trackers && healthRecord.trackers.length > 0 ? (
               <div className="space-y-3">
-                {/* Dynamic rendering of all available metrics */}
                 {latestVitals &&
                   Object.entries(latestVitals).map(
                     ([metricName, metricData]) => {
@@ -751,13 +982,17 @@ export default function SingleHealthRecordPage({
                           className="flex items-center justify-between"
                         >
                           <div className="flex items-center gap-2">
-                            <div className="flex size-[42px] items-center justify-center rounded-full border border-[#d1d5db]">
+                            <div
+                              className={`flex size-[42px] items-center justify-center rounded-full border ${isRecordLocked ? "border-gray-300 bg-gray-100" : "border-[#d1d5db]"}`}
+                            >
                               <metricConfig.icon
-                                className={`${metricConfig.iconColor} size-5`}
+                                className={`${isRecordLocked ? "text-gray-400" : metricConfig.iconColor} size-5`}
                               />
                             </div>
                             <div className="space-y-1">
-                              <h4 className="text-sm font-medium text-gray-600">
+                              <h4
+                                className={`text-sm font-medium ${isRecordLocked ? "text-gray-400" : "text-gray-600"}`}
+                              >
                                 {metricConfig.displayName}
                               </h4>
                               {metricData.status === "pending" && (
@@ -766,7 +1001,9 @@ export default function SingleHealthRecordPage({
                                   {metricData.status}
                                 </span>
                               )}
-                              <p className="text-xs font-normal text-gray-400">
+                              <p
+                                className={`text-xs font-normal ${isRecordLocked ? "text-gray-300" : "text-gray-400"}`}
+                              >
                                 Last updated:{" "}
                                 {formatDate(metricData.updated_at)}
                               </p>
@@ -787,12 +1024,24 @@ export default function SingleHealthRecordPage({
                               caregiver_id={healthRecord.creator.id || 0}
                               dialogTrigger={
                                 <Button
-                                  className="flex !h-[36px] w-[137px] cursor-pointer items-center justify-start border border-[#D1D5DB] text-sm font-medium text-[#1F2937]"
+                                  className={`flex !h-[36px] w-[137px] items-center justify-start border border-[#D1D5DB] text-sm font-medium ${
+                                    isRecordLocked
+                                      ? "cursor-not-allowed bg-gray-100 text-gray-400"
+                                      : "cursor-pointer text-[#1F2937]"
+                                  }`}
                                   variant={"outline"}
-                                  disabled={metricData.status === "pending"}
+                                  disabled={
+                                    metricData.status === "pending" ||
+                                    isRecordLocked
+                                  }
                                 >
                                   {metricData.value}
-                                  <Pencil className="ml-1 size-4 text-[#4B5563]" />
+                                  {!isRecordLocked && (
+                                    <Pencil className="ml-1 size-4 text-[#4B5563]" />
+                                  )}
+                                  {isRecordLocked && (
+                                    <Lock className="ml-1 size-4 text-gray-400" />
+                                  )}
                                 </Button>
                               }
                             />
@@ -804,8 +1053,16 @@ export default function SingleHealthRecordPage({
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 py-8">
-                <FileText className="mb-2 size-8 text-gray-400" />
-                <p className="text-sm text-gray-500">No vitals recorded</p>
+                <FileText
+                  className={`mb-2 size-8 ${isRecordLocked ? "text-gray-300" : "text-gray-400"}`}
+                />
+                <p
+                  className={`text-sm ${isRecordLocked ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  {isRecordLocked
+                    ? "Unlock to add vitals"
+                    : "No vitals recorded"}
+                </p>
               </div>
             )}
           </div>
@@ -820,7 +1077,8 @@ export default function SingleHealthRecordPage({
                 patient_id={healthRecord.patient_id}
                 health_record_id={healthRecord.id}
                 dialogTrigger={
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline" disabled={isRecordLocked}>
+                    {isRecordLocked && <Lock className="mr-2 size-4" />}
                     <Plus className="mr-2 size-4" />
                     Add Report
                   </Button>
@@ -873,8 +1131,16 @@ export default function SingleHealthRecordPage({
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 py-8">
-                <FileText className="mb-2 size-8 text-gray-400" />
-                <p className="text-sm text-gray-500">No reports added</p>
+                <FileText
+                  className={`mb-2 size-8 ${isRecordLocked ? "text-gray-300" : "text-gray-400"}`}
+                />
+                <p
+                  className={`text-sm ${isRecordLocked ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  {isRecordLocked
+                    ? "Unlock to add reports"
+                    : "No reports added"}
+                </p>
               </div>
             )}
           </div>
@@ -889,7 +1155,8 @@ export default function SingleHealthRecordPage({
                 patient_id={healthRecord.patient_id}
                 health_record_id={healthRecord.id}
                 dialogTrigger={
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline" disabled={isRecordLocked}>
+                    {isRecordLocked && <Lock className="mr-2 size-4" />}
                     <Plus className="mr-2 size-4" />
                     Add Note
                   </Button>
@@ -933,15 +1200,21 @@ export default function SingleHealthRecordPage({
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 py-8">
-                <FileText className="mb-2 size-8 text-gray-400" />
-                <p className="text-sm text-gray-500">No notes added</p>
+                <FileText
+                  className={`mb-2 size-8 ${isRecordLocked ? "text-gray-300" : "text-gray-400"}`}
+                />
+                <p
+                  className={`text-sm ${isRecordLocked ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  {isRecordLocked ? "Unlock to add notes" : "No notes added"}
+                </p>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* View Dialogs */}
+      {/* View Dialogs - These can still open even when locked (viewing existing data) */}
       <ViewReportDialog
         report={selectedReport}
         open={viewReportOpen}

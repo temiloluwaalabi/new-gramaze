@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { adminServices, caregiverServices } from "@/lib/api/api";
 import { ApiError } from "@/lib/api/api-client";
+import { HealthTracker2 } from "@/lib/health-tracker-utils";
 import {
   HealthNote,
   HealthRecordRow,
@@ -880,5 +881,67 @@ export const UpdateHealthRecordWithFormData = async (
       statusCode: 500,
       errorType: "UnknownError",
     };
+  }
+};
+export const fetchAllPAtientVitals = async ({
+  user_id,
+}: {
+  user_id: number;
+}): Promise<ServerActionResponse<HealthTracker2[]>> => {
+  try {
+    const sessionToken = await getSession();
+    if (!sessionToken) {
+      return {
+        success: false,
+        message: "No active session found",
+        statusCode: 401,
+        errorType: "AUTH_ERROR",
+      };
+    }
+    const response = await adminServices.patient_management.fetchHealthTrackers(
+      {
+        user_id,
+      }
+    );
+
+    // Check for API error properly
+    if (ApiError.isAPiError(response)) {
+      const apiError = response as ApiError;
+
+      return {
+        success: false,
+        message: apiError.message,
+        errors: apiError.rawErrors as Record<string, string[]>,
+        statusCode: apiError.statusCode,
+        errorType: apiError.errorType,
+      };
+    }
+
+    const successResponse = response as {
+      success: true;
+      status: number;
+      message: string;
+      data: HealthTracker2[];
+    };
+    return {
+      success: true,
+      message: successResponse.message,
+      data: successResponse.data,
+    };
+  } catch (error) {
+    console.error("Get Caregiver History Error:", error);
+
+    // If it's already an ApiError, re-throw it
+    if (error instanceof ApiError) {
+      throw error;
+    }
+
+    // For other errors, wrap in ApiError
+    throw new ApiError({
+      statusCode: 500,
+      message:
+        error instanceof Error ? error.message : "An unknown error occurred",
+      errorType: "UnknownError",
+    });
   }
 };
