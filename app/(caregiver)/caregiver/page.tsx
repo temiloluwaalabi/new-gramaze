@@ -55,7 +55,7 @@ export default async function CaregiverMainDashboard() {
       appointments={
         Array.isArray(appointments?.appointments)
           ? appointments.appointments
-          : appointments?.appointments?.data || []
+          : appointments?.appointments?.data.filter((app) => app.patient) || []
       }
       allPatients={
         patients?.success && Array.isArray(patients.data) ? patients.data : []

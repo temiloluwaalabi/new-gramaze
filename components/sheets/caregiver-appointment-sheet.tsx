@@ -59,13 +59,13 @@ export const CaregiverAppointmentSheet = (props: Props) => {
     useMarkAppointmentAsArrived(pathname);
 
   const getPatientDetails = React.useCallback(async () => {
-    if (!props.appointment.user_id) return;
+    if (!props.appointment.patient) return;
     // Fetch user details based on the patient ID from the appointment
     const user = await getUserDetails(Number(props.appointment.user_id));
     if (user.success) {
       setAppointmentPatient(user.user);
     }
-  }, [props.appointment.user_id]);
+  }, [props.appointment.patient, props.appointment.user_id]);
 
   React.useEffect(() => {
     getPatientDetails();

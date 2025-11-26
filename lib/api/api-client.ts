@@ -139,10 +139,10 @@ export const backendAPiClient: AxiosInstance = axios.create({
 });
 
 const RETRY_CONFIG = {
-  maxRetries: 3, // Maximum number of retry attempts
-  retryDelay: 1000, // Base delay between retries in ms
-  retryStatusCodes: [408, 429, 500, 502, 503, 504], // Status codes to retry
-  timeoutErrorCodes: ["ECONNABORTED", "ETIMEDOUT"], // Axios error codes for timeouts
+  maxRetries: 2, // 2 retries = 3 total attempts
+  retryDelay: 1000, // Start with 1 second
+  retryStatusCodes: [408, 429, 500, 502, 503, 504],
+  timeoutErrorCodes: ["ECONNABORTED", "ETIMEDOUT", "ERR_NETWORK"],
 };
 // Token management
 export const setAuthToken = (token: string | null): void => {
@@ -310,28 +310,82 @@ backendAPiClient.interceptors.request.use(
   client.interceptors.response.use(
     handleApiSuccess,
     async (error: AxiosError) => {
-      console.log("RETRY ERROR", error);
       const config = error.config as any;
+
+      // Skip retry if already retrying or no config
       if (!config || config.__isRetryRequest) {
+        console.error("Final error (no retry):", {
+          code: error.code,
+          message: error.message,
+          status: error.response?.status,
+        });
         return handleApiError(error);
       }
 
-      // Only retry for network errors or 5xx server errors
-      const shouldRetry =
-        (!error.response && error.code !== "ECONNABORTED") ||
-        (error.response &&
-          error.response.status >= 500 &&
-          error.response.status < 600);
+      // Initialize retry count
+      config.__retryCount = config.__retryCount || 0;
 
-      if (shouldRetry) {
-        config.__retryCount = config.__retryCount || 0;
-        if (config.__retryCount < RETRY_CONFIG.maxRetries) {
-          config.__retryCount += 1;
-          config.__isRetryRequest = true;
-          await new Promise((res) => setTimeout(res, RETRY_CONFIG.retryDelay));
-          return client(config);
+      // Check if error is retryable
+      const isTimeout =
+        error.code === "ECONNABORTED" || error.code === "ETIMEDOUT";
+      const isNetworkError = !error.response && error.code === "ERR_NETWORK";
+      const isServerError =
+        error.response &&
+        error.response.status >= 500 &&
+        error.response.status < 600;
+      const isRetryableStatus =
+        error.response &&
+        RETRY_CONFIG.retryStatusCodes.includes(error.response.status);
+
+      const shouldRetry =
+        isTimeout || isNetworkError || isServerError || isRetryableStatus;
+
+      if (shouldRetry && config.__retryCount < RETRY_CONFIG.maxRetries) {
+        config.__retryCount += 1;
+
+        // Exponential backoff with jitter
+        const baseDelay =
+          RETRY_CONFIG.retryDelay * Math.pow(2, config.__retryCount - 1);
+        const jitter = Math.random() * 200; // Add 0-200ms random jitter
+        const delay = baseDelay + jitter;
+
+        console.log(
+          `🔄 Retrying request (attempt ${config.__retryCount}/${RETRY_CONFIG.maxRetries})`,
+          {
+            url: config.url,
+            reason: error.code || error.response?.status,
+            delay: `${delay}ms`,
+          }
+        );
+
+        // Mark as retry to prevent infinite loops
+        config.__isRetryRequest = true;
+
+        // For timeout errors, increase the timeout on retry
+        if (isTimeout && config.timeout) {
+          config.timeout = Math.min(config.timeout * 1.5, 60000); // Max 60s
+          console.log(`⏱️  Increased timeout to ${config.timeout}ms`);
+        }
+
+        await new Promise((res) => setTimeout(res, delay));
+
+        // Clean up retry flag before making request
+        delete config.__isRetryRequest;
+
+        try {
+          return await client(config);
+        } catch (retryError) {
+          // If retry fails, let it go through the interceptor again
+          return Promise.reject(retryError);
         }
       }
+
+      // Log when we give up
+      console.error("❌ Giving up after retries:", {
+        url: config.url,
+        attempts: config.__retryCount + 1,
+        finalError: error.code || error.response?.status,
+      });
 
       return handleApiError(error);
     }

@@ -7,12 +7,13 @@ export const dynamic = "force-dynamic";
 export default async function CaregiverAppointmentDashboard() {
   const appointments = await getCaregiverAppointments();
 
+  console.log("APPOINTMRNTS", appointments);
   return (
     <CaregiverAppointmentClientPage
       appointments={
         Array.isArray(appointments?.appointments)
           ? appointments.appointments
-          : appointments?.appointments?.data || []
+          : appointments?.appointments?.data.filter((app) => app.patient) || []
       }
     />
   );
