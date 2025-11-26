@@ -13,6 +13,7 @@ import {
   Pencil,
   Plus,
   SquarePen,
+  View,
 } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -52,8 +53,17 @@ import { ViewNoteDialog } from "../dialogs/view-note-dialog";
 import { ViewReportDialog } from "../dialogs/view-report-dialog";
 import { getStatusBadge } from "../shared/health-record/health-record-list";
 // import { Avatar, AvatarImage } from "../ui/avatar";
+import { CaregiverAppointmentSheet } from "../sheets/caregiver-appointment-sheet";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import { QuillPreview } from "../ui/quill-preview";
 import { Separator } from "../ui/separator";
 type Metric = {
@@ -354,9 +364,50 @@ export default function SinglePatientDetailsPage({
                       </h4>
                     </div>
 
-                    <div className="mt-1 flex items-center gap-2 self-end sm:mt-0 sm:self-auto">
-                      <Ellipsis className="size-4 text-gray-500 sm:size-5" />
-                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <div className="mt-1 flex cursor-pointer items-center gap-2 sm:mt-0 sm:self-auto lg:self-end">
+                          <Ellipsis className="size-4 text-gray-500 sm:size-5" />
+                        </div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuLabel>
+                          <div className="flex flex-col space-y-1">
+                            <p className="text-sm leading-none font-medium">
+                              Review Appointment
+                            </p>
+                          </div>
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <CaregiverAppointmentSheet
+                          appointment={appointment}
+                          sheetTrigger={
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onSelect={(e) => {
+                                e.preventDefault();
+                              }}
+                            >
+                              <span className="flex cursor-pointer items-center">
+                                <View className="mr-2 h-4 w-4" />
+                                <span>View Appointment</span>
+                              </span>
+                            </DropdownMenuItem>
+                          }
+                        />
+                        {appointment.health_record_id !== null && (
+                          <DropdownMenuItem className="cursor-pointer">
+                            <Link
+                              href={`/caregiver/health-records/${appointment.health_record_id}`}
+                              className="flex cursor-pointer items-center"
+                            >
+                              <View className="mr-2 h-4 w-4" />
+                              <span>View Health Record</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
 
                   <Separator className="bg-[#E8E8E8]" />

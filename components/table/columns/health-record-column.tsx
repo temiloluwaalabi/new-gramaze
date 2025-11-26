@@ -1,11 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  MoreHorizontal,
-  FileText,
-  ShipWheelIcon,
-  Pencil,
-  Archive,
-} from "lucide-react";
+import { MoreHorizontal, FileText, ShipWheelIcon, Pencil } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -226,7 +220,7 @@ export const HealthRecordsColumn: ColumnDef<HealthRecordRow>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="!size-8 p-0">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
@@ -282,16 +276,14 @@ export const HealthRecordsColumn: ColumnDef<HealthRecordRow>[] = [
                 </DropdownMenuItem>
               </>
             )} */}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => {
-                /* Handle archive */
-              }}
+            {/* <DropdownMenuSeparator /> */}
+            {/* <DropdownMenuItem
+              
               className="text-orange-600"
             >
               <Archive className="mr-2 h-4 w-4" />
               <span>Archive Record</span>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       );

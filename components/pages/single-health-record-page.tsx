@@ -16,7 +16,6 @@ import {
   Pencil,
   Plus,
   Stethoscope,
-  Trash2,
   User as UserIcon,
   X,
 } from "lucide-react";
@@ -55,6 +54,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { useExportHealthRecord } from "@/hooks/use-health-record-hook";
 import { REPORT_TYPE_CONFIGS } from "@/lib/health-record-types";
 import {
   formatFileSize,
@@ -106,6 +106,7 @@ export default function SingleHealthRecordPage({
   const [recordPatient, setRecordPatient] = useState<User>();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const { exportRecord, isExporting } = useExportHealthRecord();
 
   // Editable states
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -139,7 +140,10 @@ export default function SingleHealthRecordPage({
 
   // Master lock for all editing actions
   const isRecordLocked = !hasPatientArrived;
-
+  // 3. Create the handler - Now passes the entire healthRecord object
+  const handleExportRecord = async () => {
+    await exportRecord(healthRecord); // ← Just pass the healthRecord prop directly!
+  };
   // Update health record field using server action
   const updateHealthRecordField = async (
     field: "title" | "description" | "record_type",
@@ -670,19 +674,20 @@ export default function SingleHealthRecordPage({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer"
-                  disabled={isRecordLocked}
+                  onClick={handleExportRecord || isRecordLocked}
+                  disabled={isExporting}
                 >
                   <Download className="mr-2 h-4 w-4" />
-                  Export Record
+                  {isExporting ? "Exporting..." : "Export Record as PDF"}{" "}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
+                {/* <DropdownMenuItem
                   className="cursor-pointer text-red-600"
                   disabled={isRecordLocked}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete Record
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

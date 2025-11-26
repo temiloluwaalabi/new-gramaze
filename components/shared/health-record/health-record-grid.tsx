@@ -34,10 +34,8 @@ type HealthRecordCardProps = {
 export function HealthRecordCard({
   record,
   onView,
-  onEdit,
   onApprove,
   onReject,
-  onArchive,
 }: HealthRecordCardProps) {
   const config =
     REPORT_TYPE_CONFIGS["prescription" as keyof typeof REPORT_TYPE_CONFIGS];
@@ -78,7 +76,7 @@ export function HealthRecordCard({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+              className="!size-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
             >
               <MoreVertical className="h-4 w-4" />
             </Button>
@@ -86,13 +84,16 @@ export function HealthRecordCard({
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem onClick={() => onView?.(record.id)}>
-              <FileText className="mr-2 h-4 w-4" />
-              View Details
+              <Link
+                className="flex items-center gap-1"
+                href={`/caregiver/health-records/${record.id}`}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                View Details
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit?.(record.id)}>
-              Edit Record
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
+
+            {/* <DropdownMenuSeparator /> */}
             {record.status === "pending" && (
               <>
                 <DropdownMenuItem
@@ -110,12 +111,12 @@ export function HealthRecordCard({
                 <DropdownMenuSeparator />
               </>
             )}
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               onClick={() => onArchive?.(record.id)}
               className="text-orange-600"
             >
               Archive Record
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
