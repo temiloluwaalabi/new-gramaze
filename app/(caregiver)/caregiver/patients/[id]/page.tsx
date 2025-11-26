@@ -22,31 +22,32 @@ export default async function CaregiverPatientDash({
   const session = await getSession();
   const id = (await params).id;
 
-  const patient = await getPatientHistoryDetails(id.toString());
-
-  const patientRecords = await getHealthRecordsByUserId(id.toString());
-
-  const patientReport = await getPatientHealthReports(id.toString());
-  const patientNotes = await getPatientHealthNotes(id.toString());
-
-  const patientAppointments = await getAppointmentByUser({
-    user_id: id,
-  });
-
+  const [
+    patient,
+    patientRecords,
+    patientReport,
+    patientNotes,
+    patientAppointments,
+    metrics,
+  ] = await Promise.all([
+    getPatientHistoryDetails(id.toString()),
+    getHealthRecordsByUserId(id.toString()),
+    getPatientHealthReports(id.toString()),
+    getPatientHealthNotes(id.toString()),
+    getAppointmentByUser({
+      user_id: id,
+    }),
+    getAllHealthMetrics(),
+  ]);
   if (!patient.data?.patient) {
     return notFound();
   }
-
-  // Filter and process appointments for this caregiver
   const caregiverAppointments = Array.isArray(patientAppointments.data)
     ? patientAppointments.data.filter(
         (appointment) =>
           appointment.caregiver_id?.toString() === session.user_id.toString()
       )
     : [];
-  const metrics = await getAllHealthMetrics();
-
-  // Get upcoming appointments only and sort by date (ascending)
   const currentDate = new Date();
   const upcomingAppointments = caregiverAppointments
     .filter((appointment) => {
@@ -60,7 +61,6 @@ export default async function CaregiverPatientDash({
       const dateB = new Date(b.date);
       return dateA.getTime() - dateB.getTime();
     });
-
   return (
     <SinglePatientDetailsPage
       metrics={metrics.metrics || []}

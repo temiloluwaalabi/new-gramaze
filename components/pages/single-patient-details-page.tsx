@@ -568,7 +568,7 @@ export default function SinglePatientDetailsPage({
             /> */}
             <div className="mt-4 flex flex-col gap-4">
               {healthRecords.length > 0 ? (
-                healthRecords.slice(0, 6).map((record) => {
+                healthRecords.slice(0, 4).map((record) => {
                   const config = REPORT_TYPE_CONFIGS[
                     record.record_type as keyof typeof REPORT_TYPE_CONFIGS
                   ] ?? { label: String(record.record_type || "Unknown") };

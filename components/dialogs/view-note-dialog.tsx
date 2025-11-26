@@ -96,13 +96,13 @@ export function ViewNoteDialog({
               📝
             </div>
             <div className="flex-1 space-y-2">
-              {note.title && <h2>{note.title}</h2>}
+              {note?.title && <h2>{note?.title}</h2>}
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <span>Added {formatDate(note.created_at)}</span>
                 <span>•</span>
                 <span>
-                  By {note.caregiver.first_name || "Unknown"}{" "}
-                  {note.caregiver.last_name}
+                  By {note.caregiver?.first_name || "Unknown"}{" "}
+                  {note.caregiver?.last_name}
                 </span>
               </div>
               {note.health_record_id && (
@@ -124,7 +124,7 @@ export function ViewNoteDialog({
             </h4>
             <div className="rounded-[6px] border border-[#E8E8E8] bg-white p-4">
               <QuillPreview
-                value={note.notes}
+                value={note?.notes}
                 className="prose prose-sm dark:text-light-200/80 dark:[&_p]:text-light-400 dark:[&_span]:!text-light-400 -mt-2 line-clamp-2 max-w-none text-sm text-[#303030] group-hover:text-blue-600 [&_.ql-editor]:flex [&_.ql-editor]:flex-col [&_.ql-editor]:gap-2 [&_.ql-editor]:!p-0 [&_.ql-editor]:px-0 [&_.ql-editor]:text-sm [&_h2]:hidden [&_h4]:text-sm [&_li]:text-sm [&_p]:text-sm [&_p]:leading-[25px] [&_p]:font-normal [&_p]:tracking-wide [&_p]:!text-black [&_p_br]:hidden [&_p:first-of-type]:line-clamp-2 [&_p:not(:first-of-type)]:hidden [&_span]:!bg-transparent [&_span]:!text-black [&_ul]:space-y-3"
               />
             </div>

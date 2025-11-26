@@ -1188,7 +1188,7 @@ export default function SingleHealthRecordPage({
                     </div>
                     <QuillPreview
                       value={note.notes}
-                      className="prose prose-sm line-clamp-2 max-w-none text-sm text-gray-600 [&_.ql-editor]:!p-0"
+                      className="prose prose-sm line-clamp-1 max-w-none text-sm text-gray-600 [&_.ql-editor]:!p-0"
                     />
                     <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
                       <span>By {note.created_by_name}</span>

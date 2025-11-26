@@ -12,11 +12,14 @@ import { formatDate } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 export default async function CaregiverMainDashboard() {
-  const session = await getSession();
+  const [session, appointments, patients, { conversations }] =
+    await Promise.all([
+      getSession(),
+      getCaregiverAppointments(),
+      getCaregiverPatientHistory(),
+      fetchConversations(),
+    ]);
 
-  const appointments = await getCaregiverAppointments();
-  const patients = await getCaregiverPatientHistory();
-  const { conversations } = await fetchConversations();
   const getSenderName = (id: string) => {
     const match = conversations.find((c) => String(c.id) === id);
     if (!match) {
@@ -47,7 +50,6 @@ export default async function CaregiverMainDashboard() {
     });
 
   return (
-    // Option 2: Inline with type assertion
     <CaregiverMainDashboardClient
       messages={userMessages}
       appointments={

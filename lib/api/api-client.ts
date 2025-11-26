@@ -118,7 +118,7 @@ interface ApiErrorResponse {
 
 // Common configuration for API clients
 const BASE_CONFIG = {
-  timeout: 15000, // 10 seconds is a common standard for API requests
+  timeout: 30000, // Increase to 30 seconds for slower endpoints
   headers: {
     // "Content-Type": "application/json",
     Accept: "*/*",
@@ -140,7 +140,7 @@ export const backendAPiClient: AxiosInstance = axios.create({
 
 const RETRY_CONFIG = {
   maxRetries: 3, // Maximum number of retry attempts
-  retryDelay: 500, // Base delay between retries in ms
+  retryDelay: 1000, // Base delay between retries in ms
   retryStatusCodes: [408, 429, 500, 502, 503, 504], // Status codes to retry
   timeoutErrorCodes: ["ECONNABORTED", "ETIMEDOUT"], // Axios error codes for timeouts
 };
@@ -310,6 +310,7 @@ backendAPiClient.interceptors.request.use(
   client.interceptors.response.use(
     handleApiSuccess,
     async (error: AxiosError) => {
+      console.log("RETRY ERROR", error);
       const config = error.config as any;
       if (!config || config.__isRetryRequest) {
         return handleApiError(error);

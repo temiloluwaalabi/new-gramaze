@@ -259,8 +259,12 @@ export default function CaregiverMainDashboardClient({
                 .map((patient) => (
                   <div
                     key={patient.id}
-                    className="flex items-center justify-between rounded-md p-1 transition-colors hover:bg-gray-50"
+                    className="relative flex items-center justify-between rounded-md p-1 transition-colors hover:bg-gray-50"
                   >
+                    <Link
+                      href={`/caregiver/patients/${patient.user_id}`}
+                      className="absolute top-0 left-0 z-50 size-full"
+                    />
                     <div className="flex items-center gap-2 sm:gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-sm font-medium text-blue-600 sm:h-9 sm:w-9">
                         {patient.patient?.first_name?.charAt(0)}
@@ -277,9 +281,13 @@ export default function CaregiverMainDashboardClient({
                       </div>
                     </div>
                     <button
-                      className="rounded-full p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
+                      className="relative rounded-full p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
                       aria-label={`Email ${patient.patient?.first_name} ${patient.patient?.last_name}`}
                     >
+                      <Link
+                        href={`/caregiver/patients/${patient.user_id}`}
+                        className="absolute top-0 left-0 z-50 size-full"
+                      />
                       <Mail size={18} className="sm:size-5" />
                     </button>
                   </div>
