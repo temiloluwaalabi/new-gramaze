@@ -49,6 +49,7 @@ export const handleDownloadAttachment = async (
     const link = document.createElement("a");
     link.href = attachmentUrl;
     link.download = fileName;
+    link.target = "_blank"; // Fallback if download attribute doesn't work
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

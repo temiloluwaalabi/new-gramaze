@@ -7,7 +7,6 @@ import {
   Clock,
   Ellipsis,
   FileText,
-  Mail,
   MapPin,
   Paperclip,
   Pencil,
@@ -18,6 +17,7 @@ import {
 import Link from "next/link";
 import React from "react";
 
+import { useMessagingNavigation } from "@/hooks/use-messaging-navigation";
 import CalendarBlankIcon from "@/icons/calendar-blank";
 import { REPORT_TYPE_CONFIGS } from "@/lib/health-record-types";
 import {
@@ -53,6 +53,7 @@ import { ViewNoteDialog } from "../dialogs/view-note-dialog";
 import { ViewReportDialog } from "../dialogs/view-report-dialog";
 import { getStatusBadge } from "../shared/health-record/health-record-list";
 // import { Avatar, AvatarImage } from "../ui/avatar";
+import MessageUserButton from "../shared/message-user-button";
 import { CaregiverAppointmentSheet } from "../sheets/caregiver-appointment-sheet";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -122,6 +123,9 @@ export default function SinglePatientDetailsPage({
   healthRecords,
   patientNotes,
 }: SinglePatientDetailsPageProps) {
+  const { openMessaging } = useMessagingNavigation({
+    messagesPageUrl: "/caregiver/messages", // or wherever your messages page is
+  });
   const { user } = useUserStore();
   const { isPending, data: HealthTracker } = useGetHealthTracker(patient.id);
 
@@ -255,15 +259,21 @@ export default function SinglePatientDetailsPage({
                 <span>DOB: {formatDate(patient.dob || "")}</span>
               </div>
               <div className="mt-2 flex items-center gap-2">
-                <Button
-                  className="flex !h-[36px] items-center gap-[12px] rounded-[4px] border border-[#E8E8E8] bg-white px-5 py-0 hover:bg-white"
-                  variant={"outline"}
-                >
-                  <Mail className="size-4 text-black" />
-                  <span className="text-xs font-medium text-[#333] md:text-sm">
-                    Message
-                  </span>
-                </Button>
+                <MessageUserButton
+                  user={{
+                    id: patient.id || 0,
+                    first_name: patient.first_name || "",
+                    last_name: patient.last_name,
+                    email: patient.email,
+                    image: patient.image,
+                  }}
+                  label="Message Patient"
+                  onMessageClick={openMessaging}
+                  className="flex !h-[36px] cursor-pointer items-center gap-[12px] rounded-[4px] border border-[#E8E8E8] bg-white px-5 py-0 hover:bg-white"
+                  variant="outline"
+                  disabled={!patient.id}
+                  showConversationStatus={true}
+                />
                 <Button
                   className="flex !h-[36px] items-center gap-[4px] rounded-[4px] border border-[#E8E8E8] bg-white px-3 py-0 text-xs hover:bg-white md:text-sm"
                   variant={"outline"}

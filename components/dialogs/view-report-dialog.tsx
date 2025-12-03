@@ -78,29 +78,14 @@ export function ViewReportDialog({
 }: ViewReportDialogProps) {
   if (!report) return null;
 
-  const handleDownload = async () => {
-    try {
-      // You'll need to implement the actual download logic based on your backend
-      // For now, this is a placeholder
-      const response = await fetch(`/api/reports/${report.id}/download`);
-
-      if (!response.ok) {
-        throw new Error("Download failed");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = report.report_file;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error("Error downloading report:", error);
-      // You might want to show a toast error here
-    }
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = report.report_file;
+    link.download = report.report_name || "report";
+    link.target = "_blank"; // Fallback if download attribute doesn't work
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (

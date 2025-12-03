@@ -27,6 +27,7 @@ import {
 } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import { Appointment } from "@/types";
+import { Conversation } from "@/types/new-messages";
 
 import { HealthVitalsChart } from "../charts/health-vitals-chart";
 import { VerificationGuard } from "../guards/verification-guard";
@@ -124,7 +125,7 @@ type MainUserDashboardProps = {
       last_name: string;
     };
   }[];
-  messages: MessagePreview[];
+  messages: Conversation[];
 };
 
 export const MainUserDashboard = ({
@@ -817,24 +818,26 @@ export const MainUserDashboard = ({
               )}
             </div>
 
-            <div className="rounded-[6px] border border-[#E8E8E8] bg-white p-4">
+            <div className="space-y-4 rounded-[6px] border border-[#E8E8E8] bg-white p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-[#71717a]">
                   Messages
                 </span>
               </div>
               {messages && messages.length > 0 ? (
-                <div>
+                <div className="flex w-full flex-col items-start justify-start">
                   {messages
                     .slice(0, 4)
-                    .map((msg: MessagePreview, idx: number) => (
+                    .map((msg: Conversation, idx: number) => (
                       <Message
-                        key={msg.id || idx}
-                        avatar={msg.avatar}
-                        name={msg.name}
-                        message={msg.message}
-                        timestamp={msg.timestamp}
-                        unreadCount={msg.unreadCount}
+                        user={msg.user || null}
+                        key={msg.last_message.id || idx}
+                        avatar={msg.user?.image || ""}
+                        name={msg.user?.first_name || "USER"}
+                        message={msg.last_message.message}
+                        timestamp={msg.last_message.created_at}
+                        unreadCount={msg.unread_messages}
+                        className=""
                       />
                     ))}
                 </div>

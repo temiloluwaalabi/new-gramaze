@@ -10,7 +10,6 @@ import {
   SelectItem,
   Select,
 } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { HealthRecordRow } from "@/types";
 
 import { HealthRecordsGridView } from "../shared/health-record/health-record-grid";
@@ -244,7 +243,7 @@ export default function CaregiverHealthRecordsPage({
         )}
       </div>
 
-      {/* Archive Section */}
+      {/* Archive Section
       <div className="rounded-lg bg-white p-6">
         <Tabs defaultValue="active" className="w-full">
           <TabsList className="grid w-full max-w-md grid-cols-2">
@@ -270,7 +269,7 @@ export default function CaregiverHealthRecordsPage({
             </div>
           </TabsContent>
         </Tabs>
-      </div>
+      </div> */}
     </section>
   );
 }

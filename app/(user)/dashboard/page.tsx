@@ -3,14 +3,9 @@ import React from "react";
 import { getUserPaymentNotifications } from "@/app/actions/payment.actions";
 import { getUserAppointments } from "@/app/actions/services/appointment.actions";
 import { getCaregiverHistory } from "@/app/actions/services/caregiver.actions";
-import {
-  fetchConversations,
-  fetchMessages,
-} from "@/app/actions/services/chats.actions";
 import { getLastTrackers } from "@/app/actions/services/health.tracker.actions";
-import { getSession } from "@/app/actions/session.actions";
+import { getConversations } from "@/app/actions/services/messages.actions";
 import { MainUserDashboard } from "@/components/pages/main-user-dashboard";
-import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -20,45 +15,14 @@ export default async function UserDashboard() {
     paymentNotifications,
     trackers,
     userCaregivers,
-    session,
-    { conversations },
+    conversations,
   ] = await Promise.all([
     getUserAppointments(),
     getUserPaymentNotifications(),
     getLastTrackers(),
     getCaregiverHistory(),
-    getSession(),
-    fetchConversations(),
+    getConversations(),
   ]);
-
-  const getSenderName = (id: string) => {
-    const match = conversations.find((c) => String(c.id) === id);
-    if (!match) {
-      console.warn(`No match found for sender ID: ${id}`);
-    }
-    return match?.name || `User ${id}`;
-  };
-
-  const rawMessages = await fetchMessages(String(session.user_id));
-
-  const userMessages = rawMessages.messages
-    .filter((msg) => {
-      const isReceiver = String(msg.receiverId) === String(session.user_id);
-
-      return isReceiver;
-    })
-    .reverse()
-    .map((msg) => {
-      const formatted = {
-        id: msg.id,
-        avatar: "/asset/images/robert.jpg",
-        name: getSenderName(msg.senderId),
-        message: msg.message,
-        timestamp: formatDate(new Date(msg.timestamp)),
-        unreadCount: msg.isRead ? 0 : 1,
-      };
-      return formatted;
-    });
 
   return (
     <MainUserDashboard
@@ -66,7 +30,7 @@ export default async function UserDashboard() {
       appointments={appointments.appointments.data}
       healthTrackers={trackers.tracker}
       caregivers={userCaregivers.caregivers?.data || []}
-      messages={userMessages}
+      messages={conversations.data || []}
     />
   );
 }

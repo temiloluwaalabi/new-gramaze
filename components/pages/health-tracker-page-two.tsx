@@ -43,6 +43,7 @@ import { HealthNote, HealthReport } from "@/types";
 import { HealthVitalsChartTwo } from "../charts/health-vitals-chart-two";
 import { ViewNoteDialog } from "../dialogs/view-note-dialog";
 import { ViewReportDialog } from "../dialogs/view-report-dialog";
+import { ReportActionColumn } from "../dropdowns/report-action-column";
 import { HealthOverviewWidget } from "../shared/widget/health-overview-widget";
 import { HealthTrackerInfoSheet } from "../sheets/health-tracker-info-sheet";
 import { HealthTrackerColumn } from "../table/columns/health-tracker-reports";
@@ -282,7 +283,7 @@ export const HealthTrackerPageTwo = ({
                             </div>
                           </div>
                         </div>
-                        <EllipsisVertical className="size-5 cursor-pointer text-[#333333]" />
+                        <ReportActionColumn report={report} />
                       </div>
                     ))
                   ) : (

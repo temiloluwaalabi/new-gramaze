@@ -9,22 +9,20 @@ import {
   Appointment,
   Plan,
   User,
-  ChatListResponse,
-  MessagesResponse,
-  SendMessagePayload,
-  SendMessageResponse,
-  SearchUsersResponse,
-  BackendMessagesResponse,
-  ConversationsResponse,
-  ChatUser,
   hospital,
   lgas,
   HealthReport,
   HealthNote,
   HealthRecordRow,
 } from "@/types";
+import {
+  Conversation,
+  ConversationUser,
+  SendMessagePayload,
+  SendMessageResponse,
+} from "@/types/new-messages";
 
-import { ApiError, backendAPiClient } from "./api-client";
+import { backendAPiClient } from "./api-client";
 import { handleApiBackendError, makeApiRequest } from "./api-request-setup";
 import { HealthTracker2 } from "../health-tracker-utils";
 import {
@@ -945,128 +943,186 @@ export const hospitalServices = {
   },
 };
 
-async function unwrapApiResult<T>(resPromise: Promise<unknown>): Promise<T> {
-  const raw = await resPromise;
+// async function unwrapApiResult<T>(resPromise: Promise<unknown>): Promise<T> {
+//   const raw = await resPromise;
 
-  // If the ApiError helper marks it as an error, throw it
-  if (ApiError.isAPiError(raw)) {
-    throw raw;
-  }
+//   // If the ApiError helper marks it as an error, throw it
+//   if (ApiError.isAPiError(raw)) {
+//     throw raw;
+//   }
 
-  // Narrow raw to an object
-  if (raw && typeof raw === "object") {
-    const dataWrapper = raw as { data?: T };
+//   // Narrow raw to an object
+//   if (raw && typeof raw === "object") {
+//     const dataWrapper = raw as { data?: T };
 
-    if ("data" in dataWrapper && dataWrapper.data !== undefined) {
-      return dataWrapper.data;
-    }
-  }
+//     if ("data" in dataWrapper && dataWrapper.data !== undefined) {
+//       return dataWrapper.data;
+//     }
+//   }
 
-  // Fallback: assume raw itself is T
-  return raw as T;
-}
+//   // Fallback: assume raw itself is T
+//   return raw as T;
+// }
 
-export const chatServices = {
-  fetchChatList: async (): Promise<ChatListResponse> => {
-    const resPromise = makeApiRequest<ChatListResponse>(
-      gramazeEndpoints.chats.fetchChatList,
-      "GET"
-    );
-    return unwrapApiResult<ChatListResponse>(resPromise);
-  },
+// export const chatServices = {
+//   fetchChatList: async (): Promise<ChatListResponse> => {
+//     const resPromise = makeApiRequest<ChatListResponse>(
+//       gramazeEndpoints.chats.fetchChatList,
+//       "GET"
+//     );
+//     return unwrapApiResult<ChatListResponse>(resPromise);
+//   },
 
-  fetchMessages: async (userId: string): Promise<MessagesResponse> => {
-    const url =
-      typeof gramazeEndpoints.chats.fetchMessages === "function"
-        ? gramazeEndpoints.chats.fetchMessages(userId)
-        : `${String(gramazeEndpoints.chats.fetchMessages)}?user_id=${encodeURIComponent(userId)}`;
+//   fetchMessages: async (userId: string): Promise<MessagesResponse> => {
+//     const url =
+//       typeof gramazeEndpoints.chats.fetchMessages === "function"
+//         ? gramazeEndpoints.chats.fetchMessages(userId)
+//         : `${String(gramazeEndpoints.chats.fetchMessages)}?user_id=${encodeURIComponent(userId)}`;
 
-    const raw = await unwrapApiResult<BackendMessagesResponse>(
-      makeApiRequest<BackendMessagesResponse>(url, "GET")
-    );
+//     const raw = await unwrapApiResult<BackendMessagesResponse>(
+//       makeApiRequest<BackendMessagesResponse>(url, "GET")
+//     );
 
-    const backendMessages = Array.isArray(raw?.messages) ? raw.messages : [];
+//     const backendMessages = Array.isArray(raw?.messages) ? raw.messages : [];
 
-    const mapped = backendMessages.map((m) => ({
-      id: String(m.id),
-      senderId: String(m.sender_id),
-      receiverId: String(m.receiver_id),
-      message: m.message,
-      timestamp: m.created_at,
-      isRead: m.read_at !== null && m.read_at !== undefined,
-    }));
+//     const mapped = backendMessages.map((m) => ({
+//       id: String(m.id),
+//       senderId: String(m.sender_id),
+//       receiverId: String(m.receiver_id),
+//       message: m.message,
+//       timestamp: m.created_at,
+//       isRead: m.read_at !== null && m.read_at !== undefined,
+//     }));
 
-    return { messages: mapped };
-  },
+//     return { messages: mapped };
+//   },
 
-  sendMessage: async (
-    payload: SendMessagePayload
-  ): Promise<SendMessageResponse> => {
-    // transform frontend payload -> backend payload shape
-    const body = {
-      sender_id: payload.senderId,
-      receiver_id: payload.receiverId,
-      message: payload.message,
-    };
+//   sendMessage: async (
+//     payload: SendMessagePayload
+//   ): Promise<SendMessageResponse> => {
+//     // transform frontend payload -> backend payload shape
+//     const body = {
+//       sender_id: payload.senderId,
+//       receiver_id: payload.receiverId,
+//       message: payload.message,
+//     };
 
-    const resPromise = makeApiRequest<SendMessageResponse>(
-      gramazeEndpoints.chats.sendMessage,
-      "POST",
-      {
-        body,
-      }
-    );
+//     const resPromise = makeApiRequest<SendMessageResponse>(
+//       gramazeEndpoints.chats.sendMessage,
+//       "POST",
+//       {
+//         body,
+//       }
+//     );
 
-    return unwrapApiResult<SendMessageResponse>(resPromise);
-  },
+//     return unwrapApiResult<SendMessageResponse>(resPromise);
+//   },
 
-  markMessageAsRead: async (
-    messageId: string
-  ): Promise<{ message: string }> => {
-    const resPromise = makeApiRequest<{ message: string }>(
-      gramazeEndpoints.chats.markAsRead,
-      "POST",
-      {
-        body: { message_id: messageId },
-      }
-    );
-    return unwrapApiResult<{ message: string }>(resPromise);
-  },
+//   markMessageAsRead: async (
+//     messageId: string
+//   ): Promise<{ message: string }> => {
+//     const resPromise = makeApiRequest<{ message: string }>(
+//       gramazeEndpoints.chats.markAsRead,
+//       "POST",
+//       {
+//         body: { message_id: messageId },
+//       }
+//     );
+//     return unwrapApiResult<{ message: string }>(resPromise);
+//   },
 
-  searchByName: async (name: string): Promise<SearchUsersResponse> => {
-    const url =
-      typeof gramazeEndpoints.chats.searchByName === "function"
-        ? gramazeEndpoints.chats.searchByName(name)
-        : `${String(gramazeEndpoints.chats.searchByName)}?${encodeURIComponent(name)}`;
+//   searchByName: async (name: string): Promise<SearchUsersResponse> => {
+//     const url =
+//       typeof gramazeEndpoints.chats.searchByName === "function"
+//         ? gramazeEndpoints.chats.searchByName(name)
+//         : `${String(gramazeEndpoints.chats.searchByName)}?${encodeURIComponent(name)}`;
 
-    const resPromise = makeApiRequest<SearchUsersResponse>(url, "GET");
-    return unwrapApiResult<SearchUsersResponse>(resPromise);
-  },
+//     const resPromise = makeApiRequest<SearchUsersResponse>(url, "GET");
+//     return unwrapApiResult<SearchUsersResponse>(resPromise);
+//   },
 
-  fetchConversations: async (): Promise<ChatUser[]> => {
-    const resPromise = makeApiRequest<ConversationsResponse>(
-      gramazeEndpoints.chats.fetchConversations,
-      "GET"
-    );
-    const raw = await unwrapApiResult<ConversationsResponse>(resPromise);
+//   fetchConversations: async (): Promise<ChatUser[]> => {
+//     const resPromise = makeApiRequest<ConversationsResponse>(
+//       gramazeEndpoints.chats.fetchConversations,
+//       "GET"
+//     );
+//     const raw = await unwrapApiResult<ConversationsResponse>(resPromise);
 
-    // raw is an array of { id, first_name }
-    const convs = Array.isArray(raw) ? raw : [];
-    const mapped = convs.map((c) => {
-      const safe = c as { id: string | number; first_name?: string };
-      return {
-        id: String(safe.id),
-        name: safe.first_name ?? "",
-        avatar: undefined,
-        message_notification: null,
-      };
-    }) as ChatUser[];
+//     // raw is an array of { id, first_name }
+//     const convs = Array.isArray(raw) ? raw : [];
+//     const mapped = convs.map((c) => {
+//       const safe = c as { id: string | number; first_name?: string };
+//       return {
+//         id: String(safe.id),
+//         name: safe.first_name ?? "",
+//         avatar: undefined,
+//         message_notification: null,
+//       };
+//     }) as ChatUser[];
 
-    return mapped;
-  },
-};
+//     return mapped;
+//   },
+// };
 
 export const adminServices = {
+  messages: {
+    getChatList: async () => {
+      return makeApiRequest<User[]>("/chats/list", "GET", {
+        dataKey: "chat_users",
+      });
+    },
+    // Get all conversations (list of users you've chatted with)
+    getConversations: async () => {
+      return makeApiRequest<Conversation[]>("/chats/conversation", "GET", {
+        dataKey: "conversations",
+      });
+    },
+
+    // Get messages with a specific user
+    getMessages: async (userId: number) => {
+      return makeApiRequest<
+        {
+          id: number;
+          sender_id: number;
+          receiver_id: number;
+          message: string;
+          reat_at: string;
+          created_at: string;
+          updated_at: string;
+          sender: ConversationUser;
+          receiver: ConversationUser;
+        }[]
+      >(`/chats/fetch/messages`, "GET", {
+        params: {
+          user_id: userId,
+        },
+        dataKey: "messages",
+      });
+    },
+
+    // Send a message
+    sendMessage: async (payload: SendMessagePayload) => {
+      return makeApiRequest<SendMessageResponse>(
+        "/chats/send/message",
+        "POST",
+        {
+          body: payload,
+        }
+      );
+    },
+
+    // Search users by name
+    searchUsers: async (query: string) => {
+      return makeApiRequest<User[]>(`/chats/search/name?${query}`, "GET", {
+        dataKey: "users",
+      });
+    },
+
+    // Mark message as read
+    markAsRead: async (messageId: number) => {
+      return makeApiRequest(`/chats/mark-read/${messageId}`, "POST");
+    },
+  },
   user_management: {
     getUserDetails: async (userId: number) => {
       return makeApiRequest<{

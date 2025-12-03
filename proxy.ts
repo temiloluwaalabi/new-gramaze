@@ -23,7 +23,7 @@ const sanitizeCallbackUrl = (url: string, base: string) => {
   }
 };
 
-export default async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const { nextUrl } = req;
   const { pathname, origin, search } = nextUrl;
 

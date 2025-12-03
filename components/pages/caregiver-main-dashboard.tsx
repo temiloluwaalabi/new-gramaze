@@ -18,8 +18,8 @@ import {
 } from "@/lib/utils";
 import { useUserStore } from "@/store/user-store";
 import { Appointment, User } from "@/types";
+import { Conversation } from "@/types/new-messages";
 
-import { MessagePreview } from "./main-user-dashboard";
 import { Message } from "../shared/message-widget";
 import { CaregiverAppointmentWidget } from "../shared/widget/caregiver-appointment-widget";
 import { Button } from "../ui/button";
@@ -44,7 +44,7 @@ type CaregiverMainDashboardProps = {
     updated_at: string;
     patient: Partial<User>;
   }[];
-  messages: MessagePreview[];
+  messages: Conversation[];
 };
 
 export default function CaregiverMainDashboardClient({
@@ -204,14 +204,15 @@ export default function CaregiverMainDashboardClient({
 
           {messages && messages.length > 0 ? (
             <div>
-              {messages.slice(0, 4).map((msg: MessagePreview, idx: number) => (
+              {messages.slice(0, 4).map((msg: Conversation, idx: number) => (
                 <Message
-                  key={msg.id || idx}
-                  avatar={msg.avatar}
-                  name={msg.name}
-                  message={msg.message}
-                  timestamp={msg.timestamp}
-                  unreadCount={msg.unreadCount}
+                  user={msg.user}
+                  key={msg.last_message.id || idx}
+                  avatar={msg.user?.image || ""}
+                  name={msg.user?.first_name || "USER"}
+                  message={msg.last_message.message}
+                  timestamp={msg.last_message.created_at}
+                  unreadCount={msg.unread_messages}
                 />
               ))}
             </div>

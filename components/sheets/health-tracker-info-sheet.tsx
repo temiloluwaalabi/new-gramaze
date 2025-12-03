@@ -1,8 +1,9 @@
 // @flow
-import { Download, Mail, Paperclip, Share } from "lucide-react";
+import { Download, Paperclip, Share } from "lucide-react";
 import Image from "next/image";
 import * as React from "react";
 
+import { useMessagingNavigation } from "@/hooks/use-messaging-navigation";
 import { getFileIcon } from "@/lib/health-report-notes-utils";
 import { formatDate } from "@/lib/utils";
 import { HealthNote } from "@/types";
@@ -11,6 +12,7 @@ import {
   handleDownloadAttachment,
   isImageFile,
 } from "../dialogs/view-note-dialog";
+import MessageUserButton from "../shared/message-user-button";
 import { Button } from "../ui/button";
 import { QuillPreview } from "../ui/quill-preview";
 import { Separator } from "../ui/separator";
@@ -21,6 +23,29 @@ type Props = {
   healthNote: HealthNote;
 };
 export const HealthTrackerInfoSheet = ({ sheetTrigger, healthNote }: Props) => {
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: healthNote.title,
+          text: `Check out this health report: ${healthNote.notes}`,
+          url: healthNote.attachments as unknown as string,
+        });
+      } catch (error) {
+        console.error("Share failed:", error);
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      navigator.clipboard.writeText(
+        healthNote.attachments as unknown as string
+      );
+      // You can add a toast notification here
+      alert("Link copied to clipboard!");
+    }
+  };
+  const { openMessaging } = useMessagingNavigation({
+    messagesPageUrl: "/dashboard/message", // or wherever your messages page is
+  });
   const allAttachments: string[] =
     typeof healthNote.attachments === "string"
       ? JSON.parse(healthNote.attachments)
@@ -125,17 +150,27 @@ export const HealthTrackerInfoSheet = ({ sheetTrigger, healthNote }: Props) => {
           <Separator className="bg-[#E8E8E8]" />
 
           <div className="flex w-full flex-col items-start gap-[6px] lg:flex-row lg:items-center">
-            <Button className="flex h-[48px] w-full items-center gap-[12px] bg-[#F2F2F2] lg:rounded-[26px]">
-              <span className="flex size-[32px] items-center justify-center rounded-full bg-white">
-                <Mail className="size-[20px] text-black" />
-              </span>
-              <span className="text-sm font-medium text-[#333]">
-                Message Caregiver
-              </span>
-            </Button>
-            <Button className="flex h-[48px] w-full items-center gap-[12px] bg-[#F2F2F2] lg:rounded-[26px]">
-              <span className="flex size-[32px] items-center justify-center rounded-full bg-white">
-                <Share className="size-[20px] text-black" />
+            <MessageUserButton
+              user={{
+                id: healthNote.caregiver.id,
+                first_name: healthNote.caregiver.first_name,
+                last_name: healthNote.caregiver.last_name,
+                email: healthNote.caregiver.email,
+                image: healthNote.caregiver.image,
+              }}
+              label="Message Caregiver"
+              onMessageClick={openMessaging}
+              className="flex !h-[36px] cursor-pointer items-center gap-[12px] rounded-[4px] border border-[#E8E8E8] bg-white px-5 py-0 hover:bg-white"
+              variant="outline"
+              disabled={!healthNote.caregiver.email}
+              showConversationStatus={true}
+            />
+            <Button
+              className="hover: flex !h-[36px] w-fit items-center gap-[12px] bg-[#F2F2F2] hover:bg-blue-200 lg:rounded-[26px]"
+              onClick={handleShare}
+            >
+              <span className="flex size-[22px] items-center justify-center rounded-full bg-white">
+                <Share className="size-[18px] text-black" />
               </span>
               <span className="text-sm font-medium text-[#333]">
                 Share note
