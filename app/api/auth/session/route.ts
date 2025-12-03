@@ -9,38 +9,36 @@ import {
 } from "@/lib/auth/session";
 import { User } from "@/types";
 
-export async function POST(
-  request: NextRequest,
-  user: User,
-  accessToken: string
-) {
-  const session = await getIronSession<SessionData>(
-    await cookies(),
-    sessionOptions
-  );
-  //   const formData = await request.formData(); 
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getIronSession<SessionData>(
+      await cookies(),
+      sessionOptions
+    );
 
-  session.isLoggedIn = true;
-  if (session.email) {
+    // Get user and accessToken from request body
+    const body = await request.json();
+    const { user, accessToken } = body as { user: User; accessToken: string };
+
+    session.isLoggedIn = true;
     session.email = user.email;
-  }
-  if (session.firstName) {
     session.firstName = user.first_name;
-  }
-  if (session.userType) {
     session.userType = user.user_type || "";
-  }
-  if (session.isBoarded) {
     session.isBoarded = user.has_set_medical_history === "yes";
+    session.accessToken = accessToken;
+
+    await session.save();
+
+    const url = new URL("/dashboard", request.url);
+
+    return NextResponse.redirect(url.toString(), 303);
+  } catch (error) {
+    console.error("Session creation error:", error);
+    return NextResponse.json(
+      { error: "Failed to create session" },
+      { status: 500 }
+    );
   }
-  session.accessToken = accessToken;
-  await session.save();
-
-  // await sleep(250);
-
-  const url = new URL("/dashboard", request.url);
-
-  return NextResponse.redirect(url.toString(), 303);
 }
 
 export async function GET(request: NextRequest) {
@@ -56,12 +54,6 @@ export async function GET(request: NextRequest) {
     const loginUrl = new URL("/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
-
-  // await sleep(250);
-
-  // if (session.isLoggedIn !== true) {
-  //   return NextResponse.json(defaultSessionData, { status: 401 });
-  // }
 
   // ✅ Only return plain data
   return NextResponse.json({

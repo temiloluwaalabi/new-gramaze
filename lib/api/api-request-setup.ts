@@ -5,7 +5,6 @@ import axios, { AxiosError, AxiosResponse } from "axios";
 import { ApiResponse } from "@/types";
 
 import { ApiError, backendAPiClient } from "./api-client";
-import logger from "../logger";
 
 export interface ErrorResponse {
   data?: {
@@ -205,12 +204,12 @@ export const makeApiRequest = async <T>(
   const { body, params, dataKey = "data" } = options;
 
   try {
-    logger.info(`Making ${method} request to ${endpoint}`, {
-      bodyType: body instanceof FormData ? "FormData" : typeof body,
-      bodyKeys:
-        body instanceof FormData ? [...body.keys()] : Object.keys(body || {}),
-      params: params || {},
-    });
+    // logger.info(`Making ${method} request to ${endpoint}`, {
+    //   bodyType: body instanceof FormData ? "FormData" : typeof body,
+    //   bodyKeys:
+    //     body instanceof FormData ? [...body.keys()] : Object.keys(body || {}),
+    //   params: params || {},
+    // });
 
     let response: AxiosResponse<ApiResponse<T>>;
 
@@ -239,10 +238,10 @@ export const makeApiRequest = async <T>(
             formDataObj[key] = value;
           });
 
-          logger.info(
-            "Converted FormData to object with parsed fields:",
-            formDataObj
-          );
+          // logger.info(
+          //   "Converted FormData to object with parsed fields:",
+          //   formDataObj
+          // );
 
           response = await backendAPiClient[
             method.toLowerCase() as "post" | "put" | "patch"
@@ -327,7 +326,7 @@ export const makeApiRequest = async <T>(
       // rawResponse: data,
     };
   } catch (error) {
-    logger.error(`Error in ${endpoint}:`, error);
+    // logger.error(`Error in ${endpoint}:`, error);
     return handleApiBackendError(error);
   }
 };

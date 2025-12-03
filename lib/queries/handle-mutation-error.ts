@@ -5,7 +5,6 @@
 import { toast } from "sonner";
 
 import { ApiError } from "../api/api-client";
-import logger from "../logger";
 interface MutationErrorObject {
   success?: boolean;
   message?: string | string[];
@@ -114,12 +113,12 @@ export const handleMutationError = (error: unknown) => {
 const processApiError = (error: ApiError) => {
   const { statusCode, message, rawErrors, errorType } = error;
 
-  logger.info("Processing ApiError", {
-    statusCode,
-    message,
-    errorType,
-    rawErrors,
-  });
+  // logger.info("Processing ApiError", {
+  //   statusCode,
+  //   message,
+  //   errorType,
+  //   rawErrors,
+  // });
 
   // First check for field-specific errors in rawErrors
   if (rawErrors && typeof rawErrors === "object") {
